@@ -4,8 +4,8 @@ export interface CardProps {
     id?: string;
     game: Game;
     nameCard: string;
-    urlImage: string;
-    valueMoney: number;
+    urlImage?: string;
+    valueMoney?: number;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -14,8 +14,8 @@ export class Card {
     private readonly id: string;
     private game: Game;
     private nameCard: string;
-    private urlImage: string;
-    private valueMoney: number;
+    private urlImage?: string;
+    private valueMoney?: number;
     private readonly createdAt: Date;
     private updatedAt: Date;
 

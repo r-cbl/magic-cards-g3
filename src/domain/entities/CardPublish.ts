@@ -5,8 +5,8 @@ import { Offer } from "./Offer";
 export interface CardPublishProps {
     id?: string;
     owner: User;
-    cardExchange: Card[];
-    offersExisting: Offer[];
+    cardExchange?: Card[];
+    offersExisting?: Offer[];
     card: Card;
     createdAt?: Date;
     updatedAt?: Date;
@@ -15,8 +15,8 @@ export interface CardPublishProps {
 export class CardPublish {
     private readonly id: string;
     private owner: User;
-    private cardExchange: Card[];
-    private offersExisting: Offer[];
+    private cardExchange?: Card[];
+    private offersExisting?: Offer[];
     private card: Card;
     private readonly createdAt: Date;
     private updatedAt: Date;
