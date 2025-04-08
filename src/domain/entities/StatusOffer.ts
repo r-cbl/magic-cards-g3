@@ -1,5 +1,5 @@
 export enum StatusOffer {
     DRAFT = 'Draft',
-    OPEN = 'Open',
-    CLOSE = 'Close'
+    ACEPTADA = 'Aceptada',
+    RECHAZADA = 'Rechazada'
 }
