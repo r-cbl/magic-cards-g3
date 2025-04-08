@@ -1,33 +1,31 @@
-import { Game } from "./Game";
+import { CardBase } from "./CardBase";
+
 
 export interface CardProps {
     id?: string;
-    game: Game;
-    nameCard: string;
+    cardBase: CardBase;
+    name: string;
     statusCard: number;
     urlImage?: string;
-    valueMoney?: number;
     createdAt?: Date;
     updatedAt?: Date;
 }
 
 export class Card {
     private readonly id: string;
-    private game: Game;
-    private nameCard: string;
+    private cardBase: CardBase;
+    private name: string;
     private statusCard: number;
     private urlImage?: string;
-    private valueMoney?: number;
     private readonly createdAt: Date;
     private updatedAt: Date;
 
     constructor(props: CardProps) {
         this.id = props.id || this.generateId();
-        this.game = props.game;
-        this.nameCard = props.nameCard;
+        this.cardBase = props.cardBase;
+        this.name = props.name;
         this.statusCard = props.statusCard;
         this.urlImage = props.urlImage;
-        this.valueMoney = props.valueMoney;
         this.createdAt = props.createdAt || new Date();
         this.updatedAt = props.updatedAt || new Date();
     }
