@@ -4,6 +4,7 @@ export interface CardProps {
     id?: string;
     game: Game;
     nameCard: string;
+    statusCard: number;
     urlImage?: string;
     valueMoney?: number;
     createdAt?: Date;
@@ -14,6 +15,7 @@ export class Card {
     private readonly id: string;
     private game: Game;
     private nameCard: string;
+    private statusCard: number;
     private urlImage?: string;
     private valueMoney?: number;
     private readonly createdAt: Date;
@@ -23,6 +25,7 @@ export class Card {
         this.id = props.id || this.generateId();
         this.game = props.game;
         this.nameCard = props.nameCard;
+        this.statusCard = props.statusCard;
         this.urlImage = props.urlImage;
         this.valueMoney = props.valueMoney;
         this.createdAt = props.createdAt || new Date();
