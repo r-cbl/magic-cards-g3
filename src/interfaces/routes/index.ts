@@ -7,7 +7,7 @@ const router = Router();
 
 // API routes
 router.use('/auth', authRoutes);
-router.use('/users', userRoutes);
+router.use('/admin/users', userRoutes);
 
 // Health check routes
 router.get('/health', (req: Request, res: Response) => healthCheck(req, res));
