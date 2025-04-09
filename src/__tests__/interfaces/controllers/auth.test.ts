@@ -1,7 +1,7 @@
 import request from 'supertest';
 import app from '../../../infrastructure/http/app';
 import { InMemoryUserRepository } from '../../../infrastructure/repositories/InMemoryUserRepository';
-
+import config from '../../../infrastructure/config/config';
 // Get access to the repository to clean up after tests
 const userRepository = new InMemoryUserRepository();
 
@@ -14,7 +14,7 @@ describe('Authentication Flow', () => {
   
   let authToken: string;
   let userId: string;
-  
+  let apiPrefix = config.server.apiPrefix;
   // Clean up test data after all tests
   afterAll(async () => {
     // Find and remove the test user
@@ -26,7 +26,7 @@ describe('Authentication Flow', () => {
   describe('User Registration', () => {
     it('should register a new user successfully', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post(`${apiPrefix}/auth/register`)
         .send(testUser);
       
       // Verify response status and structure
@@ -48,7 +48,7 @@ describe('Authentication Flow', () => {
     
     it('should not register a user with missing required fields', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post(`${apiPrefix}/auth/register`)
         .send({ email: 'incomplete@example.com' });
       
       expect(response.status).toBe(400);
@@ -57,7 +57,7 @@ describe('Authentication Flow', () => {
     
     it('should not register a user with an existing email', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post(`${apiPrefix}/auth/register`)
         .send(testUser); // Same user data as before
       
       expect(response.status).toBe(409);
@@ -68,7 +68,7 @@ describe('Authentication Flow', () => {
   describe('User Login', () => {
     it('should login successfully with valid credentials', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post(`${apiPrefix}/auth/login`)
         .send({
           email: testUser.email,
           password: testUser.password
@@ -87,7 +87,7 @@ describe('Authentication Flow', () => {
     
     it('should reject login with invalid credentials', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post(`${apiPrefix}/auth/login`)
         .send({
           email: testUser.email,
           password: 'wrongpassword'
@@ -99,7 +99,7 @@ describe('Authentication Flow', () => {
     
     it('should reject login with non-existent user', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post(`${apiPrefix}/auth/login`)
         .send({
           email: 'nonexistent@example.com',
           password: 'anypassword'
@@ -113,7 +113,7 @@ describe('Authentication Flow', () => {
   describe('Protected Routes', () => {
     it('should access protected route with valid token', async () => {
       const response = await request(app)
-        .get('/api/auth/me')
+        .get(`${apiPrefix}/auth/me`)
         .set('Authorization', `Bearer ${authToken}`);
       
       expect(response.status).toBe(200);
@@ -124,7 +124,7 @@ describe('Authentication Flow', () => {
     
     it('should reject access to protected route without token', async () => {
       const response = await request(app)
-        .get('/api/auth/me');
+        .get(`${apiPrefix}/auth/me`);
       
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('error');
@@ -132,7 +132,7 @@ describe('Authentication Flow', () => {
     
     it('should reject access with invalid token format', async () => {
       const response = await request(app)
-        .get('/api/auth/me')
+        .get(`${apiPrefix}/auth/me`)
         .set('Authorization', 'InvalidTokenFormat');
       
       expect(response.status).toBe(401);
@@ -140,7 +140,7 @@ describe('Authentication Flow', () => {
     
     it('should reject access with invalid token', async () => {
       const response = await request(app)
-        .get('/api/auth/me')
+        .get(`${apiPrefix}/auth/me`)
         .set('Authorization', 'Bearer invalidtoken123');
       
       expect(response.status).toBe(401);
