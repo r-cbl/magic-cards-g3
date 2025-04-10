@@ -34,4 +34,8 @@ export class Card {
         return Math.random().toString(36).substring(2, 9);
     }
     
+    public isSameCard(card: Card): boolean {
+        return this.id === card.id;
+    }
+
 }           
