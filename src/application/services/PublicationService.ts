@@ -1,5 +1,5 @@
 import { PublicationRepository } from "../../domain/repositories/PublicationRepository";
-import { CreatePublicationDTO, PublicationFilterDTO, PublicationResponseDTO } from "../dtos/PublicationDTO";
+import { CreatePublicationDTO, PublicationFilterDTO, PublicationResponseDTO, PublicationUpdatedDTO } from "../dtos/PublicationDTO";
 import { Card } from "../../domain/entities/Card";
 import { Publication } from "../../domain/entities/Publication";
 import { CardBase } from "../../domain/entities/CardBase";
@@ -66,6 +66,36 @@ export class PublicationService {
         return filtered.map(pub => this.toPublicationResponseDTO(pub));
       }
 
+      public async getPublication(id: string): Promise<PublicationResponseDTO> {
+        return this.toPublicationResponseDTO(await this.getPublicationById(id));
+      }
+
+      public async updatePublication(id: string, publicationData: PublicationUpdatedDTO): Promise<PublicationResponseDTO>{
+        const publication = await this.getPublicationById(id);
+        const cardExchangeIds = publicationData.cardExchangeIds ?? [];
+
+        if (publicationData.valueMoney == null && cardExchangeIds.length === 0) {
+          throw new Error("Invalid publication: must include valueMoney or cardExchangeIds.");
+        }
+
+        if (publicationData.valueMoney)
+          publication.setValueMoney(publicationData.valueMoney)
+
+        if (publicationData.cardExchangeIds){
+          const cardExchange: Card[] = await Promise.all(
+            (cardExchangeIds ?? []).map((id) => this.getCard(id))
+          );
+          publication.setCardExchange(cardExchange)
+        }
+
+        publication.setUpdatedAt(new Date())
+        return this.toPublicationResponseDTO(await this.publicationRepository.save(publication))
+      }
+
+      public async deletePublication(id: string): Promise<void>{
+        
+      }
+
       private toPublicationResponseDTO(publication: Publication): PublicationResponseDTO {
         const card = publication.getCard();
         const cardBase = card.getCardBase();
@@ -113,5 +143,12 @@ export class PublicationService {
         if (!user) throw new Error("User not found");
         return user;
       }
-      
+
+    private async getPublicationById(id: string): Promise<Publication> {
+      const publication = await this.publicationRepository.findById(id)
+      if(!publication){
+        throw Error("Publication not found")
+        }
+      return publication;
+    }
 }

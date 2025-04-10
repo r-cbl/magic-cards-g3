@@ -69,5 +69,16 @@ export class Publication {
       public getUpdatedAt(): Date {
         return this.updatedAt;
       }
+
+      public setValueMoney(valueMoney: number): void {
+        this.valueMoney = valueMoney;
+      }
       
+      public setCardExchange(cardExchange: Card[]): void {
+        this.cardExchange = cardExchange;
+      }
+
+      public setUpdatedAt(updatedAt: Date): void {
+        this.updatedAt = updatedAt;
+      }
 } 

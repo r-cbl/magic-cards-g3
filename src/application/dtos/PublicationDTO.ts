@@ -35,5 +35,10 @@ export interface CreatePublicationDTO {
     maxValue?: number;
   }
 
+  export interface PublicationUpdatedDTO {
+    valueMoney?: number;
+    cardExchangeIds: string[];
+  }
+
   //TODO agregar ofertas recibidas a la response
   

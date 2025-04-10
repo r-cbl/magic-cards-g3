@@ -4,8 +4,9 @@ import { PublicationRepository } from "@/domain/repositories/PublicationReposito
 export class InMemoryPublicationRepository implements PublicationRepository {
     private publications: Map<string, Publication> = new Map();
 
-    findById(id: string): Promise<Publication | null> {
-        throw new Error("Method not implemented.");
+    async findById(id: string): Promise<Publication | null> {
+        const publication = this.publications.get(id);
+        return publication || null;
     }
     async findAll(): Promise<Publication[]> {
         return Array.from(this.publications.values());
