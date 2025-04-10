@@ -35,7 +35,4 @@ export class InMemoryOfferRepository implements OfferRepository {
         return [...this.offers];
     }
 
-    async findByPublicationId(publicationId: string): Promise<Offer[]> {
-        return this.offers.filter(o => o.getPublicationId() === publicationId);
-    }
 } 
