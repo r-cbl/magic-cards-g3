@@ -7,8 +7,8 @@ export class InMemoryPublicationRepository implements PublicationRepository {
     findById(id: string): Promise<Publication | null> {
         throw new Error("Method not implemented.");
     }
-    findAll(): Promise<Publication[]> {
-        throw new Error("Method not implemented.");
+    async findAll(): Promise<Publication[]> {
+        return Array.from(this.publications.values());
     }
     async save(publication: Publication): Promise<Publication> {
         this.publications.set(publication.getId(), publication);

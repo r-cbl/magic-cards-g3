@@ -3,14 +3,13 @@ export interface CreatePublicationDTO {
     ownerId: string;
     cardExchangeIds: string[];
     valueMoney?: number;
-    offersExisting?: string[];
   }
 
   export interface PublicationResponseDTO {
     id: string;
     name: string;
     valueMoney: number;
-    cardExchangeIds: string[]
+    cardExchangeIds: string[];
     cardBase: {
       Id: string;
       Name: string;
@@ -25,4 +24,16 @@ export interface CreatePublicationDTO {
     };
     createdAt: Date;
   }
+
+  export interface PublicationFilterDTO {
+    initialDate?: Date;
+    endDate?: Date;
+    gamesIds?: string[];
+    cardBaseIds?: string[];
+    ownerId?: string;
+    minValue?: number;
+    maxValue?: number;
+  }
+
+  //TODO agregar ofertas recibidas a la response
   

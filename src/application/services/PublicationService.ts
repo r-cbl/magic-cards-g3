@@ -1,11 +1,12 @@
 import { PublicationRepository } from "../../domain/repositories/PublicationRepository";
-import { CreatePublicationDTO, PublicationResponseDTO } from "../dtos/PublicationDTO";
+import { CreatePublicationDTO, PublicationFilterDTO, PublicationResponseDTO } from "../dtos/PublicationDTO";
 import { Card } from "../../domain/entities/Card";
 import { Publication } from "../../domain/entities/Publication";
 import { CardBase } from "../../domain/entities/CardBase";
 import { Game } from "../../domain/entities/Game";
 import { User } from "../../domain/entities/User";
 import { userRepository } from "../../infrastructure/repositories/Container";
+import { error } from "console";
 
 export class PublicationService {
     constructor(private readonly publicationRepository: PublicationRepository) {}
@@ -30,10 +31,42 @@ export class PublicationService {
           valueMoney: publicationData.valueMoney
         });
         this.publicationRepository.save(publication)
-        return this.toUserResponseDTO(publication);
+        return this.toPublicationResponseDTO(publication);
       }
+
+      public async getAllPublications(filters: PublicationFilterDTO): Promise<PublicationResponseDTO[]> {
+        if(filters.ownerId){
+          await this.getUser(filters.ownerId)
+        }
+
+        if(filters.initialDate && filters.endDate && filters.initialDate > filters.endDate) {
+          throw new Error("initialDate must be before endDate");
+        }
+
+        const all = await this.publicationRepository.findAll();
       
-      private toUserResponseDTO(publication: Publication): PublicationResponseDTO {
+        const filtered = all.filter(pub => {
+          const createdAt = pub.getCreatedAt();
+          const ownerId = pub.getOwner().getId();
+          const valueMoney = pub.getValueMoney() ?? 0;
+          const gameId = pub.getCard().getCardBase().getGame().getId();
+          const cardBaseId = pub.getCard().getCardBase().getId();
+      
+          return (
+            (!filters.initialDate || createdAt >= filters.initialDate) &&
+            (!filters.endDate || createdAt <= filters.endDate) &&
+            (!filters.gamesIds || filters.gamesIds.includes(gameId)) &&
+            (!filters.cardBaseIds || filters.cardBaseIds.includes(cardBaseId)) &&
+            (!filters.minValue || valueMoney >= filters.minValue) &&
+            (!filters.maxValue || valueMoney <= filters.maxValue) && 
+            (!filters.ownerId || ownerId === filters.ownerId)
+          );
+        });
+      
+        return filtered.map(pub => this.toPublicationResponseDTO(pub));
+      }
+
+      private toPublicationResponseDTO(publication: Publication): PublicationResponseDTO {
         const card = publication.getCard();
         const cardBase = card.getCardBase();
         const game = cardBase.getGame();
