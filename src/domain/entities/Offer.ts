@@ -34,7 +34,7 @@ export class Offer {
         }
 
         if(props.cardOffers) {
-            this.areMyCards(props.cardOffers, props.offerOwner);
+            this.areValidCards(props.cardOffers, props.offerOwner);
         }
 
         this.id = props.id || this.generateId();
@@ -51,10 +51,15 @@ export class Offer {
         return Math.random().toString(36).substring(2, 9);
     }
 
-    private areMyCards(cards: Card[], offerOwner: User): void {
-        if (cards.some(card => offerOwner.doIHaveThisCard(card))) {
+    private areValidCards(cards: Card[], offerOwner: User): boolean {
+        if(!this.areMyCards(cards, offerOwner)) {
             throw new Error("Card owner is not the same as the offer owner");
         }
+        return true;
+    }
+
+    private areMyCards(cards: Card[], offerOwner: User): boolean {
+        return cards.some(card => offerOwner.doIHaveThisCard(card));
     }
     
     public isMyOffer(offerOwner: User): boolean {

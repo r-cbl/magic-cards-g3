@@ -32,7 +32,7 @@ export class User {
   }
 
   public doIHaveThisCard(card: Card): boolean {
-    return this.cards.some(c => c.isSameCard(card)); //TODO: despues hay que cambiarlo para que use el repositorio.
+    return this.cards.some(c => c.getId() === card.getId()); //TODO: despues hay que cambiarlo para que use el repositorio.
   }
 
   private generateId(): string {
