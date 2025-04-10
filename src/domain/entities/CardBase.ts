@@ -26,5 +26,17 @@ export class CardBase {
     private generateId(): string {
         return Math.random().toString(36).substring(2, 9);
     }
+
+    public getId(): string {
+        return this.id;
+      }
+      
+    public getGame(): Game {
+        return this.game;
+      }
+
+    public getName(): string {
+        return this.nameCard
+      }
     
 }           

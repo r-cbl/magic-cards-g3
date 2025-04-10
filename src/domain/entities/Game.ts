@@ -21,6 +21,10 @@ export class Game {
         return Math.random().toString(36).substring(2, 9);
     }
 
+    public getId(): string {
+        return this.id;
+    }
+
     public getName(): string {
         return this.name;
     }

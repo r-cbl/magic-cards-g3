@@ -37,4 +37,37 @@ export class Publication {
     private generateId(): string {
         return Math.random().toString(36).substring(2, 9);
     }
+
+    public getId(): string {
+        return this.id;
+      }
+
+    public getOwner(): User {
+        return this.owner;
+    }
+
+    public getCardExchange(): Card[] | undefined {
+        return this.cardExchange;
+      }
+      
+      public getOffersExisting(): Offer[] | undefined {
+        return this.offersExisting;
+      }
+      
+      public getValueMoney(): number | undefined {
+        return this.valueMoney;
+      }
+      
+      public getCard(): Card {
+        return this.card;
+      }
+      
+      public getCreatedAt(): Date {
+        return this.createdAt;
+      }
+      
+      public getUpdatedAt(): Date {
+        return this.updatedAt;
+      }
+      
 } 
