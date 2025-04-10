@@ -33,6 +33,32 @@ export class Card {
     private generateId(): string {
         return Math.random().toString(36).substring(2, 9);
     }
+
+      
+    public getCardBase(): CardBase {
+      return this.cardBase;
+      }
+      
+    public getName(): string {
+        return this.name;
+      }
+      
+    public getStatusCard(): number {
+        return this.statusCard;
+      }
+      
+    public getUrlImage(): string | undefined {
+        return this.urlImage;
+      }
+      
+    public getCreatedAt(): Date {
+        return this.createdAt;
+      }
+      
+    public getUpdatedAt(): Date {
+        return this.updatedAt;
+      }
+      
     
     public getId(): string {
         return this.id;
