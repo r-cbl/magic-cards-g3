@@ -4,9 +4,9 @@ import { UserService } from '../../application/services/UserService';
 import { InMemoryUserRepository } from '../../infrastructure/repositories/InMemoryUserRepository';
 import { JwtService } from '../../infrastructure/auth/jwt.service';
 import { AuthMiddleware } from '../middleware/auth.middleware';
+import { userRepository } from '../../infrastructure/repositories/Container';
 
 // Create dependencies
-const userRepository = new InMemoryUserRepository();
 const userService = new UserService(userRepository);
 const userController = new UserController(userService);
 const jwtService = new JwtService();
