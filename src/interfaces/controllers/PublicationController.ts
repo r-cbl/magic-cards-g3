@@ -7,7 +7,11 @@ export class PublicationController {
 
     public async createPublication(req: Request, res: Response): Promise<void> {
         try {
-            const publicationData: CreatePublicationDTO = req.body;
+            const userId = req.user?.userId;
+            const publicationData: CreatePublicationDTO = { 
+                ...req.body,
+                ownerId: userId,
+            };
             const publication = await this.publicationService.createPublication(publicationData);
             res.status(201).json(publication);
         } catch (error) {
