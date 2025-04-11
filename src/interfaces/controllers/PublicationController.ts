@@ -64,11 +64,12 @@ export class PublicationController {
 
     public async updatePublication(req: Request, res: Response): Promise<void> {
         try {
+            const userId = req.user!.userId;
             const id = req.params.id;
             const publicationData : PublicationUpdatedDTO = {
                 ...req.body
             }
-            const publication = await this.publicationService.updatePublication(id, publicationData)
+            const publication = await this.publicationService.updatePublication(userId,id, publicationData)
             res.status(200).json(publication)
         } catch (error) {
             if (error instanceof Error) {
@@ -81,8 +82,9 @@ export class PublicationController {
 
     public async deletePublication(req: Request, res: Response): Promise<void> {
         try {
+            const userId = req.user!.userId;
             const id = req.params.id;
-            await this.publicationService.deletePublication(id)
+            await this.publicationService.deletePublication(userId,id)
             res.status(204).send();
         } catch (error) {
             if (error instanceof Error) {
