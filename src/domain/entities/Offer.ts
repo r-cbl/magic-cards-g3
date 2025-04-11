@@ -59,7 +59,7 @@ export class Offer {
     }
 
     private areMyCards(cards: Card[], offerOwner: User): boolean {
-        return cards.some(card => offerOwner.doIHaveThisCard(card));
+        return cards.every(card => offerOwner.doIHaveThisCard(card));
     }
     
     public isMyOffer(offerOwner: User): boolean {

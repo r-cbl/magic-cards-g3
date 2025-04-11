@@ -23,13 +23,9 @@ export class OfferController {
         }
     }
 
-    public async getAllOffers(req: Request, res: Response): Promise<void> {
-        try {
-            const offers = await this.offerService.getAllOffers();
-            res.status(200).json(offers);
-        } catch (error) {
-            res.status(500).json({ error: 'An unexpected error occurred' });
-        }
+    public async getAllOffers(req: Request, res: Response): Promise<void> {    
+        res.status(500).json({ error: 'An unexpected error occurred' });
+        
     }
 
     public async getOffer(req: Request, res: Response): Promise<void> {

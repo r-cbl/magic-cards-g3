@@ -40,7 +40,7 @@ export class Publication {
 
     public addOffer(offer: Offer): void {
         if(offer.isMyOffer(this.owner)) {
-            throw new Error("Offer owner is not the same as the publication owner");
+            throw new Error("Offer owner is the same as the publication owner");
         }
         this.offersExisting.push(offer);
     }

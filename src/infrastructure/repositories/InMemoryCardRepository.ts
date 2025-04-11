@@ -31,11 +31,9 @@ export class InMemoryCardRepository implements CardRepository {
         return this.cards.find(c => c.getId() === id) || undefined;
     }
     
-    async findByCardsByIds(ids?: string[]): Promise<Card[] | undefined> {
-        if (!ids) {
-            return undefined;
-        }
-        return this.cards.filter(c => ids.includes(c.getId()));
+    async findByCardsByIds(ids: string[]): Promise<Card[] | undefined> {
+        const cards = this.cards.filter(c => ids.includes(c.getId()));
+        return cards.length > 0 ? cards : undefined;
     }
 }
 
