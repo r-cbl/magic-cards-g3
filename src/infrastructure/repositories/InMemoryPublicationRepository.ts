@@ -15,11 +15,12 @@ export class InMemoryPublicationRepository implements PublicationRepository {
         this.publications.set(publication.getId(), publication);
         return publication;
     }
-    update(publication: Publication): Promise<Publication> {
-        throw new Error("Method not implemented.");
+    async update(publication: Publication): Promise<Publication> {
+        this.publications.set(publication.getId(), publication);
+        return publication;
     }
-    delete(id: string): Promise<boolean> {
-        throw new Error("Method not implemented.");
+    async delete(id: string): Promise<boolean> {
+        return this.publications.delete(id)
     }
 }
 

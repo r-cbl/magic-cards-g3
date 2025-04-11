@@ -5,8 +5,9 @@ import { Publication } from "../../domain/entities/Publication";
 import { CardBase } from "../../domain/entities/CardBase";
 import { Game } from "../../domain/entities/Game";
 import { User } from "../../domain/entities/User";
-import { userRepository } from "../../infrastructure/repositories/Container";
-import { error } from "console";
+import { offerRepository, userRepository } from "../../infrastructure/repositories/Container";
+import { Offer } from "@/domain/entities/Offer";
+import { off } from "process";
 
 export class PublicationService {
     constructor(private readonly publicationRepository: PublicationRepository) {}
@@ -89,11 +90,13 @@ export class PublicationService {
         }
 
         publication.setUpdatedAt(new Date())
-        return this.toPublicationResponseDTO(await this.publicationRepository.save(publication))
+        return this.toPublicationResponseDTO(await this.publicationRepository.update(publication))
       }
 
-      public async deletePublication(id: string): Promise<void>{
-        
+      public async deletePublication(id: string): Promise<boolean>{
+        await this.getPublicationById(id);
+
+        return this.publicationRepository.delete(id)
       }
 
       private toPublicationResponseDTO(publication: Publication): PublicationResponseDTO {
@@ -102,6 +105,8 @@ export class PublicationService {
         const game = cardBase.getGame();
         const owner = publication.getOwner();
         const cardExchange = publication.getCardExchange() ?? [];
+        const offers = publication.getOffersExisting() ?? [];
+
       
         return {
           id: publication.getId(),
@@ -120,6 +125,11 @@ export class PublicationService {
             ownerId: owner.getId(),
             ownerName: owner.getName(),
           },
+          offers: offers.map((offer) => ({
+            offerId: offer.getId(),
+            moneyOffer: offer.getMoneyOffer(),
+            cardExchangeIds: offer.getCardOffers()?.map((c) => c.getId()) ?? []
+          })),
           createdAt: publication.getCreatedAt(),
         };
       }
@@ -143,6 +153,12 @@ export class PublicationService {
         if (!user) throw new Error("User not found");
         return user;
       }
+
+    private async getOffer(id: string): Promise<Offer>{
+        const offer = await offerRepository.findById(id);
+        if(!offer) throw new Error("Offer not found");
+        return offer;
+    }
 
     private async getPublicationById(id: string): Promise<Publication> {
       const publication = await this.publicationRepository.findById(id)
