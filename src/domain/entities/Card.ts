@@ -34,9 +34,6 @@ export class Card {
         return Math.random().toString(36).substring(2, 9);
     }
 
-    public getId(): string {
-        return this.id;
-      }
       
     public getCardBase(): CardBase {
       return this.cardBase;
@@ -63,4 +60,8 @@ export class Card {
       }
       
     
+    public getId(): string {
+        return this.id;
+    }
+
 }           

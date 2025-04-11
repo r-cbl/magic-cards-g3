@@ -1,5 +1,6 @@
 export enum StatusOffer {
     DRAFT = 'Draft',
-    ACEPTADA = 'Aceptada',
-    RECHAZADA = 'Rechazada'
+    PENDING = 'Pending',
+    ACCEPTED = 'Accepted',
+    REJECTED = 'Rejected'
 }

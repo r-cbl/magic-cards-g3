@@ -31,6 +31,10 @@ export class User {
     this.cards = [];
   }
 
+  public doIHaveThisCard(card: Card): boolean {
+    return this.cards.some(c => c.getId() === card.getId());
+  }
+
   private generateId(): string {
     return Math.random().toString(36).substring(2, 9);
   }
