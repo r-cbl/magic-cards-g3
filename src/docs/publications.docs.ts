@@ -6,14 +6,10 @@
  *       type: object
  *       required:
  *         - cardId
- *         - ownerId
  *       properties:
  *         cardId:
  *           type: string
  *           example: "card-123"
- *         ownerId:
- *           type: string
- *           example: "user-456"
  *         cardExchangeIds:
  *           type: array
  *           items:
@@ -22,75 +18,102 @@
  *         valueMoney:
  *           type: number
  *           example: 150
+
+ *     PublicationUpdatedDTO:
+ *       type: object
+ *       required:
+ *         - cardExchangeIds
+ *       properties:
+ *         valueMoney:
+ *           type: number
+ *           example: 200
+ *         cardExchangeIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example: ["card-111", "card-222"]
 
  *     PublicationResponseDTO:
  *       type: object
  *       properties:
  *         id:
  *           type: string
- *           example: "pub-123"
  *         name:
  *           type: string
- *           example: "Pikachu EX"
  *         valueMoney:
  *           type: number
- *           example: 150
  *         cardExchangeIds:
  *           type: array
  *           items:
  *             type: string
- *           example: ["card-789", "card-321"]
  *         cardBase:
  *           type: object
  *           properties:
  *             Id:
  *               type: string
- *               example: "cb-001"
  *             Name:
  *               type: string
- *               example: "Pikachu"
  *         game:
  *           type: object
  *           properties:
  *             Id:
  *               type: string
- *               example: "game-001"
  *             Name:
  *               type: string
- *               example: "Pokémon"
  *         owner:
  *           type: object
  *           properties:
  *             ownerId:
  *               type: string
- *               example: "user-456"
  *             ownerName:
  *               type: string
- *               example: "Franco"
+ *         offers:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               offerId:
+ *                 type: string
+ *               moneyOffer:
+ *                 type: number
+ *               cardExchangeIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *         createdAt:
  *           type: string
  *           format: date-time
- *           example: "2025-04-10T15:00:00Z"
 
  *   parameters:
+ *     PublicationId:
+ *       in: path
+ *       name: id
+ *       required: true
+ *       schema:
+ *         type: string
+ *       description: ID de la publicación
+
  *     GamesIdsQuery:
  *       in: query
  *       name: gamesIds
  *       schema:
  *         type: string
  *       description: IDs de juegos separados por coma (game1,game2,...)
+
  *     CardBaseIdsQuery:
  *       in: query
  *       name: cardBaseIds
  *       schema:
  *         type: string
  *       description: IDs de cartas base separados por coma (cb1,cb2,...)
+
  *     OwnerIdQuery:
  *       in: query
  *       name: ownerId
  *       schema:
  *         type: string
  *       description: ID del dueño de la publicación
+
  *     InitialDateQuery:
  *       in: query
  *       name: initialDate
@@ -98,6 +121,7 @@
  *         type: string
  *         format: date-time
  *       description: Fecha mínima de creación (ISO 8601)
+
  *     EndDateQuery:
  *       in: query
  *       name: endDate
@@ -105,12 +129,14 @@
  *         type: string
  *         format: date-time
  *       description: Fecha máxima de creación (ISO 8601)
+
  *     MinValueQuery:
  *       in: query
  *       name: minValue
  *       schema:
  *         type: number
  *       description: Valor mínimo en dinero
+
  *     MaxValueQuery:
  *       in: query
  *       name: maxValue
@@ -118,6 +144,7 @@
  *         type: number
  *       description: Valor máximo en dinero
  */
+
 
 /**
  * @swagger
@@ -173,4 +200,62 @@
  *         description: No autorizado
  *       500:
  *         description: Error inesperado del servidor
+
+ * /publications/{id}:
+ *   get:
+ *     tags:
+ *       - Publications
+ *     summary: Obtener una publicación por ID
+ *     parameters:
+ *       - $ref: '#/components/parameters/PublicationId'
+ *     responses:
+ *       200:
+ *         description: Publicación encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PublicationResponseDTO'
+ *       404:
+ *         description: Publicación no encontrada
+ *       500:
+ *         description: Error inesperado
+ *   put:
+ *     tags:
+ *       - Publications
+ *     summary: Actualizar una publicación existente
+ *     parameters:
+ *       - $ref: '#/components/parameters/PublicationId'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PublicationUpdatedDTO'
+ *     responses:
+ *       200:
+ *         description: Publicación actualizada correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PublicationResponseDTO'
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *         description: Publicación no encontrada
+ *       500:
+ *         description: Error inesperado
+
+ *   delete:
+ *     tags:
+ *       - Publications
+ *     summary: Eliminar una publicación por ID
+ *     parameters:
+ *       - $ref: '#/components/parameters/PublicationId'
+ *     responses:
+ *       204:
+ *         description: Publicación eliminada correctamente
+ *       404:
+ *         description: Publicación no encontrada
+ *       500:
+ *         description: Error inesperado
  */

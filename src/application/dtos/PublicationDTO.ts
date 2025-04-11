@@ -44,6 +44,3 @@ export interface CreatePublicationDTO {
     valueMoney?: number;
     cardExchangeIds: string[];
   }
-
-  //TODO agregar ofertas recibidas a la response
-  

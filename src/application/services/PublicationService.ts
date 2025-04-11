@@ -154,12 +154,6 @@ export class PublicationService {
         return user;
       }
 
-    private async getOffer(id: string): Promise<Offer>{
-        const offer = await offerRepository.findById(id);
-        if(!offer) throw new Error("Offer not found");
-        return offer;
-    }
-
     private async getPublicationById(id: string): Promise<Publication> {
       const publication = await this.publicationRepository.findById(id)
       if(!publication){
