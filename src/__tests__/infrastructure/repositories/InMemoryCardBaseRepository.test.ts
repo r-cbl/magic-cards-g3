@@ -48,7 +48,7 @@ describe('InMemoryCardBaseRepository', () => {
       nameCard: 'Non-existent Card Base'
     });
     
-    await expect(repository.update(nonExistentCardBase)).rejects.toThrow('CardBase not found');
+    await expect(repository.update(nonExistentCardBase)).rejects.toThrow('Card not found');
   });
 
   it('should delete a card base', async () => {
