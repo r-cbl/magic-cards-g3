@@ -1,7 +1,8 @@
 export interface CreateCardDTO {
     cardBaseId: string;
     statusCard: number;
-    imageUrl: string;
+    urlImage: string;
+    ownerId: string;
 }
 
 export interface CardResponseDTO {
@@ -10,7 +11,10 @@ export interface CardResponseDTO {
     cardBase: {
       Id: string;
       Name: string;
-      game: string;
+    };
+    game: {
+        Id: string;
+        Name: string;
     };
     owner: {
       ownerId: string;
