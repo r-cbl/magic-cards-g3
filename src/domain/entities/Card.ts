@@ -1,10 +1,12 @@
 import { CardBase } from "./CardBase";
+import { User } from "./User";
 
 
 export interface CardProps {
     id?: string;
     cardBase: CardBase;
     name: string;
+    owner: User;
     statusCard: number;
     urlImage?: string;
     createdAt?: Date;
@@ -18,6 +20,7 @@ export class Card {
     private urlImage?: string;
     private readonly createdAt: Date;
     private updatedAt: Date;
+    private owner: User;
 
     constructor(props: CardProps) {
         this.id = props.id || this.generateId();
@@ -26,10 +29,15 @@ export class Card {
         this.urlImage = props.urlImage;
         this.createdAt = props.createdAt || new Date();
         this.updatedAt = props.updatedAt || new Date();
+        this.owner = props.owner;
     }
 
     private generateId(): string {
         return Math.random().toString(36).substring(2, 9);
+    }
+
+    public getOwner(): User{
+      return this.owner;
     }
       
     public getCardBase(): CardBase {
