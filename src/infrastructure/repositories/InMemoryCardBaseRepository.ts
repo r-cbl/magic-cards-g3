@@ -1,6 +1,6 @@
 import { CardBase } from "@/domain/entities/CardBase";
+import { Game } from "@/domain/entities/Game";
 import { CardBaseRepository } from "@/domain/repositories/CardBaseRepository";
-import { cardBaseRepository } from "./Container";
 
 export class InMemoryCardBaseRepository implements CardBaseRepository {
     private cards: CardBase[] = [];

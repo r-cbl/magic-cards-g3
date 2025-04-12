@@ -1,4 +1,5 @@
 import { CardBase } from "../entities/CardBase";
+import { Game } from "../entities/Game";
 
 export interface CardBaseRepository {
     save(card: CardBase): Promise<CardBase>;
