@@ -6,5 +6,6 @@ export interface CardBaseRepository {
     delete(id: string): Promise<boolean>;
     findById(id: string): Promise<CardBase | undefined>;
     findByCardsByIds(ids?: string[]): Promise<CardBase[] | undefined>;
+    findByGame(game: Game): Promise<CardBase[]>;
+    findAll(): Promise<CardBase[]>; 
 }
-    

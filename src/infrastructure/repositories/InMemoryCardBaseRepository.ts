@@ -36,6 +36,12 @@ export class InMemoryCardBaseRepository implements CardBaseRepository {
         const cards = this.cards.filter(c => ids.includes(c.getId()));
         return cards.length > 0 ? cards : undefined;
     }
-}
-
     
+    async findByGame(game: Game): Promise<CardBase[]> {
+        return this.cards.filter(c => c.getGame().getId() === game.getId());
+    }
+    
+    async findAll(): Promise<CardBase[]> {
+        return [...this.cards];
+    }
+} 
