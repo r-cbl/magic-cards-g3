@@ -1,4 +1,4 @@
-import { User, UserProps } from '../../domain/entities/User';
+import { User } from '../../domain/entities/User';
 import { UserRepository } from '../../domain/repositories/UserRepository';
 import { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from '../dtos/UserDTO';
 
@@ -83,5 +83,11 @@ export class UserService {
       createdAt: userJson.createdAt!,
       updatedAt: userJson.updatedAt!,
     };
+  }
+
+  public async getSimpleUser(id: string): Promise<User> {
+    const user = await this.userRepository.findById(id);
+    if (!user) throw new Error("User not found");
+    return user;
   }
 } 
