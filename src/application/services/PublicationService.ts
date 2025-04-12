@@ -2,26 +2,26 @@ import { PublicationRepository } from "../../domain/repositories/PublicationRepo
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationResponseDTO } from "../dtos/PublicationDTO";
 import { Card } from "../../domain/entities/Card";
 import { Publication } from "../../domain/entities/Publication";
-import { CardBase } from "../../domain/entities/CardBase";
-import { Game } from "../../domain/entities/Game";
-import { User } from "../../domain/entities/User";
-import { userRepository } from "../../infrastructure/repositories/Container";
-import { error } from "console";
+import { cardRepository, userRepository } from "../../infrastructure/repositories/Container";
+import { CardService } from "./CardService";
+import { UserService } from "./UserService";
 
 export class PublicationService {
+    cardService : CardService = new CardService(cardRepository);
+    userService : UserService = new UserService(userRepository);
+
     constructor(private readonly publicationRepository: PublicationRepository) {}
     public async createPublication(publicationData: CreatePublicationDTO): Promise<PublicationResponseDTO> {
-        const myCard = await this.getCard(publicationData.cardId);
-        const user = await this.getUser(publicationData.ownerId);
+        const myCard = await this.cardService.getSimpleCard(publicationData.cardId);
+        const user = await this.userService.getSimpleUser(publicationData.ownerId);
         const cardExchangeIds = publicationData.cardExchangeIds ?? [];
-
       
         if (publicationData.valueMoney == null && cardExchangeIds.length === 0) {
           throw new Error("Invalid publication: must include valueMoney or cardExchangeIds.");
         }
       
         const cardExchange: Card[] = await Promise.all(
-          (cardExchangeIds ?? []).map((id) => this.getCard(id))
+          (cardExchangeIds ?? []).map(async (id) => await this.cardService.getSimpleCard(id))
         );
       
         const publication = new Publication({
@@ -34,84 +34,46 @@ export class PublicationService {
         return this.toPublicationResponseDTO(publication);
       }
 
-      public async getAllPublications(filters: PublicationFilterDTO): Promise<PublicationResponseDTO[]> {
-        if(filters.ownerId){
-          await this.getUser(filters.ownerId)
+    public async getAllPublications(filters: PublicationFilterDTO): Promise<PublicationResponseDTO[]> {
+        if (filters.ownerId) {
+            await this.userService.getSimpleUser(filters.ownerId);
         }
 
-        if(filters.initialDate && filters.endDate && filters.initialDate > filters.endDate) {
-          throw new Error("initialDate must be before endDate");
+        if (filters.initialDate && filters.endDate && filters.initialDate > filters.endDate) {
+            throw new Error("initialDate must be before endDate");
         }
 
-        const all = await this.publicationRepository.findAll();
-      
-        const filtered = all.filter(pub => {
-          const createdAt = pub.getCreatedAt();
-          const ownerId = pub.getOwner().getId();
-          const valueMoney = pub.getValueMoney() ?? 0;
-          const gameId = pub.getCard().getCardBase().getGame().getId();
-          const cardBaseId = pub.getCard().getCardBase().getId();
-      
-          return (
-            (!filters.initialDate || createdAt >= filters.initialDate) &&
-            (!filters.endDate || createdAt <= filters.endDate) &&
-            (!filters.gamesIds || filters.gamesIds.includes(gameId)) &&
-            (!filters.cardBaseIds || filters.cardBaseIds.includes(cardBaseId)) &&
-            (!filters.minValue || valueMoney >= filters.minValue) &&
-            (!filters.maxValue || valueMoney <= filters.maxValue) && 
-            (!filters.ownerId || ownerId === filters.ownerId)
-          );
-        });
-      
-        return filtered.map(pub => this.toPublicationResponseDTO(pub));
-      }
+        const filteredPublications: Publication[] = await this.publicationRepository.find(filters);
 
-      private toPublicationResponseDTO(publication: Publication): PublicationResponseDTO {
-        const card = publication.getCard();
-        const cardBase = card.getCardBase();
-        const game = cardBase.getGame();
-        const owner = publication.getOwner();
-        const cardExchange = publication.getCardExchange() ?? [];
-      
-        return {
-          id: publication.getId(),
-          name: card.getName(),
-          valueMoney: publication.getValueMoney() ?? 0,
-          cardExchangeIds: cardExchange.map((c) => c.getId()),
-          cardBase: {
-            Id: cardBase.getId(),
-            Name: cardBase.getName(),
-          },
-          game: {
-            Id: game.getId(),
-            Name: game.getName(),
-          },
-          owner: {
-            ownerId: owner.getId(),
-            ownerName: owner.getName(),
-          },
-          createdAt: publication.getCreatedAt(),
-        };
-      }
-      
-    private async getCard(id: string): Promise<Card>{
-
-        return new Card({
-            cardBase: new CardBase({
-                game: new Game({
-                    name: "Pokemon"
-                }),
-                nameCard: "Pikachu"
-            }),
-            name: "Pikachu",
-            statusCard: 100
-        })
+        return filteredPublications.map(pub => this.toPublicationResponseDTO(pub));
     }
 
-    private async getUser(id: string): Promise<User> {
-        const user = await userRepository.findById(id);
-        if (!user) throw new Error("User not found");
-        return user;
-      }
+    private toPublicationResponseDTO(publication: Publication): PublicationResponseDTO {
+      const card = publication.getCard();
+      const cardBase = card.getCardBase();
+      const game = cardBase.getGame();
+      const owner = publication.getOwner();
+      const cardExchange = publication.getCardExchange() ?? [];
+    
+      return {
+        id: publication.getId(),
+        name: cardBase.getName(),
+        valueMoney: publication.getValueMoney() ?? 0,
+        cardExchangeIds: cardExchange.map((c) => c.getId()),
+        cardBase: {
+          Id: cardBase.getId(),
+          Name: cardBase.getName(),
+        },
+        game: {
+          Id: game.getId(),
+          Name: game.getName(),
+        },
+        owner: {
+          ownerId: owner.getId(),
+          ownerName: owner.getName(),
+        },
+        createdAt: publication.getCreatedAt(),
+      };
+    }
       
 }
