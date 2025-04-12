@@ -1,5 +1,6 @@
 import { Card } from "./Card";
 import { StatusOffer } from "./StatusOffer";
+import { User } from "./User";
 
 export interface OfferProps {
     id?: string;
@@ -9,6 +10,7 @@ export interface OfferProps {
     closedAt?: Date;
     createdAt?: Date;
     updatedAt?: Date;
+    offeror: User;
 }
 
 export class Offer {
@@ -19,6 +21,7 @@ export class Offer {
     private closedAt?: Date;
     private readonly createdAt: Date;
     private updatedAt: Date;
+    private offeror: User;
 
     constructor(props: OfferProps) {
         this.id = props.id || this.generateId();
@@ -28,10 +31,19 @@ export class Offer {
         this.closedAt = props.closedAt;
         this.createdAt = props.createdAt || new Date();
         this.updatedAt = props.updatedAt || new Date();
+        this.offeror = props.offeror;
     }
 
     private generateId(): string {
         return Math.random().toString(36).substring(2, 9);
+    }
+
+    public getStatusOffer(): string {
+        return this.statusOffer;
+    }
+
+    public getOfferor(): User {
+        return this.offeror;
     }
 
 }
