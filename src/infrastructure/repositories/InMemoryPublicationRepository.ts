@@ -3,23 +3,33 @@ import { PublicationRepository } from "@/domain/repositories/PublicationReposito
 import { PublicationFilterDTO } from "@/application/dtos/PublicationDTO";
 
 export class InMemoryPublicationRepository implements PublicationRepository {
-    private publications: Map<string, Publication> = new Map();
+    private publications: Publication[] = [];
 
     async findById(id: string): Promise<Publication | null> {
-        const publication = this.publications.get(id);
-        return publication || null;
+        const publication = this.publications.find(p => p.getId() === id);
+        if (!publication) {
+            throw new Error('Publication not found');
+        }
+        return publication;
     }
+
     async findAll(): Promise<Publication[]> {
         return Array.from(this.publications.values());
     }
+
     async save(publication: Publication): Promise<Publication> {
-        this.publications.set(publication.getId(), publication);
+        const exists = this.publications.find(p => p.getId() === publication.getId());
+        if (exists) {
+          throw new Error(`Publication with ID '${publication.getId()}' already exists`);
+        }
+      
+        this.publications.push(publication);
         return publication;
     }
 
     // TODO: Change this after enable bbdd settings.
     async find(filters: PublicationFilterDTO): Promise<Publication[]> {
-        return Array.from(this.publications.values()).filter(pub => {
+        return this.publications.filter(pub => {
             const createdAt = pub.getCreatedAt();
             const ownerId = pub.getOwner().getId();
             const valueMoney = pub.getValueMoney() ?? 0;
@@ -39,10 +49,21 @@ export class InMemoryPublicationRepository implements PublicationRepository {
     }
 
     async update(publication: Publication): Promise<Publication> {
-        throw new Error("Method not implemented.");
+        const index = this.publications.findIndex(p => p.getId() === publication.getId());
+        if (index === -1) {
+            throw new Error('Publication not found');
+        }
+        this.publications[index] = publication;
+        return publication;
     }
+    
     async delete(id: string): Promise<boolean> {
-        return this.publications.delete(id)
+        const index = this.publications.findIndex(p => p.getId() === id);
+        if (index === -1) {
+            return false;
+        }
+        this.publications.splice(index, 1);
+        return true;    
     }
 }
 

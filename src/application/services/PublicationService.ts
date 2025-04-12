@@ -5,10 +5,8 @@ import { cardBaseRepository, cardRepository, gameRepository, userRepository } fr
 import { CardService } from "./CardService";
 import { UserService } from "./UserService";
 import { CardBase } from "../../domain/entities/CardBase";
-import { CardBaseService } from "./CardBaseService";
 
 export class PublicationService {
-    cardBaseService: CardBaseService = new CardBaseService(cardBaseRepository, gameRepository);
     cardService : CardService = new CardService(cardRepository);
     userService : UserService = new UserService(userRepository);
 
@@ -23,7 +21,7 @@ export class PublicationService {
           throw new Error("Invalid publication: must include valueMoney or cardExchangeIds.");
         }
         if (publicationData.valueMoney)
-        this.validateMoney(publicationData.valueMoney);
+          this.validateMoney(publicationData.valueMoney);
 
         const cardExchange: CardBase[] = await Promise.all(
           (cardExchangeIds ?? []).map(async (id) => await this.getCardBase(id))
