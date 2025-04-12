@@ -38,12 +38,8 @@ export class UserService {
   }
 
   public async updateUser(id: string, userData: UpdateUserDTO): Promise<UserResponseDTO> {
-    const existingUser = await this.userRepository.findById(id);
-    
-    if (!existingUser) {
-      throw new Error('User not found');
-    }
-
+    const existingUser = await this.getSimpleUser(id);
+  
     if (userData.name) {
       existingUser.setName(userData.name);
     }
@@ -65,12 +61,7 @@ export class UserService {
   }
 
   public async deleteUser(id: string): Promise<boolean> {
-    const existingUser = await this.userRepository.findById(id);
-    
-    if (!existingUser) {
-      throw new Error('User not found');
-    }
-
+    await this.getSimpleUser(id);
     return this.userRepository.delete(id);
   }
 
