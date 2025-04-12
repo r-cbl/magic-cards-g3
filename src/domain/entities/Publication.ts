@@ -17,7 +17,7 @@ export class Publication {
     private readonly id: string;
     private owner: User;
     private cardExchange?: Card[];
-    private offersExisting?: Offer[];
+    private offersExisting: Offer[];
     private valueMoney?: number;
     private card: Card;
     private readonly createdAt: Date;
@@ -27,7 +27,7 @@ export class Publication {
         this.id = props.id || this.generateId();
         this.owner = props.owner;
         this.cardExchange = props.cardExchange;
-        this.offersExisting = props.offersExisting;
+        this.offersExisting = props.offersExisting || [];
         this.valueMoney = props.valueMoney;
         this.card = props.card;
         this.createdAt = props.createdAt || new Date();
@@ -38,6 +38,12 @@ export class Publication {
         return Math.random().toString(36).substring(2, 9);
     }
 
+    public addOffer(offer: Offer): void {
+        if(offer.isMyOffer(this.owner)) {
+            throw new Error("Offer owner is the same as the publication owner");
+        }
+        this.offersExisting.push(offer);
+    }
     public getId(): string {
         return this.id;
       }

@@ -35,5 +35,5 @@ export interface CreatePublicationDTO {
     maxValue?: number;
   }
 
-  //TODO agregar ofertas recibidas a la response
+
   
