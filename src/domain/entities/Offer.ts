@@ -11,7 +11,6 @@ export interface OfferProps {
     closedAt?: Date;
     createdAt?: Date;
     updatedAt?: Date;
-    offeror: User;
 }
 
 export class Offer {
@@ -23,7 +22,6 @@ export class Offer {
     private closedAt?: Date;
     private readonly createdAt: Date;
     private updatedAt: Date;
-    private offeror: User;
 
     constructor(props: OfferProps) {
 
@@ -47,7 +45,6 @@ export class Offer {
         this.closedAt = props.closedAt;
         this.createdAt = props.createdAt || new Date();
         this.updatedAt = props.updatedAt || new Date();
-        this.offeror = props.offeror;
     }
 
     private generateId(): string {
@@ -83,10 +80,6 @@ export class Offer {
 
     public getStatusOffer(): StatusOffer {
         return this.statusOffer;
-    }
-
-    public getOfferor(): User {
-        return this.offeror;
     }
 
     public getMoneyOffer(): number | undefined {
