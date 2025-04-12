@@ -5,7 +5,6 @@ import { User } from "./User";
 export interface CardProps {
     id?: string;
     cardBase: CardBase;
-    name: string;
     owner: User;
     statusCard: number;
     urlImage?: string;
@@ -48,8 +47,8 @@ export class Card {
         return this.statusCard;
     }
       
-    public getUrlImage(): string | undefined {
-        return this.urlImage;
+    public getUrlImage(): string {
+        return this.urlImage || '';
     }
       
     public getCreatedAt(): Date {
