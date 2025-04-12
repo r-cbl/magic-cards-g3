@@ -1,11 +1,12 @@
 import { Card } from "./Card";
 import { User } from "./User";
 import { Offer } from "./Offer";
+import { CardBase } from "./CardBase";
 
 export interface PublicationProps {
     id?: string;
     owner: User;
-    cardExchange?: Card[];
+    cardExchange?: CardBase[];
     offersExisting?: Offer[];
     valueMoney?: number;
     card: Card;
@@ -16,7 +17,7 @@ export interface PublicationProps {
 export class Publication {
     private readonly id: string;
     private owner: User;
-    private cardExchange?: Card[];
+    private cardExchange?: CardBase[];
     private offersExisting: Offer[];
     private valueMoney?: number;
     private card: Card;
@@ -52,7 +53,7 @@ export class Publication {
         return this.owner;
     }
 
-    public getCardExchange(): Card[] | undefined {
+    public getCardExchange(): CardBase[] | undefined {
       return this.cardExchange;
     }
       
@@ -74,6 +75,18 @@ export class Publication {
     
     public getUpdatedAt(): Date {
       return this.updatedAt;
+    }
+
+    public setCardExchange(cards: CardBase[]){
+      this.cardExchange = cards;
+    }
+
+    public setValueMoney(money: number) {
+      this.valueMoney = money;
+    }
+
+    public setUpdatedAt(date : Date) {
+      this.updatedAt = date;
     }
       
 } 

@@ -2,17 +2,16 @@ import { PublicationRepository } from "../../domain/repositories/PublicationRepo
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationResponseDTO, PublicationUpdatedDTO } from "../dtos/PublicationDTO";
 import { Card } from "../../domain/entities/Card";
 import { Publication } from "../../domain/entities/Publication";
-import { cardRepository, userRepository } from "../../infrastructure/repositories/Container";
+import { cardBaseRepository, cardRepository, gameRepository, userRepository } from "../../infrastructure/repositories/Container";
 import { CardService } from "./CardService";
 import { UserService } from "./UserService";
 import { CardBase } from "../../domain/entities/CardBase";
 import { Game } from "../../domain/entities/Game";
 import { User } from "../../domain/entities/User";
-import { offerRepository, userRepository } from "../../infrastructure/repositories/Container";
-import { Offer } from "@/domain/entities/Offer";
-import { off } from "process";
+import { CardBaseService } from "./CardBaseService";
 
 export class PublicationService {
+    cardBaseService: CardBaseService = new CardBaseService(cardBaseRepository, gameRepository);
     cardService : CardService = new CardService(cardRepository);
     userService : UserService = new UserService(userRepository);
 
@@ -28,8 +27,8 @@ export class PublicationService {
         if (publicationData.valueMoney)
         this.validateMoney(publicationData.valueMoney);
 
-        const cardExchange: Card[] = await Promise.all(
-          (cardExchangeIds ?? []).map(async (id) => await this.cardService.getSimpleCard(id))
+        const cardExchange: CardBase[] = await Promise.all(
+          (cardExchangeIds ?? []).map(async (id) => await this.getCardBase(id))
         );
       
         const publication = new Publication({
@@ -40,7 +39,7 @@ export class PublicationService {
         });
         this.publicationRepository.save(publication)
         return this.toPublicationResponseDTO(publication);
-      }
+    }
 
     public async getAllPublications(filters: PublicationFilterDTO): Promise<PublicationResponseDTO[]> {
         if (filters.ownerId) {
@@ -54,90 +53,43 @@ export class PublicationService {
         const filteredPublications: Publication[] = await this.publicationRepository.find(filters);
 
         return filteredPublications.map(pub => this.toPublicationResponseDTO(pub));
-      public async getPublication(id: string): Promise<PublicationResponseDTO> {
-        return this.toPublicationResponseDTO(await this.getPublicationById(id));
+    }
+
+    public async getPublication(id: string): Promise<PublicationResponseDTO> {
+      return this.toPublicationResponseDTO(await this.getPublicationById(id));
+    }
+
+    public async updatePublication(userId: string,id: string, publicationData: PublicationUpdatedDTO): Promise<PublicationResponseDTO>{
+      const publication = await this.getPublicationById(id);
+
+      this.validateOwnership(publication, userId)
+      const cardExchangeIds = publicationData.cardExchangeIds ?? [];
+
+      if (publicationData.valueMoney == null && cardExchangeIds.length === 0) {
+        throw new Error("Invalid publication: must include valueMoney or cardExchangeIds.");
       }
 
-      public async updatePublication(userId: string,id: string, publicationData: PublicationUpdatedDTO): Promise<PublicationResponseDTO>{
-        const publication = await this.getPublicationById(id);
-
-        this.validateOwnership(publication, userId)
-        const cardExchangeIds = publicationData.cardExchangeIds ?? [];
-
-        if (publicationData.valueMoney == null && cardExchangeIds.length === 0) {
-          throw new Error("Invalid publication: must include valueMoney or cardExchangeIds.");
-        }
-
-        if (publicationData.valueMoney){
-          this.validateMoney(publicationData.valueMoney)
-          publication.setValueMoney(publicationData.valueMoney)
-        }
-        if (publicationData.cardExchangeIds){
-          const cardExchange: Card[] = await Promise.all(
-            (cardExchangeIds ?? []).map((id) => this.getCard(id))
-          );
-          publication.setCardExchange(cardExchange)
-        }
-
-        publication.setUpdatedAt(new Date())
-        return this.toPublicationResponseDTO(await this.publicationRepository.update(publication))
+      if (publicationData.valueMoney){
+        this.validateMoney(publicationData.valueMoney)
+        publication.setValueMoney(publicationData.valueMoney)
+      }
+      if (publicationData.cardExchangeIds){
+        const cardExchange: CardBase[] = await Promise.all(
+          (cardExchangeIds ?? []).map((id) => this.getCardBase(id))
+        );
+        publication.setCardExchange(cardExchange)
       }
 
-      public async deletePublication(userId: string, id: string): Promise<boolean>{
-        const publication = await this.getPublicationById(id);
+      publication.setUpdatedAt(new Date())
+      return this.toPublicationResponseDTO(await this.publicationRepository.update(publication))
+    }
 
-        this.validateOwnership(publication, userId);
+    public async deletePublication(userId: string, id: string): Promise<boolean>{
+      const publication = await this.getPublicationById(id);
 
-        return this.publicationRepository.delete(id)
-      }
+      this.validateOwnership(publication, userId);
 
-      private toPublicationResponseDTO(publication: Publication): PublicationResponseDTO {
-        const card = publication.getCard();
-        const cardBase = card.getCardBase();
-        const game = cardBase.getGame();
-        const owner = publication.getOwner();
-        const cardExchange = publication.getCardExchange() ?? [];
-        const offers = publication.getOffersExisting() ?? [];
-
-      
-        return {
-          id: publication.getId(),
-          name: card.getName(),
-          valueMoney: publication.getValueMoney() ?? 0,
-          cardExchangeIds: cardExchange.map((c) => c.getId()),
-          cardBase: {
-            Id: cardBase.getId(),
-            Name: cardBase.getName(),
-          },
-          game: {
-            Id: game.getId(),
-            Name: game.getName(),
-          },
-          owner: {
-            ownerId: owner.getId(),
-            ownerName: owner.getName(),
-          },
-          offers: offers.map((offer) => ({
-            offerId: offer.getId(),
-            moneyOffer: offer.getMoneyOffer(),
-            cardExchangeIds: offer.getCardOffers()?.map((c) => c.getId()) ?? []
-          })),
-          createdAt: publication.getCreatedAt(),
-        };
-      }
-      
-    private async getCard(id: string): Promise<Card>{
-
-        return new Card({
-            cardBase: new CardBase({
-                game: new Game({
-                    name: "Pokemon"
-                }),
-                nameCard: "Pikachu"
-            }),
-            name: "Pikachu",
-            statusCard: 100
-        })
+      return this.publicationRepository.delete(id)
     }
 
     private toPublicationResponseDTO(publication: Publication): PublicationResponseDTO {
@@ -146,6 +98,7 @@ export class PublicationService {
       const game = cardBase.getGame();
       const owner = publication.getOwner();
       const cardExchange = publication.getCardExchange() ?? [];
+      const offers = publication.getOffersExisting() ?? [];
     
       return {
         id: publication.getId(),
@@ -164,15 +117,14 @@ export class PublicationService {
           ownerId: owner.getId(),
           ownerName: owner.getName(),
         },
+        offers: offers.map((offer) => ({
+          offerId: offer.getId(),
+          moneyOffer: offer.getMoneyOffer(),
+          cardExchangeIds: offer.getCardOffers()?.map((c) => c.getId()) ?? []
+        })),
         createdAt: publication.getCreatedAt(),
       };
     }
-      
-    private async getUser(id: string): Promise<User> {
-        const user = await userRepository.findById(id);
-        if (!user) throw new Error("User not found");
-        return user;
-      }
 
     private async getPublicationById(id: string): Promise<Publication> {
       const publication = await this.publicationRepository.findById(id)
@@ -180,6 +132,14 @@ export class PublicationService {
         throw Error("Publication not found")
         }
       return publication;
+    }
+
+    private async getCardBase(id: string): Promise<CardBase> {
+      const cardBase = await cardBaseRepository.findById(id)
+      if(!cardBase){
+        throw Error("CardBase not found")
+      }
+      return cardBase;
     }
 
     private async validateMoney(money: number): Promise<void> {
