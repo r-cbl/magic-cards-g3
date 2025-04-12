@@ -13,7 +13,6 @@ const cardBaseRouter = Router();
 // Define routes (no authentication required)
 cardBaseRouter.post('/', (req: Request, res: Response) => cardBaseController.createCardBase(req, res));
 cardBaseRouter.get('/', (req: Request, res: Response) => cardBaseController.getAllCardBases(req, res));
-cardBaseRouter.get('/game/:gameId', (req: Request, res: Response) => cardBaseController.getCardBasesByGame(req, res));
 cardBaseRouter.get('/:id', (req: Request, res: Response) => cardBaseController.getCardBase(req, res));
 cardBaseRouter.put('/:id', (req: Request, res: Response) => cardBaseController.updateCardBase(req, res));
 cardBaseRouter.delete('/:id', (req: Request, res: Response) => cardBaseController.deleteCardBase(req, res));

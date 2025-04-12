@@ -37,28 +37,15 @@ export class CardBaseController {
     }
   }
 
-  public async getCardBasesByGame(req: Request, res: Response): Promise<void> {
+  public async getAllCardBases(req: Request, res: Response): Promise<void> {
     try {
-      const gameId = req.params.gameId;
-      const cardBases = await this.cardBaseService.getCardBasesByGame(gameId);
+      const gameId = req.query.gameId as string | undefined;
+      const cardBases = await this.cardBaseService.getAllCardBases(gameId);
       res.status(200).json(cardBases);
     } catch (error) {
       if (error instanceof Error && error.message === 'Game not found') {
         res.status(404).json({ error: error.message });
       } else if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: 'An unexpected error occurred' });
-      }
-    }
-  }
-
-  public async getAllCardBases(req: Request, res: Response): Promise<void> {
-    try {
-      const cardBases = await this.cardBaseService.getAllCardBases();
-      res.status(200).json(cardBases);
-    } catch (error) {
-      if (error instanceof Error) {
         res.status(400).json({ error: error.message });
       } else {
         res.status(500).json({ error: 'An unexpected error occurred' });

@@ -40,18 +40,20 @@ export class CardBaseService {
     return this.toCardBaseResponseDTO(cardBase);
   }
 
-  public async getCardBasesByGame(gameId: string): Promise<CardBaseResponseDTO[]> {
-    const game = await this.gameRepository.findById(gameId);
-    
-    if (!game) {
-      throw new Error('Game not found');
+  public async getAllCardBases(gameId?: string): Promise<CardBaseResponseDTO[]> {
+    // If gameId is provided, filter by game
+    if (gameId) {
+      const game = await this.gameRepository.findById(gameId);
+      
+      if (!game) {
+        throw new Error('Game not found');
+      }
+      
+      const cardBases = await this.cardBaseRepository.findByGame(game);
+      return cardBases.map(cardBase => this.toCardBaseResponseDTO(cardBase));
     }
     
-    const cardBases = await this.cardBaseRepository.findByGame(game);
-    return cardBases.map(cardBase => this.toCardBaseResponseDTO(cardBase));
-  }
-
-  public async getAllCardBases(): Promise<CardBaseResponseDTO[]> {
+    // Otherwise, return all card bases
     const cardBases = await this.cardBaseRepository.findAll();
     return cardBases.map(cardBase => this.toCardBaseResponseDTO(cardBase));
   }

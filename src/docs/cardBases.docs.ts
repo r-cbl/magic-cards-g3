@@ -110,49 +110,30 @@
  *   get:
  *     tags:
  *       - CardBases
- *     summary: Get all card bases
- *     description: Retrieve a list of all available card bases
+ *     summary: Get all card bases or filter by game ID
+ *     description: Retrieve a list of all available card bases or filter by game ID using query parameter
+ *     parameters:
+ *       - in: query
+ *         name: gameId
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Optional game ID to filter card bases by game
  *     responses:
  *       200:
- *         description: List of all card bases
+ *         description: List of all card bases or filtered by game
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/CardBaseResponseDTO'
- *       500:
- *         description: Unexpected error
+ *       400:
+ *         description: Bad request
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- */
-
-/**
- * @swagger
- * /card-bases/game/{gameId}:
- *   get:
- *     tags:
- *       - CardBases
- *     summary: Get card bases by game ID
- *     description: Retrieve all card bases associated with a specific game
- *     parameters:
- *       - in: path
- *         name: gameId
- *         schema:
- *           type: string
- *         required: true
- *         description: The game ID
- *     responses:
- *       200:
- *         description: List of card bases for the specified game
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/CardBaseResponseDTO'
  *       404:
  *         description: Game not found
  *         content:
