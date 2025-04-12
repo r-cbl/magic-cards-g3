@@ -43,7 +43,7 @@ describe('OfferService', () => {
   const testCardBase = new CardBase({ game: testGame, nameCard: "Pikachu" });
   const testCard = new Card({
     cardBase: testCardBase,
-    name: "Pikachu",
+    owner: testUser1,
     statusCard: 100
   });
   
@@ -109,8 +109,8 @@ describe('OfferService', () => {
 
     const existingCard = new Card({
         cardBase: testCardBase,
-        name: "Existing Card",
-        statusCard: 100
+        statusCard: 100,
+        owner: testUser1
       });
 
     const offerData: CreateOfferDTO = {
@@ -154,18 +154,15 @@ describe('OfferService', () => {
 
     const userCard1 = new Card({
       cardBase: testCardBase,
-      name: "User Card 1",
+      owner: offerOwner,
       statusCard: 100
     });
     
     const userCard2 = new Card({
       cardBase: testCardBase,
-      name: "User Card 2",
+      owner: offerOwner,
       statusCard: 100
     });
-
-    offerOwner.addCard(userCard1);
-    offerOwner.addCard(userCard2);
     
     const offerData: CreateOfferDTO = {
       publicationId: publicationWithDifferentOwner.getId(),
