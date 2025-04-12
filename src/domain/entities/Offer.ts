@@ -38,7 +38,7 @@ export class Offer {
         return Math.random().toString(36).substring(2, 9);
     }
 
-    public getStatusOffer(): string {
+    public getStatusOffer(): StatusOffer {
         return this.statusOffer;
     }
 
