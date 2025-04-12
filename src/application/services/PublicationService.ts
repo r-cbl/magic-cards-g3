@@ -1,13 +1,10 @@
 import { PublicationRepository } from "../../domain/repositories/PublicationRepository";
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationResponseDTO, PublicationUpdatedDTO } from "../dtos/PublicationDTO";
-import { Card } from "../../domain/entities/Card";
 import { Publication } from "../../domain/entities/Publication";
 import { cardBaseRepository, cardRepository, gameRepository, userRepository } from "../../infrastructure/repositories/Container";
 import { CardService } from "./CardService";
 import { UserService } from "./UserService";
 import { CardBase } from "../../domain/entities/CardBase";
-import { Game } from "../../domain/entities/Game";
-import { User } from "../../domain/entities/User";
 import { CardBaseService } from "./CardBaseService";
 
 export class PublicationService {
@@ -16,6 +13,7 @@ export class PublicationService {
     userService : UserService = new UserService(userRepository);
 
     constructor(private readonly publicationRepository: PublicationRepository) {}
+
     public async createPublication(publicationData: CreatePublicationDTO): Promise<PublicationResponseDTO> {
         const myCard = await this.cardService.getSimpleCard(publicationData.cardId);
         const user = await this.userService.getSimpleUser(publicationData.ownerId);
@@ -37,6 +35,7 @@ export class PublicationService {
           cardExchange,
           valueMoney: publicationData.valueMoney
         });
+
         this.publicationRepository.save(publication)
         return this.toPublicationResponseDTO(publication);
     }
@@ -73,6 +72,7 @@ export class PublicationService {
         this.validateMoney(publicationData.valueMoney)
         publication.setValueMoney(publicationData.valueMoney)
       }
+
       if (publicationData.cardExchangeIds){
         const cardExchange: CardBase[] = await Promise.all(
           (cardExchangeIds ?? []).map((id) => this.getCardBase(id))
