@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PublicationController } from '../PublicationController';
+import { PublicationController } from '../../../interfaces/controllers/PublicationController';
 import { PublicationService } from '../../../application/services/PublicationService';
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationUpdatedDTO, PublicationResponseDTO } from '../../../application/dtos/PublicationDTO';
 import { PublicationRepository } from '../../../domain/repositories/PublicationRepository';
@@ -24,7 +24,8 @@ describe('PublicationController', () => {
             findById: jest.fn(),
             findAll: jest.fn(),
             update: jest.fn(),
-            delete: jest.fn()
+            delete: jest.fn(),
+            find: jest.fn()
         };
 
         mockPublicationService = new PublicationService(mockRepository) as jest.Mocked<PublicationService>;
@@ -59,12 +60,12 @@ describe('PublicationController', () => {
             mockRequest.body = publicationData;
             const expectedPublication: PublicationResponseDTO = {
                 id: 'test-id',
-                name: 'Test Publication',
+                name: 'Test Card',
                 valueMoney: 100,
                 cardExchangeIds: ['exchange1', 'exchange2'],
                 cardBase: {
-                    Id: 'test-card-id',
-                    Name: 'Test Card'
+                    Id: 'test-card-base-id',
+                    Name: 'Test Card Base'
                 },
                 game: {
                     Id: 'test-game-id',
@@ -129,12 +130,12 @@ describe('PublicationController', () => {
             const expectedPublications: PublicationResponseDTO[] = [
                 {
                     id: 'pub1',
-                    name: 'Publication 1',
+                    name: 'Test Card 1',
                     valueMoney: 50,
                     cardExchangeIds: ['card1'],
                     cardBase: {
                         Id: 'card1',
-                        Name: 'Card 1'
+                        Name: 'Card Base 1'
                     },
                     game: {
                         Id: 'game1',
@@ -160,6 +161,19 @@ describe('PublicationController', () => {
             expect(mockResponse.status).toHaveBeenCalledWith(200);
             expect(mockResponse.json).toHaveBeenCalledWith(expectedPublications);
         });
+
+        it('should handle errors when getting publications', async () => {
+            const error = new Error('Test error');
+            mockPublicationService.getAllPublications.mockRejectedValue(error);
+
+            await publicationController.getAllPublications(
+                mockRequest as Request,
+                mockResponse as Response
+            );
+
+            expect(mockResponse.status).toHaveBeenCalledWith(400);
+            expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Test error' });
+        });
     });
 
     describe('getPublication', () => {
@@ -168,12 +182,12 @@ describe('PublicationController', () => {
             mockRequest.params = { id: publicationId };
             const expectedPublication: PublicationResponseDTO = {
                 id: publicationId,
-                name: 'Test Publication',
+                name: 'Test Card',
                 valueMoney: 100,
                 cardExchangeIds: ['card1'],
                 cardBase: {
                     Id: 'card1',
-                    Name: 'Test Card'
+                    Name: 'Test Card Base'
                 },
                 game: {
                     Id: 'game1',
@@ -198,6 +212,19 @@ describe('PublicationController', () => {
             expect(mockResponse.status).toHaveBeenCalledWith(200);
             expect(mockResponse.json).toHaveBeenCalledWith(expectedPublication);
         });
+
+        it('should handle errors when getting a publication', async () => {
+            const error = new Error('Test error');
+            mockPublicationService.getPublication.mockRejectedValue(error);
+
+            await publicationController.getPublication(
+                mockRequest as Request,
+                mockResponse as Response
+            );
+
+            expect(mockResponse.status).toHaveBeenCalledWith(400);
+            expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Test error' });
+        });
     });
 
     describe('updatePublication', () => {
@@ -212,12 +239,12 @@ describe('PublicationController', () => {
             mockRequest.body = updateData;
             const expectedPublication: PublicationResponseDTO = {
                 id: publicationId,
-                name: 'Updated Publication',
+                name: 'Test Card',
                 valueMoney: 150,
                 cardExchangeIds: ['card1', 'card2'],
                 cardBase: {
                     Id: 'card1',
-                    Name: 'Test Card'
+                    Name: 'Test Card Base'
                 },
                 game: {
                     Id: 'game1',
@@ -246,6 +273,19 @@ describe('PublicationController', () => {
             expect(mockResponse.status).toHaveBeenCalledWith(200);
             expect(mockResponse.json).toHaveBeenCalledWith(expectedPublication);
         });
+
+        it('should handle errors when updating a publication', async () => {
+            const error = new Error('Test error');
+            mockPublicationService.updatePublication.mockRejectedValue(error);
+
+            await publicationController.updatePublication(
+                mockRequest as Request,
+                mockResponse as Response
+            );
+
+            expect(mockResponse.status).toHaveBeenCalledWith(400);
+            expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Test error' });
+        });
     });
 
     describe('deletePublication', () => {
@@ -266,6 +306,19 @@ describe('PublicationController', () => {
             );
             expect(mockResponse.status).toHaveBeenCalledWith(204);
             expect(mockResponse.send).toHaveBeenCalled();
+        });
+
+        it('should handle errors when deleting a publication', async () => {
+            const error = new Error('Test error');
+            mockPublicationService.deletePublication.mockRejectedValue(error);
+
+            await publicationController.deletePublication(
+                mockRequest as Request,
+                mockResponse as Response
+            );
+
+            expect(mockResponse.status).toHaveBeenCalledWith(400);
+            expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Test error' });
         });
     });
 }); 

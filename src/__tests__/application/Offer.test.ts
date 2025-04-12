@@ -212,6 +212,6 @@ describe('OfferService', () => {
     // Act & Assert
     await expect(offerService.createOffer(offerData))
       .rejects
-      .toThrow('Offer owner is the same as the publication owner');
+      .toThrow('offer owner is the same as the publication owner');
   });
 });
