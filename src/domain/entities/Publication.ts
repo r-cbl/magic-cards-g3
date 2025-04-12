@@ -53,38 +53,27 @@ export class Publication {
     }
 
     public getCardExchange(): Card[] | undefined {
-        return this.cardExchange;
-      }
+      return this.cardExchange;
+    }
       
-      public getOffersExisting(): Offer[] | undefined {
-        return this.offersExisting;
-      }
+    public getOffersExisting(): Offer[] | undefined {
+      return this.offersExisting;
+    }
       
-      public getValueMoney(): number | undefined {
-        return this.valueMoney;
-      }
+    public getValueMoney(): number | undefined {
+      return this.valueMoney;
+    }
+    
+    public getCard(): Card {
+      return this.card;
+    }
+    
+    public getCreatedAt(): Date {
+      return this.createdAt;
+    }
+    
+    public getUpdatedAt(): Date {
+      return this.updatedAt;
+    }
       
-      public getCard(): Card {
-        return this.card;
-      }
-      
-      public getCreatedAt(): Date {
-        return this.createdAt;
-      }
-      
-      public getUpdatedAt(): Date {
-        return this.updatedAt;
-      }
-
-      public setValueMoney(valueMoney: number): void {
-        this.valueMoney = valueMoney;
-      }
-      
-      public setCardExchange(cardExchange: Card[]): void {
-        this.cardExchange = cardExchange;
-      }
-
-      public setUpdatedAt(updatedAt: Date): void {
-        this.updatedAt = updatedAt;
-      }
 } 
