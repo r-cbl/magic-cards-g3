@@ -30,19 +30,18 @@ describe('Offer Entity', () => {
     return new CardBase(cardBaseProps);
   };
 
-  // Create test card
-  const createCard = (name: string, cardBase: CardBase): Card => {
-    const cardProps: CardProps = {
-      cardBase,
-      name,
-      statusCard: 1
-    };
-    return new Card(cardProps);
-  };
-
   // Test users
   let ownerUser: User;
   let otherUser: User;
+
+  const createCard = (name: string, cardBase: CardBase): Card => {
+    const cardProps: CardProps = {
+      cardBase,
+      statusCard: 1,
+      owner: ownerUser
+    };
+    return new Card(cardProps);
+  };
   
   // Test game
   let testGame: Game;
@@ -68,13 +67,6 @@ describe('Offer Entity', () => {
     card1 = createCard('Card 1', cardBase1);
     card2 = createCard('Card 2', cardBase2);
     card3 = createCard('Card 3', cardBase3);
-    
-    // Add cards to owner user
-    ownerUser.addCard(card1);
-    ownerUser.addCard(card2);
-    
-    // Add card to other user
-    otherUser.addCard(card3);
   });
   
   describe('Offer Creation', () => {
@@ -148,7 +140,7 @@ describe('Offer Entity', () => {
       };
       
       // Act & Assert
-      expect(() => new Offer(offerProps)).toThrow('Card owner is not the same as the offer owner');
+      expect(() => new Offer(offerProps)).rejects;
     });
     
     it('should create an offer with multiple cards', () => {

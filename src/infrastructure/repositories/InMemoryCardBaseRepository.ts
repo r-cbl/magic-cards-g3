@@ -1,42 +1,47 @@
-import { CardBase } from "../../domain/entities/CardBase";
-import { Game } from "../../domain/entities/Game";
-import { CardBaseRepository } from "../../domain/repositories/CardBaseRepository";
+import { CardBase } from "@/domain/entities/CardBase";
+import { CardBaseRepository } from "@/domain/repositories/CardBaseRepository";
+import { cardBaseRepository } from "./Container";
 
 export class InMemoryCardBaseRepository implements CardBaseRepository {
-    private cardBases: CardBase[] = [];
+    private cards: CardBase[] = [];
 
-    async save(cardBase: CardBase): Promise<CardBase> {
-        this.cardBases.push(cardBase);
-        return cardBase;
+    async save(card: CardBase): Promise<CardBase> {
+        this.cards.push(card);
+        return card;
     }
     
-    async update(cardBase: CardBase): Promise<CardBase> {
-        const index = this.cardBases.findIndex(cb => cb.getId() === cardBase.getId());
+    async update(card: CardBase): Promise<CardBase> {
+        const index = this.cards.findIndex(c => c.getId() === card.getId());
         if (index === -1) {
-            throw new Error('CardBase not found');
+            throw new Error('Card not found');
         }
-        this.cardBases[index] = cardBase;
-        return cardBase;
+        this.cards[index] = card;
+        return card;
     }
 
     async delete(id: string): Promise<boolean> {
-        const index = this.cardBases.findIndex(cb => cb.getId() === id);
+        const index = this.cards.findIndex(c => c.getId() === id);
         if (index === -1) {
             return false;
         }
-        this.cardBases.splice(index, 1);
+        this.cards.splice(index, 1);
         return true;
     }   
 
     async findById(id: string): Promise<CardBase | undefined> {
-        return this.cardBases.find(cb => cb.getId() === id) || undefined;
+        return this.cards.find(c => c.getId() === id) || undefined;
+    }
+    
+    async findByCardsByIds(ids: string[]): Promise<CardBase[] | undefined> {
+        const cards = this.cards.filter(c => ids.includes(c.getId()));
+        return cards.length > 0 ? cards : undefined;
     }
     
     async findByGame(game: Game): Promise<CardBase[]> {
-        return this.cardBases.filter(cb => cb.getGame().getId() === game.getId());
+        return this.cards.filter(c => c.getGame().getId() === game.getId());
     }
     
     async findAll(): Promise<CardBase[]> {
-        return [...this.cardBases];
+        return [...this.cards];
     }
 } 
