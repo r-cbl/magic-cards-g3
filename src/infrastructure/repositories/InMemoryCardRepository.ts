@@ -1,5 +1,6 @@
 import { Card } from "../../domain/entities/Card";
 import { CardRepository } from "../../domain/repositories/CardRepository";
+import { CardFilterDTO } from "../../application/dtos/CardsDTO";
 
 export class InMemoryCardRepository implements CardRepository {
     private cards: Card[] = [];
@@ -27,10 +28,20 @@ export class InMemoryCardRepository implements CardRepository {
         return true;
     }   
 
-    async findById(id: string): Promise<Card | undefined> {
-        return this.cards.find(c => c.getId() === id) || undefined;
+    async findById(id: string): Promise<Card> {
+        const card = this.cards.find(c => c.getId() === id);
+        if (!card) {
+            throw new Error('Card not found');
+        }
+        return card;
     }
     
+    async find(filters: CardFilterDTO): Promise<Card[]> {
+        return this.cards.filter(card => {
+            return filters.ownerId ? card.getOwner().getId() === filters.ownerId : true;
+        });
+    }
+
     async findByCardsByIds(ids: string[]): Promise<Card[] | undefined> {
         const cards = this.cards.filter(c => ids.includes(c.getId()));
         return cards.length > 0 ? cards : undefined;
