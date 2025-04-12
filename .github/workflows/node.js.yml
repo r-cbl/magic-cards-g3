@@ -1,0 +1,31 @@
+# .github/workflows/pr-check.yml
+name: Build and Test on PR
+
+on:
+  pull_request:
+    branches: [ develop, main ]  # Or change to the branch(es) you use
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # Change if you're using a different Node version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Copy environment variables
+        run: cp .env.example .env
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
