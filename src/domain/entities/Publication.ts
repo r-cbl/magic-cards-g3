@@ -2,6 +2,7 @@ import { Card } from "./Card";
 import { User } from "./User";
 import { Offer } from "./Offer";
 import { CardBase } from "./CardBase";
+import { mustBeDifferentOwners } from "../shared/Ownable";
 
 export interface PublicationProps {
     id?: string;
@@ -40,9 +41,7 @@ export class Publication {
     }
 
     public addOffer(offer: Offer): void {
-        if(offer.isMyOffer(this.owner)) {
-            throw new Error("Offer owner is the same as the publication owner");
-        }
+        mustBeDifferentOwners(offer,this,"offer","publication");
         this.offersExisting.push(offer);
     }
     public getId(): string {

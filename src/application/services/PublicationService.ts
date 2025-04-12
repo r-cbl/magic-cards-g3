@@ -1,10 +1,11 @@
 import { PublicationRepository } from "../../domain/repositories/PublicationRepository";
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationResponseDTO, PublicationUpdatedDTO } from "../dtos/PublicationDTO";
 import { Publication } from "../../domain/entities/Publication";
-import { cardBaseRepository, cardRepository, gameRepository, userRepository } from "../../infrastructure/repositories/Container";
+import { cardBaseRepository, cardRepository, userRepository } from "../../infrastructure/repositories/Container";
 import { CardService } from "./CardService";
 import { UserService } from "./UserService";
 import { CardBase } from "../../domain/entities/CardBase";
+import { validateOwnership } from "../../domain/shared/Ownable";
 
 export class PublicationService {
     cardService : CardService = new CardService(cardRepository);
@@ -17,9 +18,12 @@ export class PublicationService {
         const user = await this.userService.getSimpleUser(publicationData.ownerId);
         const cardExchangeIds = publicationData.cardExchangeIds ?? [];
       
+        validateOwnership(myCard,user.getId(),"Card");
+
         if (publicationData.valueMoney == null && cardExchangeIds.length === 0) {
           throw new Error("Invalid publication: must include valueMoney or cardExchangeIds.");
         }
+
         if (publicationData.valueMoney)
           this.validateMoney(publicationData.valueMoney);
 
@@ -59,7 +63,8 @@ export class PublicationService {
     public async updatePublication(userId: string,id: string, publicationData: PublicationUpdatedDTO): Promise<PublicationResponseDTO>{
       const publication = await this.getPublicationById(id);
 
-      this.validateOwnership(publication, userId)
+      validateOwnership(publication,userId,"publication");
+
       const cardExchangeIds = publicationData.cardExchangeIds ?? [];
 
       if (publicationData.valueMoney == null && cardExchangeIds.length === 0) {
@@ -85,7 +90,7 @@ export class PublicationService {
     public async deletePublication(userId: string, id: string): Promise<boolean>{
       const publication = await this.getPublicationById(id);
 
-      this.validateOwnership(publication, userId);
+      validateOwnership(publication, userId,"publication");
 
       return this.publicationRepository.delete(id)
     }
@@ -144,11 +149,4 @@ export class PublicationService {
       if(money <= 0)
         throw Error("Invalid publication: valueMoney must be bigger than 0")
     }
-
-    private validateOwnership(publication: Publication, userId: string): void {
-      if (publication.getOwner().getId() !== userId) {
-        throw new Error("Unauthorized: only the owner can perform this action");
-      }
-    }
-    
 }

@@ -97,4 +97,8 @@ export class Offer {
     public getUpdatedAt(): Date {
         return this.updatedAt;
     }
+
+    public getOwner(): User{
+        return this.offerOwner;
+    }
 }
