@@ -1,6 +1,7 @@
 import { Card } from "./Card";
 import { StatusOffer } from "./StatusOffer";
 import { User } from "./User";
+import { Ownable } from "./Ownable";
 
 export interface OfferProps {
     id?: string;
@@ -13,7 +14,7 @@ export interface OfferProps {
     updatedAt?: Date;
 }
 
-export class Offer {
+export class Offer extends Ownable {
     private readonly id: string;
     private offerOwner: User;
     private cardOffers?: Card[];
@@ -24,7 +25,7 @@ export class Offer {
     private updatedAt: Date;
 
     constructor(props: OfferProps) {
-
+        super(props.offerOwner);
         if(!props.cardOffers && !props.moneyOffer) {
             throw new Error("Card or money offer is required");
         }
@@ -34,7 +35,7 @@ export class Offer {
         }
 
         if(props.cardOffers) {
-            this.areValidCards(props.cardOffers, props.offerOwner);
+            this.areMyCards(props.cardOffers, props.offerOwner);
         }
 
         this.id = props.id || this.generateId();
@@ -51,15 +52,8 @@ export class Offer {
         return Math.random().toString(36).substring(2, 9);
     }
 
-    private areValidCards(cards: Card[], offerOwner: User): boolean {
-        if(!this.areMyCards(cards, offerOwner)) {
-            throw new Error("Card owner is not the same as the offer owner");
-        }
-        return true;
-    }
-
     private areMyCards(cards: Card[], offerOwner: User): boolean {
-        return cards.every((card: Card) => card.getOwner() === offerOwner);
+        return cards.every((card: Card) => card.validateOwnership(offerOwner,"Card"));
     }
     
     public isMyOffer(offerOwner: User): boolean {
@@ -97,4 +91,5 @@ export class Offer {
     public getUpdatedAt(): Date {
         return this.updatedAt;
     }
+
 }

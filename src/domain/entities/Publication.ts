@@ -1,11 +1,14 @@
 import { Card } from "./Card";
 import { User } from "./User";
 import { Offer } from "./Offer";
+import { CardBase } from "./CardBase";
+import { Ownable } from "./Ownable";
+import { StatusPublication } from "./StatusPublication";
 
 export interface PublicationProps {
     id?: string;
     owner: User;
-    cardExchange?: Card[];
+    cardExchange?: CardBase[];
     offersExisting?: Offer[];
     valueMoney?: number;
     card: Card;
@@ -13,19 +16,21 @@ export interface PublicationProps {
     updatedAt?: Date;
 }
 
-export class Publication {
+export class Publication extends Ownable {
     private readonly id: string;
-    private owner: User;
-    private cardExchange?: Card[];
+    private cardExchange?: CardBase[];
     private offersExisting: Offer[];
     private valueMoney?: number;
     private card: Card;
     private readonly createdAt: Date;
     private updatedAt: Date;
+    private statusPublication: StatusPublication;
 
     constructor(props: PublicationProps) {
+        super(props.owner);
+        this.validateOwnership(props.owner,"publication");
         this.id = props.id || this.generateId();
-        this.owner = props.owner;
+        this.statusPublication = StatusPublication.OPEN;
         this.cardExchange = props.cardExchange;
         this.offersExisting = props.offersExisting || [];
         this.valueMoney = props.valueMoney;
@@ -39,20 +44,22 @@ export class Publication {
     }
 
     public addOffer(offer: Offer): void {
-        if(offer.isMyOffer(this.owner)) {
-            throw new Error("Offer owner is the same as the publication owner");
-        }
+        this.mustBeDifferentOwners(offer,"offer","publication");
         this.offersExisting.push(offer);
     }
     public getId(): string {
         return this.id;
       }
 
-    public getOwner(): User {
-        return this.owner;
+    public closePublication(): void {
+        this.statusPublication = StatusPublication.CLOSED;
     }
 
-    public getCardExchange(): Card[] | undefined {
+    public getStatusPublication(): StatusPublication {
+        return this.statusPublication;
+    }
+      
+    public getCardExchange(): CardBase[] | undefined {
       return this.cardExchange;
     }
       
@@ -74,6 +81,18 @@ export class Publication {
     
     public getUpdatedAt(): Date {
       return this.updatedAt;
+    }
+
+    public setCardExchange(cards: CardBase[]){
+      this.cardExchange = cards;
+    }
+
+    public setValueMoney(money: number) {
+      this.valueMoney = money;
+    }
+
+    public setUpdatedAt(date : Date) {
+      this.updatedAt = date;
     }
       
 } 

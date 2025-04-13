@@ -22,6 +22,11 @@ export interface CreatePublicationDTO {
       ownerId: string;
       ownerName: string;
     };
+    offers: {
+      offerId: string;
+      moneyOffer?: number;
+      cardExchangeIds: string[];
+    }[];
     createdAt: Date;
   }
 
@@ -35,5 +40,8 @@ export interface CreatePublicationDTO {
     maxValue?: number;
   }
 
-
-  
+  export interface PublicationUpdatedDTO {
+    userId: string;
+    valueMoney?: number;
+    cardExchangeIds: string[];
+  }
