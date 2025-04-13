@@ -3,6 +3,7 @@ import { User } from "./User";
 import { Offer } from "./Offer";
 import { CardBase } from "./CardBase";
 import { Ownable } from "./Ownable";
+import { StatusPublication } from "./StatusPublication";
 
 export interface PublicationProps {
     id?: string;
@@ -23,11 +24,13 @@ export class Publication extends Ownable {
     private card: Card;
     private readonly createdAt: Date;
     private updatedAt: Date;
+    private statusPublication: StatusPublication;
 
     constructor(props: PublicationProps) {
         super(props.owner);
-        this.validateOwnership(props.owner,"Publication");
+        this.validateOwnership(props.owner,"publication");
         this.id = props.id || this.generateId();
+        this.statusPublication = StatusPublication.OPEN;
         this.cardExchange = props.cardExchange;
         this.offersExisting = props.offersExisting || [];
         this.valueMoney = props.valueMoney;
@@ -48,7 +51,14 @@ export class Publication extends Ownable {
         return this.id;
       }
 
+    public closePublication(): void {
+        this.statusPublication = StatusPublication.CLOSED;
+    }
 
+    public getStatusPublication(): StatusPublication {
+        return this.statusPublication;
+    }
+      
     public getCardExchange(): CardBase[] | undefined {
       return this.cardExchange;
     }
