@@ -32,12 +32,13 @@ describe('PublicationService', () => {
   });
 
   const createEntities = () => {
+    const otherUser = new User({ name: 'Other User', email: 'other@test.com', password: 'pass' });
     const user = new User({ name: 'User', email: 'user@test.com', password: 'pass' });
     const game = new Game({ name: 'Game' });
     const cardBase = new CardBase({ game, nameCard: 'CardBase' });
     const card = new Card({ cardBase, owner: user, statusCard: 1 });
     const publication = new Publication({ owner: user, card, cardExchange: [], valueMoney: 100 });
-    return { user, game, cardBase, card, publication };
+    return { user, otherUser, game, cardBase, card, publication };
   };
 
   describe('createPublication', () => {
@@ -104,19 +105,21 @@ describe('PublicationService', () => {
   describe('updatePublication', () => {
     it('should update valueMoney and cards', async () => {
       const { user, publication } = createEntities();
-      const dto: PublicationUpdatedDTO = { valueMoney: 150, cardExchangeIds: [] };
-
+      const dto: PublicationUpdatedDTO = { valueMoney: 150, cardExchangeIds: [], userId: user.getId() };
+      (userRepository.findById as jest.Mock).mockResolvedValue(user);
       mockRepository.findById.mockResolvedValue(publication);
       mockRepository.update.mockResolvedValue(publication);
 
-      const result = await publicationService.updatePublication(user.getId(), publication.getId(), dto);
+      const result = await publicationService.updatePublication(publication.getId(), dto);
       expect(result.valueMoney).toBe(150);
     });
 
     it('should fail if not owner', async () => {
-      const { publication } = createEntities();
+      const { user, otherUser, publication } = createEntities();
+      (userRepository.findById as jest.Mock).mockResolvedValue(user);
+      const dto: PublicationUpdatedDTO = { valueMoney: 150, cardExchangeIds: [], userId: otherUser.getId() };
       mockRepository.findById.mockResolvedValue(publication);
-      await expect(publicationService.updatePublication('other', publication.getId(), { cardExchangeIds: [] }))
+        await expect(publicationService.updatePublication(publication.getId(), dto))
         .rejects.toThrow();
     });
   });
@@ -126,6 +129,7 @@ describe('PublicationService', () => {
       const { user, publication } = createEntities();
       mockRepository.findById.mockResolvedValue(publication);
       mockRepository.delete.mockResolvedValue(true);
+      (userRepository.findById as jest.Mock).mockResolvedValue(user);
 
       const result = await publicationService.deletePublication(user.getId(), publication.getId());
       expect(result).toBe(true);

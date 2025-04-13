@@ -67,9 +67,10 @@ export class PublicationController {
             const userId = req.user!.userId;
             const id = req.params.id;
             const publicationData : PublicationUpdatedDTO = {
-                ...req.body
+                ...req.body,
+                userId
             }
-            const publication = await this.publicationService.updatePublication(userId,id, publicationData)
+            const publication = await this.publicationService.updatePublication(id, publicationData)
             res.status(200).json(publication)
         } catch (error) {
             if (error instanceof Error) {

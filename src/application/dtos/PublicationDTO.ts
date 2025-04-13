@@ -41,6 +41,7 @@ export interface CreatePublicationDTO {
   }
 
   export interface PublicationUpdatedDTO {
+    userId: string;
     valueMoney?: number;
     cardExchangeIds: string[];
   }

@@ -1,5 +1,7 @@
 import { CardBase } from "./CardBase";
+import { Ownable } from "./Ownable";
 import { User } from "./User";
+
 
 
 export interface CardProps {
@@ -12,32 +14,28 @@ export interface CardProps {
     updatedAt?: Date;
 }
 
-export class Card {
+export class Card extends Ownable {
     private readonly id: string;
     private cardBase: CardBase;
     private statusCard: number;
     private urlImage?: string;
     private readonly createdAt: Date;
     private updatedAt: Date;
-    private owner: User;
 
-    constructor(props: CardProps) {
+    constructor(props: CardProps) { 
+        super(props.owner);
         this.id = props.id || this.generateId();
         this.cardBase = props.cardBase;
         this.statusCard = props.statusCard;
         this.urlImage = props.urlImage;
         this.createdAt = props.createdAt || new Date();
         this.updatedAt = props.updatedAt || new Date();
-        this.owner = props.owner;
     }
 
     private generateId(): string {
         return Math.random().toString(36).substring(2, 9);
     }
 
-    public getOwner(): User{
-      return this.owner;
-    }
       
     public getCardBase(): CardBase {
       return this.cardBase;

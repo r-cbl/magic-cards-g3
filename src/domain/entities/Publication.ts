@@ -2,7 +2,7 @@ import { Card } from "./Card";
 import { User } from "./User";
 import { Offer } from "./Offer";
 import { CardBase } from "./CardBase";
-import { mustBeDifferentOwners } from "../shared/Ownable";
+import { Ownable } from "./Ownable";
 
 export interface PublicationProps {
     id?: string;
@@ -15,9 +15,8 @@ export interface PublicationProps {
     updatedAt?: Date;
 }
 
-export class Publication {
+export class Publication extends Ownable {
     private readonly id: string;
-    private owner: User;
     private cardExchange?: CardBase[];
     private offersExisting: Offer[];
     private valueMoney?: number;
@@ -26,8 +25,9 @@ export class Publication {
     private updatedAt: Date;
 
     constructor(props: PublicationProps) {
+        super(props.owner);
+        this.validateOwnership(props.owner,"Publication");
         this.id = props.id || this.generateId();
-        this.owner = props.owner;
         this.cardExchange = props.cardExchange;
         this.offersExisting = props.offersExisting || [];
         this.valueMoney = props.valueMoney;
@@ -41,16 +41,13 @@ export class Publication {
     }
 
     public addOffer(offer: Offer): void {
-        mustBeDifferentOwners(offer,this,"offer","publication");
+        this.mustBeDifferentOwners(offer,"offer","publication");
         this.offersExisting.push(offer);
     }
     public getId(): string {
         return this.id;
       }
 
-    public getOwner(): User {
-        return this.owner;
-    }
 
     public getCardExchange(): CardBase[] | undefined {
       return this.cardExchange;

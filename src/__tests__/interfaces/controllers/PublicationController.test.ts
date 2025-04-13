@@ -232,7 +232,8 @@ describe('PublicationController', () => {
             const publicationId = 'test-id';
             const updateData: PublicationUpdatedDTO = {
                 valueMoney: 150,
-                cardExchangeIds: ['card1', 'card2']
+                cardExchangeIds: ['card1', 'card2'],
+                userId: 'test-user-id'
             };
 
             mockRequest.params = { id: publicationId };
@@ -266,7 +267,6 @@ describe('PublicationController', () => {
             );
 
             expect(mockPublicationService.updatePublication).toHaveBeenCalledWith(
-                'test-user-id',
                 publicationId,
                 updateData
             );
