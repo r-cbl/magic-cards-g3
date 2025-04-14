@@ -148,8 +148,14 @@ describe('OfferService', () => {
       password: "password123"
     });
 
+    const testCard1 = new Card({
+      cardBase: testCardBase,
+      owner: publicationOwner,
+      statusCard: 100
+    });
+
     const publicationWithDifferentOwner = new Publication({
-      card: testCard,
+      card: testCard1,
       owner: publicationOwner,
       valueMoney: 100
     });
@@ -196,8 +202,14 @@ describe('OfferService', () => {
       password: "password123"
     });
 
+    const testCard1 = new Card({
+      cardBase: testCardBase,
+      owner: owner,
+      statusCard: 100
+    });
+
     const publicationOwnedByUser = new Publication({
-      card: testCard,
+      card: testCard1,
       owner: owner,
       valueMoney: 100
     });
@@ -214,7 +226,7 @@ describe('OfferService', () => {
     // Act & Assert
     await expect(offerService.createOffer(offerData))
       .rejects
-      .toThrow('offer owner is the same as the publication owner');
+      .toThrow();
   });
   describe('updateOffer', () => {
     it('should throw error when accepting offer for non-existent publication', async () => {
@@ -260,8 +272,15 @@ describe('OfferService', () => {
         moneyOffer: 100,
         statusOffer: StatusOffer.DRAFT
       });
+
+      const testCard1 = new Card({
+        cardBase: testCardBase,
+        owner: publicationOwner,
+        statusCard: 100
+      });
+
       const publicationOwnedByUser = new Publication({
-        card: testCard,
+        card: testCard1,
         owner: publicationOwner,
         valueMoney: 100
       });

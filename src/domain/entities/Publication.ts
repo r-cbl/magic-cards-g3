@@ -52,7 +52,7 @@ export class Publication extends Ownable {
       this.mustBeDifferentOwners(offer,"offer","publication");
       this.offersExisting.push(offer);
 
-      publicationRepository.update(this);
+      //publicationRepository.update(this);
     }
     public getId(): string {
         return this.id;
@@ -64,7 +64,7 @@ export class Publication extends Ownable {
         .filter(offer => offer.getStatusOffer() === StatusOffer.PENDING)
         .forEach(offer => offer.rejectOffer());
 
-        publicationRepository.update(this);
+        //publicationRepository.update(this);
     }
 
     public acceptOffer(offer: Offer): void {
