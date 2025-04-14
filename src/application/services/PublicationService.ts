@@ -6,6 +6,7 @@ import { CardService } from "./CardService";
 import { UserService } from "./UserService";
 import { CardBase } from "../../domain/entities/CardBase";
 import { CardBaseService } from "./CardBaseService";
+import { StatusPublication } from "../../domain/entities/StatusPublication";
 
 export class PublicationService {
     cardService : CardService = new CardService(cardRepository);
@@ -38,7 +39,7 @@ export class PublicationService {
           valueMoney: publicationData.valueMoney
         });
 
-        this.publicationRepository.save(publication)
+        await this.publicationRepository.save(publication)
         return this.toPublicationResponseDTO(publication);
     }
 
@@ -52,47 +53,58 @@ export class PublicationService {
         }
 
         const filteredPublications: Publication[] = await this.publicationRepository.find(filters);
+        
 
-        return filteredPublications.map(pub => this.toPublicationResponseDTO(pub));
+        return filteredPublications.filter(pub => pub.getStatusPublication() === StatusPublication.OPEN)
+        .map(pub => this.toPublicationResponseDTO(pub));
     }
 
     public async getPublication(id: string): Promise<PublicationResponseDTO> {
       return this.toPublicationResponseDTO(await this.getPublicationById(id));
     }
 
-    public async updatePublication(id: string, publicationData: PublicationUpdatedDTO): Promise<PublicationResponseDTO>{
+    public async updatePublication(id: string, publicationData: PublicationUpdatedDTO): Promise<PublicationResponseDTO> {
       const publication = await this.getPublicationById(id);
       const user = await this.userService.getSimpleUser(publicationData.userId);
-
-      publication.validateOwnership(user,"publication")
-
+    
+      publication.validateOwnership(user, "publication");
+    
       const cardExchangeIds = publicationData.cardExchangeIds ?? [];
-
-      if (publicationData.valueMoney == null && cardExchangeIds.length === 0) {
-        throw new Error("Invalid publication: must include valueMoney or cardExchangeIds.");
+      const isUpdateValue = publicationData.valueMoney != null;
+      const isUpdateExchange = cardExchangeIds.length > 0;
+      const isCancel = publicationData.cancel === true;
+    
+      if (!isUpdateValue && !isUpdateExchange && !isCancel) {
+        throw new Error("Invalid publication: must include valueMoney, cardExchangeIds, or cancel flag.");
       }
-
-      if (publicationData.valueMoney){
-        this.validateMoney(publicationData.valueMoney)
-        publication.setValueMoney(publicationData.valueMoney)
+    
+      if (isCancel) {
+        publication.closePublication();
+      } else {
+        if (isUpdateValue) {
+          this.validateMoney(publicationData.valueMoney!);
+          publication.setValueMoney(publicationData.valueMoney!);
+        }
+    
+        if (isUpdateExchange) {
+          const cardExchange = await Promise.all(
+            cardExchangeIds.map(id => this.cardBaseService.getSimpleCardBase(id))
+          );
+          publication.setCardExchange(cardExchange);
+        }
       }
-
-      if (publicationData.cardExchangeIds){
-        const cardExchange: CardBase[] = await Promise.all(
-          (cardExchangeIds ?? []).map((id) => this.cardBaseService.getSimpleCardBase(id))
-        );
-        publication.setCardExchange(cardExchange)
-      }
-
-      publication.setUpdatedAt(new Date())
-      return this.toPublicationResponseDTO(await this.publicationRepository.update(publication))
+    
+      publication.setUpdatedAt(new Date());
+      return this.toPublicationResponseDTO(await this.publicationRepository.update(publication));
     }
+    
 
     public async deletePublication(userId: string, id: string): Promise<boolean>{
       const publication = await this.getPublicationById(id);
       const user = await this.userService.getSimpleUser(userId)
       
       publication.validateOwnership(user, "publication")
+      publication.closePublication();
 
       return this.publicationRepository.delete(id)
     }
@@ -108,6 +120,7 @@ export class PublicationService {
       return {
         id: publication.getId(),
         name: cardBase.getName(),
+        cardId: card.getId(),
         valueMoney: publication.getValueMoney() ?? 0,
         cardExchangeIds: cardExchange.map((c) => c.getId()),
         cardBase: {

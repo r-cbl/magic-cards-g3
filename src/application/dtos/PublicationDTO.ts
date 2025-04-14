@@ -8,6 +8,7 @@ export interface CreatePublicationDTO {
   export interface PublicationResponseDTO {
     id: string;
     name: string;
+    cardId: string;
     valueMoney: number;
     cardExchangeIds: string[];
     cardBase: {
@@ -44,4 +45,5 @@ export interface CreatePublicationDTO {
     userId: string;
     valueMoney?: number;
     cardExchangeIds: string[];
+    cancel?: boolean;
   }

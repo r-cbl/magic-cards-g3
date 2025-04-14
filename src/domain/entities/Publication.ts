@@ -4,6 +4,8 @@ import { Offer } from "./Offer";
 import { CardBase } from "./CardBase";
 import { Ownable } from "./Ownable";
 import { StatusPublication } from "./StatusPublication";
+import { StatusOffer } from "./StatusOffer";
+import { publicationRepository } from "../../infrastructure/repositories/Container";
 
 export interface PublicationProps {
     id?: string;
@@ -27,25 +29,30 @@ export class Publication extends Ownable {
     private statusPublication: StatusPublication;
 
     constructor(props: PublicationProps) {
-        super(props.owner);
-        this.validateOwnership(props.owner,"publication");
-        this.id = props.id || this.generateId();
-        this.statusPublication = StatusPublication.OPEN;
-        this.cardExchange = props.cardExchange;
-        this.offersExisting = props.offersExisting || [];
-        this.valueMoney = props.valueMoney;
-        this.card = props.card;
-        this.createdAt = props.createdAt || new Date();
-        this.updatedAt = props.updatedAt || new Date();
-    }
+      super(props.owner);
+      this.id = props.id || this.generateId();
+      this.statusPublication = StatusPublication.OPEN;
+      this.cardExchange = props.cardExchange;
+      this.offersExisting = props.offersExisting || [];
+      this.valueMoney = props.valueMoney;
+      this.card = props.card;
+      this.validateOwnership(this.card.getOwner(),"card");
+      this.createdAt = props.createdAt || new Date();
+      this.updatedAt = props.updatedAt || new Date();
+  }
     
     private generateId(): string {
         return Math.random().toString(36).substring(2, 9);
     }
 
     public addOffer(offer: Offer): void {
-        this.mustBeDifferentOwners(offer,"offer","publication");
-        this.offersExisting.push(offer);
+      if (this.statusPublication === StatusPublication.CLOSED) {
+        throw new Error("Cannot add offer to a closed publication");
+      }
+      this.mustBeDifferentOwners(offer,"offer","publication");
+      this.offersExisting.push(offer);
+
+      publicationRepository.update(this);
     }
     public getId(): string {
         return this.id;
@@ -53,9 +60,17 @@ export class Publication extends Ownable {
 
     public closePublication(): void {
         this.statusPublication = StatusPublication.CLOSED;
+        this.offersExisting
+        .filter(offer => offer.getStatusOffer() === StatusOffer.PENDING)
+        .forEach(offer => offer.rejectOffer());
+
+        publicationRepository.update(this);
     }
 
     public acceptOffer(offer: Offer): void {
+      if (this.statusPublication === StatusPublication.CLOSED) {
+        throw new Error("Publication already closed");
+      }      
       offer.acceptOffer();
       this.closePublication();
     }
