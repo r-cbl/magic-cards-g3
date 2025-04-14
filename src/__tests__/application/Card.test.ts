@@ -106,4 +106,38 @@ describe('CardService', () => {
     expect(result).toBeDefined();
     expect(result.id).toBe(cardId);
   });
+
+  it('should update a card successfully', async () => {
+    const cardId = 'test-id';
+    const updateData = {
+      ownerId: testUser.getId(),
+      urlImage: 'http://example.com/updated-image.png',
+      statusCard: 200
+    };
+
+    const mockCard = new Card({ owner: testUser, cardBase: testCardBase, statusCard: 100, id: cardId });
+    (mockCardRepository.findById as jest.Mock).mockResolvedValue(mockCard);
+    (userRepository.findById as jest.Mock).mockResolvedValue(testUser);
+    (mockCardRepository.update as jest.Mock).mockResolvedValue(mockCard);
+
+    const result = await cardService.updateCard(cardId, updateData);
+
+    expect(result).toBeDefined();
+    expect(result.urlImage).toBe(updateData.urlImage);
+    expect(mockCardRepository.update).toHaveBeenCalledWith(mockCard);
+  });
+
+  it('should delete a card successfully', async () => {
+    const cardId = 'test-id';
+    const mockCard = new Card({ owner: testUser, cardBase: testCardBase, statusCard: 100, id: cardId });
+
+    (mockCardRepository.findById as jest.Mock).mockResolvedValue(mockCard);
+    (userRepository.findById as jest.Mock).mockResolvedValue(testUser);
+    (mockCardRepository.delete as jest.Mock).mockResolvedValue(true);
+
+    const result = await cardService.deleteCard(testUser.getId(), cardId);
+
+    expect(result).toBe(true);
+    expect(mockCardRepository.delete).toHaveBeenCalledWith(cardId);
+  });
 });
