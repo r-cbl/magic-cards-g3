@@ -45,13 +45,15 @@ export class Publication extends Ownable {
         return Math.random().toString(36).substring(2, 9);
     }
 
-    public addOffer(offer: Offer): void {
+    public addOffer(offer: Offer):  Offer {
       if (this.statusPublication === StatusPublication.CLOSED) {
         throw new Error("Cannot add offer to a closed publication");
       }
       this.mustBeDifferentOwners(offer,"offer","publication");
       this.offersExisting.push(offer);
+      return offer;
     }
+
     public getId(): string {
         return this.id;
       }
