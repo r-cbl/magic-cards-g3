@@ -29,17 +29,17 @@ export class Publication extends Ownable {
     private statusPublication: StatusPublication;
 
     constructor(props: PublicationProps) {
-        super(props.owner);
-        this.validateOwnership(props.owner,"publication");
-        this.id = props.id || this.generateId();
-        this.statusPublication = StatusPublication.OPEN;
-        this.cardExchange = props.cardExchange;
-        this.offersExisting = props.offersExisting || [];
-        this.valueMoney = props.valueMoney;
-        this.card = props.card;
-        this.createdAt = props.createdAt || new Date();
-        this.updatedAt = props.updatedAt || new Date();
-    }
+      super(props.owner);
+      this.id = props.id || this.generateId();
+      this.statusPublication = StatusPublication.OPEN;
+      this.cardExchange = props.cardExchange;
+      this.offersExisting = props.offersExisting || [];
+      this.valueMoney = props.valueMoney;
+      this.card = props.card;
+      this.validateOwnership(this.card.getOwner(),"card");
+      this.createdAt = props.createdAt || new Date();
+      this.updatedAt = props.updatedAt || new Date();
+  }
     
     private generateId(): string {
         return Math.random().toString(36).substring(2, 9);
