@@ -60,6 +60,7 @@ describe('PublicationController', () => {
             mockRequest.body = publicationData;
             const expectedPublication: PublicationResponseDTO = {
                 id: 'test-id',
+                cardId: 'test-id-card',
                 name: 'Test Card',
                 valueMoney: 100,
                 cardExchangeIds: ['exchange1', 'exchange2'],
@@ -130,6 +131,7 @@ describe('PublicationController', () => {
             const expectedPublications: PublicationResponseDTO[] = [
                 {
                     id: 'pub1',
+                    cardId: 'test-card-1',
                     name: 'Test Card 1',
                     valueMoney: 50,
                     cardExchangeIds: ['card1'],
@@ -182,6 +184,7 @@ describe('PublicationController', () => {
             mockRequest.params = { id: publicationId };
             const expectedPublication: PublicationResponseDTO = {
                 id: publicationId,
+                cardId: 'test-card-id',
                 name: 'Test Card',
                 valueMoney: 100,
                 cardExchangeIds: ['card1'],
@@ -240,6 +243,7 @@ describe('PublicationController', () => {
             mockRequest.body = updateData;
             const expectedPublication: PublicationResponseDTO = {
                 id: publicationId,
+                cardId: 'test-card-id',
                 name: 'Test Card',
                 valueMoney: 150,
                 cardExchangeIds: ['card1', 'card2'],

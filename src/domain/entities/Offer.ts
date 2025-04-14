@@ -41,7 +41,7 @@ export class Offer extends Ownable {
         this.id = props.id || this.generateId();
         this.offerOwner = props.offerOwner;
         this.cardOffers = props.cardOffers;
-        this.statusOffer = props.statusOffer || StatusOffer.DRAFT;
+        this.statusOffer = props.statusOffer || StatusOffer.PENDING;
         this.moneyOffer = props.moneyOffer;
         this.closedAt = props.closedAt;
         this.createdAt = props.createdAt || new Date();
