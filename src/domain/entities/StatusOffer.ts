@@ -1,6 +1,6 @@
 export enum StatusOffer {
-    DRAFT = 'Draft',
-    PENDING = 'Pending',
-    ACCEPTED = 'Accepted',
-    REJECTED = 'Rejected'
+    DRAFT = 'draft',
+    PENDING = 'pending',
+    ACCEPTED = 'accepted',
+    REJECTED = 'rejected'
 }

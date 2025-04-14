@@ -9,6 +9,7 @@ import { CardBase } from "../../domain/entities/CardBase";
 import { Game } from "../../domain/entities/Game";
 import { Offer } from "../../domain/entities/Offer";
 import { StatusOffer } from "../../domain/entities/StatusOffer";
+import { StatusPublication } from "../../domain/entities/StatusPublication";
 import { UnauthorizedException } from "../../domain/entities/exceptions/exceptions";
 // Mock the repositories
 jest.mock("../../infrastructure/repositories/Container", () => ({
@@ -20,7 +21,9 @@ jest.mock("../../infrastructure/repositories/Container", () => ({
     update: jest.fn(),
   },
   cardRepository: {
+    findById: jest.fn(),
     findByCardsByIds: jest.fn(),
+    update: jest.fn(),
   },
 }));
 
@@ -305,10 +308,91 @@ describe('OfferService', () => {
       (mockOfferRepository.update as jest.Mock).mockResolvedValue(offer);
       (publicationRepository.findById as jest.Mock).mockResolvedValue(testPublication);
       (userRepository.findById as jest.Mock).mockResolvedValue(testUser1);
+      (cardRepository.update as jest.Mock).mockResolvedValue(testCard);
 
       const result = await offerService.updateOffer('offer-id',offerData);
       expect(result).toBeDefined();
       expect(result.getStatusOffer()).toBe(StatusOffer.ACCEPTED);
+      expect(cardRepository.update).toHaveBeenCalled();
+      expect(publicationRepository.update).toHaveBeenCalled();
+    });
+    it('should change the status of the offer to accepted, transfer card ownership, and close publication', async () => {
+      // Arrange
+      const publicationOwner = new User({
+        name: "Publication Owner",
+        email: "pub.owner@example.com",
+        password: "password123"
+      });
+
+      const offerOwner = new User({
+        name: "Offer Owner",
+        email: "offer.owner@example.com",
+        password: "password123"
+      });
+
+      const testCard1 = new Card({
+        cardBase: testCardBase,
+        owner: publicationOwner,
+        statusCard: 100
+      });
+
+      const publicationWithDifferentOwner = new Publication({
+        card: testCard1,
+        owner: publicationOwner,
+        valueMoney: 100
+      });
+
+      const testCard2 = new Card({
+        cardBase: testCardBase,
+        owner: offerOwner,
+        statusCard: 100
+      });
+
+      const offer = new Offer({
+        offerOwner: offerOwner,
+        cardOffers: [testCard2],
+        moneyOffer: 100,
+        statusOffer: StatusOffer.PENDING
+      });
+
+      const offerData: OfferUpdatedDTO = {
+        statusOffer: "accepted",
+        userId: publicationOwner.getId(),
+        publicationId: publicationWithDifferentOwner.getId()
+      };
+
+      // Mock repository calls
+      (mockOfferRepository.findById as jest.Mock).mockResolvedValue(offer);
+      (mockOfferRepository.update as jest.Mock).mockImplementation(updatedOffer => updatedOffer);
+      (publicationRepository.findById as jest.Mock).mockResolvedValue(publicationWithDifferentOwner);
+      (userRepository.findById as jest.Mock).mockResolvedValue(publicationOwner);
+      (cardRepository.update as jest.Mock).mockImplementation(updatedCard => updatedCard);
+
+      // Act
+      const result = await offerService.updateOffer('offer-id', offerData);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result.getStatusOffer()).toBe(StatusOffer.ACCEPTED);
+      
+      // Verify offered card ownership was transferred to publication owner
+      const updatedOfferedCard = (cardRepository.update as jest.Mock).mock.calls[0][0];
+      expect(updatedOfferedCard.getOwner()).toBe(publicationOwner);
+            
+
+      // Verify publication card ownership was transferred to offer owner
+      const updatedPublicationCard = (cardRepository.update as jest.Mock).mock.calls[1][0];
+      expect(updatedPublicationCard.getOwner()).toBe(offerOwner);
+      
+
+      // Verify publication was closed
+      const updatedPublication = (publicationRepository.update as jest.Mock).mock.calls[0][0];
+      expect(updatedPublication.getStatusPublication()).toBe(StatusPublication.CLOSED);
+      
+      // Verify all repositories were called
+      expect(cardRepository.update).toHaveBeenCalledTimes(2); // Called twice: once for publication card, once for offered card
+      expect(publicationRepository.update).toHaveBeenCalled();
+      expect(mockOfferRepository.update).toHaveBeenCalled();
     });
     it('should change the status of the offer to rejected', async () => {
       const offerData: OfferUpdatedDTO = {
@@ -330,6 +414,78 @@ describe('OfferService', () => {
       const result = await offerService.updateOffer('offer-id',offerData);
       expect(result).toBeDefined();
       expect(result.getStatusOffer()).toBe(StatusOffer.REJECTED);
+    });
+    it('should not change card ownership when offer is rejected', async () => {
+      // Arrange
+      const publicationOwner = new User({
+        name: "Publication Owner",
+        email: "pub.owner@example.com",
+        password: "password123"
+      });
+
+      const offerOwner = new User({
+        name: "Offer Owner",
+        email: "offer.owner@example.com",
+        password: "password123"
+      });
+
+      const testCard1 = new Card({
+        cardBase: testCardBase,
+        owner: publicationOwner,
+        statusCard: 100
+      });
+
+      const testCard2 = new Card({
+        cardBase: testCardBase,
+        owner: offerOwner,
+        statusCard: 100
+      });
+
+      const publicationWithDifferentOwner = new Publication({
+        card: testCard1,
+        owner: publicationOwner,
+        valueMoney: 100
+      });
+
+      const offer = new Offer({
+        offerOwner: offerOwner,
+        cardOffers: [testCard2],
+        moneyOffer: 100,
+        statusOffer: StatusOffer.PENDING
+      });
+
+      const offerData: OfferUpdatedDTO = {
+        statusOffer: "rejected",
+        userId: publicationOwner.getId(),
+        publicationId: publicationWithDifferentOwner.getId()
+      };
+
+      // Mock repository calls
+      (mockOfferRepository.findById as jest.Mock).mockResolvedValue(offer);
+      (mockOfferRepository.update as jest.Mock).mockImplementation(updatedOffer => updatedOffer);
+      (publicationRepository.findById as jest.Mock).mockResolvedValue(publicationWithDifferentOwner);
+      (userRepository.findById as jest.Mock).mockResolvedValue(publicationOwner);
+
+      // Act
+      const result = await offerService.updateOffer('offer-id', offerData);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result.getStatusOffer()).toBe(StatusOffer.REJECTED);
+      
+      // Verify publication card ownership was NOT changed
+      expect(testCard1.getOwner()).toBe(publicationOwner);
+      
+      // Verify offered card ownership was NOT changed
+      expect(testCard2.getOwner()).toBe(offerOwner);
+      
+      // Verify publication was NOT closed
+      expect(publicationWithDifferentOwner.getStatusPublication()).toBe(StatusPublication.OPEN);
+      
+      // Verify only offer repository was updated
+      expect(mockOfferRepository.update).toHaveBeenCalled();
+      expect(publicationRepository.update).toHaveBeenCalledTimes(1);
+      expect(cardRepository.update).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,14 +1,14 @@
-import { PublicationService } from '../../../application/services/PublicationService';
-import { PublicationRepository } from '../../../domain/repositories/PublicationRepository';
-import { userRepository, cardRepository, cardBaseRepository } from '../../../infrastructure/repositories/Container';
-import { Card } from '../../../domain/entities/Card';
-import { CardBase } from '../../../domain/entities/CardBase';
-import { Game } from '../../../domain/entities/Game';
-import { Publication } from '../../../domain/entities/Publication';
-import { User } from '../../../domain/entities/User';
-import { CreatePublicationDTO, PublicationFilterDTO, PublicationUpdatedDTO } from '../../../application/dtos/PublicationDTO';
+import { PublicationService } from '../../application/services/PublicationService';
+import { PublicationRepository } from '../../domain/repositories/PublicationRepository';
+import { userRepository, cardRepository, cardBaseRepository } from '../../infrastructure/repositories/Container';
+import { Card } from '../../domain/entities/Card';
+import { CardBase } from '../../domain/entities/CardBase';
+import { Game } from '../../domain/entities/Game';
+import { Publication } from '../../domain/entities/Publication';
+import { User } from '../../domain/entities/User';
+import { CreatePublicationDTO, PublicationFilterDTO, PublicationUpdatedDTO } from '../../application/dtos/PublicationDTO';
 
-jest.mock('../../../infrastructure/repositories/Container', () => ({
+jest.mock('../../infrastructure/repositories/Container', () => ({
   userRepository: { findById: jest.fn() },
   cardRepository: { findById: jest.fn() },
   cardBaseRepository: { findById: jest.fn() }

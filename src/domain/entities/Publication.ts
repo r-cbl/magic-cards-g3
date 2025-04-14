@@ -51,32 +51,42 @@ export class Publication extends Ownable {
       }
       this.mustBeDifferentOwners(offer,"offer","publication");
       this.offersExisting.push(offer);
-
-      //publicationRepository.update(this);
     }
     public getId(): string {
         return this.id;
       }
 
-    public closePublication(): void {
+    public closePublication(): Offer[] {
         this.statusPublication = StatusPublication.CLOSED;
-        this.offersExisting
-        .filter(offer => offer.getStatusOffer() === StatusOffer.PENDING)
-        .forEach(offer => offer.rejectOffer());
+        this.updatedAt = new Date();
+        const rejectedOffers: Offer[] = [];
 
-        //publicationRepository.update(this);
+        this.offersExisting
+            .filter(offer => offer.getStatusOffer() === StatusOffer.PENDING)
+            .forEach(offer => {
+                offer.rejectOffer();
+                rejectedOffers.push(offer);
+            });
+
+        return rejectedOffers;
     }
 
-    public acceptOffer(offer: Offer): void {
+    public acceptOffer(offer: Offer): [Offer, Card[]] {
       if (this.statusPublication === StatusPublication.CLOSED) {
         throw new Error("Publication already closed");
       }      
-      offer.acceptOffer();
+      this.updatedAt = new Date();
+      const cards = offer.acceptOffer(this.getOwner());
       this.closePublication();
+      this.card.setOwner(offer.getOfferOwner());
+      cards.push(this.card);
+      return [offer, cards];
     }
 
-    public rejectOffer(offer: Offer): void {
+    public rejectOffer(offer: Offer): Offer { 
+      this.updatedAt = new Date();
       offer.rejectOffer();
+      return offer;
     }
 
     public getStatusPublication(): StatusPublication {
@@ -109,10 +119,12 @@ export class Publication extends Ownable {
 
     public setCardExchange(cards: CardBase[]){
       this.cardExchange = cards;
+      this.updatedAt = new Date();
     }
 
     public setValueMoney(money: number) {
       this.valueMoney = money;
+      this.updatedAt = new Date();
     }
 
     public setUpdatedAt(date : Date) {

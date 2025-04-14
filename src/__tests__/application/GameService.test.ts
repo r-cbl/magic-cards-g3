@@ -1,7 +1,7 @@
-import { Game } from '../../../domain/entities/Game';
-import { GameRepository } from '../../../domain/repositories/GameRepository';
-import { GameService } from '../../../application/services/GameService';
-import { CreateGameDTO, UpdateGameDTO } from '../../../application/dtos/GameDTO';
+import { Game } from '../../domain/entities/Game';
+import { GameRepository } from '../../domain/repositories/GameRepository';
+import { GameService } from '../../application/services/GameService';
+import { CreateGameDTO, UpdateGameDTO } from '../../application/dtos/GameDTO';
 
 describe('GameService', () => {
   let gameRepository: jest.Mocked<GameRepository>;
