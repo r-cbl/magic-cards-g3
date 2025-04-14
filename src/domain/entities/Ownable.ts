@@ -11,6 +11,10 @@ export class Ownable {
         return this.owner;
     }
 
+    public setOwner(owner: User) {
+        this.owner = owner;
+    }
+
     public validateOwnership(owner: User, entityName: string): void {
         if (this.getOwner().getId() !== owner.getId()) {
             throw new Error(`Unauthorized: only the owner can perform this action on the ${entityName}`);
