@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationUpdatedDTO } from "../../application/dtos/PublicationDTO";
 import { PublicationService } from "../../application/services/PublicationService";
-
+import { UnauthorizedException } from '../../domain/entities/exceptions/exceptions';
 export class PublicationController {
     constructor(private readonly publicationService: PublicationService) {}
 
@@ -15,7 +15,9 @@ export class PublicationController {
             const publication = await this.publicationService.createPublication(publicationData);
             res.status(201).json(publication);
         } catch (error) {
-            if (error instanceof Error) {
+            if (error instanceof UnauthorizedException) {
+                res.status(401).json({ error: error.message }); 
+            } else if (error instanceof Error) {
                 res.status(400).json({ error: error.message }); 
             } else {
                 res.status(500).json({ error: 'An unexpected error occurred' });
@@ -39,7 +41,9 @@ export class PublicationController {
             const publications = await this.publicationService.getAllPublications(filters);
             res.status(200).json(publications);
         } catch (error) {
-          if (error instanceof Error) {
+          if (error instanceof UnauthorizedException) {
+            res.status(401).json({ error: error.message });
+          } else if (error instanceof Error) {
             res.status(400).json({ error: error.message });
           } else {
             res.status(500).json({ error: 'An unexpected error occurred' });
@@ -54,7 +58,9 @@ export class PublicationController {
             const publication = await this.publicationService.getPublication(id)
             res.status(200).json(publication)
         } catch (error) {
-            if (error instanceof Error) {
+            if (error instanceof UnauthorizedException) {
+                res.status(401).json({ error: error.message });
+            } else if (error instanceof Error) {
               res.status(400).json({ error: error.message });
             } else {
               res.status(500).json({ error: 'An unexpected error occurred' });
@@ -73,7 +79,9 @@ export class PublicationController {
             const publication = await this.publicationService.updatePublication(id, publicationData)
             res.status(200).json(publication)
         } catch (error) {
-            if (error instanceof Error) {
+            if (error instanceof UnauthorizedException) {
+                res.status(401).json({ error: error.message });
+            } else if (error instanceof Error) {
               res.status(400).json({ error: error.message });
             } else {
               res.status(500).json({ error: 'An unexpected error occurred' });
@@ -88,7 +96,9 @@ export class PublicationController {
             await this.publicationService.deletePublication(userId,id)
             res.status(204).send();
         } catch (error) {
-            if (error instanceof Error) {
+            if (error instanceof UnauthorizedException) {
+                res.status(401).json({ error: error.message });
+            } else if (error instanceof Error) {
               res.status(400).json({ error: error.message });
             } else {
               res.status(500).json({ error: 'An unexpected error occurred' });

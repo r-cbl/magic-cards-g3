@@ -14,3 +14,12 @@ export interface OfferResponseDTO {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface OfferUpdatedDTO {
+    userId: string;
+    statusOffer: string;
+    publicationId: string;
+}
+
+
+

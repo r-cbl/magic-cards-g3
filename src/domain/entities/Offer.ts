@@ -52,13 +52,18 @@ export class Offer extends Ownable {
         return Math.random().toString(36).substring(2, 9);
     }
 
+    public acceptOffer(): void {
+        this.statusOffer = StatusOffer.ACCEPTED;
+    }
+
+    public rejectOffer(): void {
+        this.statusOffer = StatusOffer.REJECTED;
+    }
+
     private areMyCards(cards: Card[], offerOwner: User): boolean {
         return cards.every((card: Card) => card.validateOwnership(offerOwner,"Card"));
     }
     
-    public isMyOffer(offerOwner: User): boolean {
-        return this.offerOwner.getId() === offerOwner.getId();
-    }
 
     public getId(): string {
         return this.id;

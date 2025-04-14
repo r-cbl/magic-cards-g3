@@ -1,13 +1,15 @@
 import { OfferService } from "../../application/services/OfferService";
-import { CreateOfferDTO } from "../../application/dtos/OfferDTO";
+import { CreateOfferDTO, OfferUpdatedDTO } from "../../application/dtos/OfferDTO";
 import { OfferRepository } from "../../domain/repositories/OfferRepository";
-import { userRepository, publicationRepository, cardRepository } from "../../infrastructure/repositories/Container";
-import { User } from "../../domain/entities/User";
+import { userRepository, publicationRepository, cardRepository, offerRepository } from "../../infrastructure/repositories/Container";
+import { User } from "../../domain/entities/User";  
 import { Publication } from "../../domain/entities/Publication";
 import { Card } from "../../domain/entities/Card";
 import { CardBase } from "../../domain/entities/CardBase";
 import { Game } from "../../domain/entities/Game";
-
+import { Offer } from "../../domain/entities/Offer";
+import { StatusOffer } from "../../domain/entities/StatusOffer";
+import { UnauthorizedException } from "../../domain/entities/exceptions/exceptions";
 // Mock the repositories
 jest.mock("../../infrastructure/repositories/Container", () => ({
   userRepository: {
@@ -213,5 +215,102 @@ describe('OfferService', () => {
     await expect(offerService.createOffer(offerData))
       .rejects
       .toThrow('offer owner is the same as the publication owner');
+  });
+  describe('updateOffer', () => {
+    it('should throw error when accepting offer for non-existent publication', async () => {
+      const offerData: OfferUpdatedDTO = {
+        statusOffer: "accepted",
+        userId: 'user-id',
+        publicationId: 'publication-id'
+      };
+      (publicationRepository.findById as jest.Mock).mockResolvedValue(null);
+      (userRepository.findById as jest.Mock).mockResolvedValue(testUser);
+      (mockOfferRepository.findById as jest.Mock).mockResolvedValue(null);
+      await expect(offerService.updateOffer('offer-id',offerData))
+        .rejects
+        .toThrow('Offer or publication not found');
+    });
+    it('should throw error when accepting offer for non-existent offer', async () => {
+      const offerData: OfferUpdatedDTO = {
+        statusOffer: "accepted",
+        userId: 'user-id',
+        publicationId: 'publication-id'
+      };
+      (publicationRepository.findById as jest.Mock).mockResolvedValue(testPublication);
+      (userRepository.findById as jest.Mock).mockResolvedValue(testUser);
+      (mockOfferRepository.findById as jest.Mock).mockResolvedValue(null);
+      await expect(offerService.updateOffer('offer-id',offerData))
+        .rejects
+        .toThrow('Offer or publication not found');
+    });
+    it('should throw an error when accepting an offer for a publication that is not owned by the user', async () => {
+      const offerData: OfferUpdatedDTO = {
+        statusOffer: "accepted",
+        userId: 'user-id',
+        publicationId: 'publication-id'
+      };
+      const publicationOwner = new User({
+        name: "Publication Owner",
+        email: "pub.owner@example.com",
+        password: "password123"
+      });
+      const offer = new Offer({
+        offerOwner: testUser1,
+        cardOffers: [testCard],
+        moneyOffer: 100,
+        statusOffer: StatusOffer.DRAFT
+      });
+      const publicationOwnedByUser = new Publication({
+        card: testCard,
+        owner: publicationOwner,
+        valueMoney: 100
+      });
+      (publicationRepository.findById as jest.Mock).mockResolvedValue(publicationOwnedByUser);
+      (userRepository.findById as jest.Mock).mockResolvedValue(testUser);
+      (mockOfferRepository.findById as jest.Mock).mockResolvedValue(offer);
+      await expect(offerService.updateOffer('offer-id',offerData)).rejects.toThrow()
+    });
+    it('should change the status of the offer to accepted', async () => {
+      const offerData: OfferUpdatedDTO = {
+        statusOffer: "accepted",
+        userId: 'user-id',
+        publicationId: 'publication-id'
+      };
+      const offer = new Offer({
+        offerOwner: testUser1,
+        cardOffers: [testCard],
+        moneyOffer: 100,
+        statusOffer: StatusOffer.PENDING
+      });
+      (mockOfferRepository.findById as jest.Mock).mockResolvedValue(offer);
+      (mockOfferRepository.update as jest.Mock).mockResolvedValue(offer);
+      (publicationRepository.findById as jest.Mock).mockResolvedValue(testPublication);
+      (userRepository.findById as jest.Mock).mockResolvedValue(testUser1);
+
+      const result = await offerService.updateOffer('offer-id',offerData);
+      expect(result).toBeDefined();
+      expect(result.getStatusOffer()).toBe(StatusOffer.ACCEPTED);
+    });
+    it('should change the status of the offer to rejected', async () => {
+      const offerData: OfferUpdatedDTO = {
+        statusOffer: "rejected",
+        userId: 'user-id',
+        publicationId: 'publication-id'
+      };
+      const offer = new Offer({
+        offerOwner: testUser1,
+        cardOffers: [testCard],
+        moneyOffer: 100,
+        statusOffer: StatusOffer.PENDING
+      });
+      (mockOfferRepository.findById as jest.Mock).mockResolvedValue(offer);
+      (mockOfferRepository.update as jest.Mock).mockResolvedValue(offer);
+      (publicationRepository.findById as jest.Mock).mockResolvedValue(testPublication);
+      (userRepository.findById as jest.Mock).mockResolvedValue(testUser1);
+
+      const result = await offerService.updateOffer('offer-id',offerData);
+      expect(result).toBeDefined();
+      expect(result.getStatusOffer()).toBe(StatusOffer.REJECTED);
+    });
   });
 });
