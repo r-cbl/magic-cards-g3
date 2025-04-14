@@ -27,8 +27,8 @@ export class InMemoryOfferRepository implements OfferRepository {
         return true;
     }
 
-    async findById(id: string): Promise<Offer | undefined> {
-        return this.offers.find(o => o.getId() === id) || undefined;
+    async findById(id: string): Promise<Offer | null> {
+        return this.offers.find(o => o.getId() === id) || null;
     }
 
 

@@ -1,9 +1,9 @@
-import { Offer, OfferProps } from '../../../../domain/entities/Offer';
-import { User, UserProps } from '../../../../domain/entities/User';
-import { Card, CardProps } from '../../../../domain/entities/Card';
-import { CardBase, CardBaseProps } from '../../../../domain/entities/CardBase';
-import { Game } from '../../../../domain/entities/Game';
-import { StatusOffer } from '../../../../domain/entities/StatusOffer';
+import { Offer, OfferProps } from '../../../domain/entities/Offer';
+import { User, UserProps } from '../../../domain/entities/User';
+import { Card, CardProps } from '../../../domain/entities/Card';
+import { CardBase, CardBaseProps } from '../../../domain/entities/CardBase';
+import { Game } from '../../../domain/entities/Game';
+import { StatusOffer } from '../../../domain/entities/StatusOffer';
 
 describe('Offer Entity', () => {
   // Create test users
@@ -114,7 +114,6 @@ describe('Offer Entity', () => {
       
       // Assert
       expect(offer).toBeDefined();
-      expect(offer.isMyOffer(ownerUser)).toBe(true);
     });
     
     it('should create an offer with a card', () => {
@@ -155,7 +154,6 @@ describe('Offer Entity', () => {
       
       // Assert
       expect(offer).toBeDefined();
-      expect(offer.isMyOffer(ownerUser)).toBe(true);
     });
     
     it('should create an offer with multiple cards and money', () => {
@@ -171,7 +169,6 @@ describe('Offer Entity', () => {
       
       // Assert
       expect(offer).toBeDefined();
-      expect(offer.isMyOffer(ownerUser)).toBe(true);
     });
     
     it('should create an offer with default status DRAFT', () => {

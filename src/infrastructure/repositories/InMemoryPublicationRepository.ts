@@ -27,7 +27,6 @@ export class InMemoryPublicationRepository implements PublicationRepository {
         return publication;
     }
 
-    // TODO: Change this after enable bbdd settings.
     async find(filters: PublicationFilterDTO): Promise<Publication[]> {
         return this.publications.filter(pub => {
             const createdAt = pub.getCreatedAt();
