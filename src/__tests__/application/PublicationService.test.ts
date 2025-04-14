@@ -1,17 +1,21 @@
 import { PublicationService } from '../../application/services/PublicationService';
 import { PublicationRepository } from '../../domain/repositories/PublicationRepository';
-import { userRepository, cardRepository, cardBaseRepository } from '../../infrastructure/repositories/Container';
+import { userRepository, cardRepository, cardBaseRepository, offerRepository } from '../../infrastructure/repositories/Container';
 import { Card } from '../../domain/entities/Card';
 import { CardBase } from '../../domain/entities/CardBase';
 import { Game } from '../../domain/entities/Game';
 import { Publication } from '../../domain/entities/Publication';
 import { User } from '../../domain/entities/User';
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationUpdatedDTO } from '../../application/dtos/PublicationDTO';
+import { StatusOffer } from '../../domain/entities/StatusOffer';
+import { Offer } from '../../domain/entities/Offer';
+import { StatusPublication } from '../../domain/entities/StatusPublication';
 
 jest.mock('../../infrastructure/repositories/Container', () => ({
   userRepository: { findById: jest.fn() },
   cardRepository: { findById: jest.fn() },
-  cardBaseRepository: { findById: jest.fn() }
+  cardBaseRepository: { findById: jest.fn() },
+  offerRepository: { update: jest.fn() }
 }));
 
 describe('PublicationService', () => {
@@ -121,6 +125,73 @@ describe('PublicationService', () => {
       mockRepository.findById.mockResolvedValue(publication);
         await expect(publicationService.updatePublication(publication.getId(), dto))
         .rejects.toThrow();
+    });
+
+    it('should close publication and reject offers', async () => {
+      const { publication, otherUser, game, cardBase } = createEntities(); 
+      
+      // Create cards for the other user to offer
+      const offerCard1 = new Card({ 
+        cardBase, 
+        owner: otherUser, 
+        statusCard: 90 
+      });
+      
+      const offerCard2 = new Card({ 
+        cardBase, 
+        owner: otherUser, 
+        statusCard: 85 
+      });
+      
+      const offerCard3 = new Card({ 
+        cardBase, 
+        owner: otherUser, 
+        statusCard: 80 
+      });
+      
+      // Create offers with cards
+      const offer1 = new Offer({
+        offerOwner: otherUser,
+        cardOffers: [offerCard1],
+        moneyOffer: 50,
+        statusOffer: StatusOffer.PENDING
+      });
+      
+      const offer2 = new Offer({
+        offerOwner: otherUser,
+        cardOffers: [offerCard2, offerCard3],
+        moneyOffer: 75,
+        statusOffer: StatusOffer.PENDING
+      });
+      
+      // Add offers to the publication
+      publication.addOffer(offer1);
+      publication.addOffer(offer2);
+      
+      mockRepository.findById.mockResolvedValue(publication);
+      mockRepository.update.mockResolvedValue(publication);
+      (userRepository.findById as jest.Mock).mockResolvedValue(publication.getOwner());
+      (offerRepository.update as jest.Mock).mockResolvedValue((offer: Offer) => offer);
+
+      const result = await publicationService.updatePublication(
+        publication.getId(), 
+        { 
+          userId: publication.getOwner().getId(), 
+          cancel: true, 
+          cardExchangeIds: [] 
+        }
+      );
+      
+      // Verify all offers are rejected
+      expect(result.offers.every(offer => offer.statusOffer === StatusOffer.REJECTED)).toBe(true);
+      
+      // Verify the cards ownership hasn't changed
+      expect(offerCard1.getOwner()).toBe(otherUser);
+      expect(offerCard2.getOwner()).toBe(otherUser);
+      expect(offerCard3.getOwner()).toBe(otherUser);
+      
+      // Verify publication is closed
+      expect(publication.getStatusPublication()).toBe(StatusPublication.CLOSED);
     });
   });
 
