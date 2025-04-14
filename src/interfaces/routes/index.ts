@@ -8,6 +8,7 @@ import cardbaseRoutes from './cardBase.routes';
 import { healthCheck } from '../../infrastructure/http/health';
 import { swaggerSpec } from '../../docs/swaggerConfig';
 import swaggerUi from 'swagger-ui-express';
+import cardRouter from './card.routes';
 
 const router = Router();
 
@@ -19,6 +20,7 @@ router.use('/docs',swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 router.use('/publications', publicationRoutes);
 router.use('/games', gameRoutes);
 router.use('/card-bases', cardbaseRoutes);
+router.use('/cards', cardRouter);
 
 // Health check routes
 router.get('/health', (req: Request, res: Response) => healthCheck(req, res));
