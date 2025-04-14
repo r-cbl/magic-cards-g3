@@ -1,17 +1,18 @@
 import { Card } from "../../domain/entities/Card";
-import { CardBase } from "../../domain/entities/CardBase";
-import { cardBaseRepository, userRepository } from "../../infrastructure/repositories/Container";
+import { cardBaseRepository, gameRepository, userRepository } from "../../infrastructure/repositories/Container";
 import { CardRepository } from "@/domain/repositories/CardRepository";
-import { CardFilterDTO, CardResponseDTO, CreateCardDTO } from "../dtos/CardsDTO";
+import { CardFilterDTO, CardResponseDTO, CardUpdatedDTO, CreateCardDTO } from "../dtos/CardsDTO";
 import { UserService } from "./UserService";
+import { CardBaseService } from "./CardBaseService";
 
 export class CardService {
     userService : UserService = new UserService(userRepository);
+    cardBaseService : CardBaseService = new CardBaseService(cardBaseRepository, gameRepository);
 
     constructor(private readonly cardRepository: CardRepository) {}
     public async createCard(cardData: CreateCardDTO): Promise<CardResponseDTO> {
         const user = await this.userService.getSimpleUser(cardData.ownerId);
-        const cardBase = await this.getCardBase(cardData.cardBaseId);
+        const cardBase = await this.cardBaseService.getSimpleCardBase(cardData.cardBaseId);
       
         const card = new Card({
             owner: user,
@@ -60,16 +61,34 @@ export class CardService {
             },
             createdAt: card.getCreatedAt(),
         };
-      }
+    }
+
+    public async updateCard(id: string, cardData: CardUpdatedDTO): Promise<CardResponseDTO>{
+        const card = await this.getSimpleCard(id);
+        const user = await this.userService.getSimpleUser(cardData.ownerId);
+
+        if(user) card.setOwner(user);
+        if(cardData.statusCard) card.setStatusCard(cardData.statusCard);
+        if(cardData.urlImage) card.setUrlImage(cardData.urlImage);
+
+        card.validateOwnership(user,"publication")
+      
+        card.setUpdatedAt(new Date())
+        return this.toCardResponseDTO(await this.cardRepository.update(card))
+    }
+  
+    public async deleteCard(userId: string, id: string): Promise<boolean>{
+        const card = await this.getSimpleCard(id);
+        const user = await this.userService.getSimpleUser(userId)
+        
+        card.validateOwnership(user, "publication");
+
+        return this.cardRepository.delete(id);
+    }
 
     public async getSimpleCard(id: string) : Promise<Card> {
         return await this.cardRepository.findById(id);
     }
-
-    private async getCardBase(id: string): Promise<CardBase> {
-        const cardBase = await cardBaseRepository.findById(id);
-        if (!cardBase) throw new Error("Base Card not found");
-        return cardBase;
-    }
+    
       
 }

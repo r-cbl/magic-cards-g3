@@ -35,7 +35,6 @@ export class Card extends Ownable {
     private generateId(): string {
         return Math.random().toString(36).substring(2, 9);
     }
-
       
     public getCardBase(): CardBase {
       return this.cardBase;
@@ -59,6 +58,22 @@ export class Card extends Ownable {
 
     public getId(): string {
         return this.id;
+    }
+
+    public setUpdatedAt(date : Date) {
+        this.updatedAt = date;
+    }
+
+    public setCardBase(cardBase: CardBase) {
+        this.cardBase = cardBase;
+    }
+
+    public setStatusCard(statusCard: number) {
+        this.statusCard = statusCard;
+    }
+
+    public setUrlImage(urlImage: string) {
+        this.urlImage = urlImage;
     }
 
 }           
