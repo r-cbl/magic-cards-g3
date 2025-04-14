@@ -28,4 +28,10 @@ export interface CardFilterDTO {
     game?: string;
     ownerId?: string;
 }
+
+export interface CardUpdatedDTO {
+  ownerId: string;
+  urlImage?: string;
+  statusCard: number;
+}
   
