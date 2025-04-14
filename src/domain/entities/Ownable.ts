@@ -1,4 +1,5 @@
 import { User } from "../entities/User";
+import { UnauthorizedException } from "./exceptions/exceptions";
 
 export class Ownable {
     private owner: User;
@@ -13,7 +14,7 @@ export class Ownable {
 
     public validateOwnership(owner: User, entityName: string): void {
         if (this.getOwner().getId() !== owner.getId()) {
-            throw new Error(`Unauthorized: only the owner can perform this action on the ${entityName}`);
+            throw new UnauthorizedException(`Only the owner can perform this action on the ${entityName}`);
         }
     }
 

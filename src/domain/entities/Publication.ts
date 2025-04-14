@@ -55,6 +55,15 @@ export class Publication extends Ownable {
         this.statusPublication = StatusPublication.CLOSED;
     }
 
+    public acceptOffer(offer: Offer): void {
+      offer.acceptOffer();
+      this.closePublication();
+    }
+
+    public rejectOffer(offer: Offer): void {
+      offer.rejectOffer();
+    }
+
     public getStatusPublication(): StatusPublication {
         return this.statusPublication;
     }
