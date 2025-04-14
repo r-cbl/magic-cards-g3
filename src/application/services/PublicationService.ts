@@ -1,14 +1,16 @@
 import { PublicationRepository } from "../../domain/repositories/PublicationRepository";
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationResponseDTO, PublicationUpdatedDTO } from "../dtos/PublicationDTO";
 import { Publication } from "../../domain/entities/Publication";
-import { cardBaseRepository, cardRepository, userRepository } from "../../infrastructure/repositories/Container";
+import { cardBaseRepository, cardRepository, gameRepository, userRepository } from "../../infrastructure/repositories/Container";
 import { CardService } from "./CardService";
 import { UserService } from "./UserService";
 import { CardBase } from "../../domain/entities/CardBase";
+import { CardBaseService } from "./CardBaseService";
 
 export class PublicationService {
     cardService : CardService = new CardService(cardRepository);
     userService : UserService = new UserService(userRepository);
+    cardBaseService : CardBaseService = new CardBaseService(cardBaseRepository, gameRepository);
 
     constructor(private readonly publicationRepository: PublicationRepository) {}
 
@@ -26,7 +28,7 @@ export class PublicationService {
           this.validateMoney(publicationData.valueMoney);
 
         const cardExchange: CardBase[] = await Promise.all(
-          (cardExchangeIds ?? []).map(async (id) => await this.getCardBase(id))
+          (cardExchangeIds ?? []).map(async (id) => await this.cardBaseService.getSimpleCardBase(id))
         );
       
         const publication = new Publication({
@@ -77,7 +79,7 @@ export class PublicationService {
 
       if (publicationData.cardExchangeIds){
         const cardExchange: CardBase[] = await Promise.all(
-          (cardExchangeIds ?? []).map((id) => this.getCardBase(id))
+          (cardExchangeIds ?? []).map((id) => this.cardBaseService.getSimpleCardBase(id))
         );
         publication.setCardExchange(cardExchange)
       }
@@ -135,14 +137,6 @@ export class PublicationService {
         throw Error("Publication not found")
         }
       return publication;
-    }
-
-    private async getCardBase(id: string): Promise<CardBase> {
-      const cardBase = await cardBaseRepository.findById(id)
-      if(!cardBase){
-        throw Error("CardBase not found")
-      }
-      return cardBase;
     }
 
     private async validateMoney(money: number): Promise<void> {

@@ -109,4 +109,10 @@ export class CardBaseService {
       updatedAt: cardBase.getUpdatedAt(),
     };
   }
+
+  public async getSimpleCardBase(id: string): Promise<CardBase> {
+    const cardBase = await this.cardBaseRepository.findById(id);
+    if (!cardBase) throw new Error("Base Card not found");
+    return cardBase;
+  }
 } 
