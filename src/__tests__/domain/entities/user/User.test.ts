@@ -1,4 +1,4 @@
-import { User, UserProps } from '../User';
+import { User, UserProps } from '../../../../domain/entities/User';
 
 describe('User Entity', () => {
   const userData: UserProps = {
