@@ -239,33 +239,3 @@ PORT=3002
 ```
 
 Remember to update the port in the Docker health check URLs and exposed ports if using Docker.
-
-### Module Not Found
-
-If you get a "Module not found" error, make sure:
-
-1. You've built the project with `npm run build`
-2. Your import paths match the actual file structure
-3. The TypeScript configuration in `tsconfig.json` is correct
-
-### Docker Issues
-
-If Docker container fails to start:
-
-1. Ensure no applications are using the specified port
-2. Check that the `CMD` in Dockerfile points to the correct entry file
-3. Verify the health check endpoint is reachable
-
-## 📖 Learning Resources
-
-New to some of these concepts? Here are some resources to help:
-
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
-- [Express.js Documentation](https://expressjs.com/)
-- [Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [JWT Authentication](https://jwt.io/introduction/)
-- [Docker Documentation](https://docs.docker.com/)
-
-## 📝 License
-
-This project is licensed under the MIT License 
