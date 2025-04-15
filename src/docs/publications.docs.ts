@@ -6,14 +6,10 @@
  *       type: object
  *       required:
  *         - cardId
- *         - ownerId
  *       properties:
  *         cardId:
  *           type: string
  *           example: "card-123"
- *         ownerId:
- *           type: string
- *           example: "user-456"
  *         cardExchangeIds:
  *           type: array
  *           items:
@@ -22,101 +18,131 @@
  *         valueMoney:
  *           type: number
  *           example: 150
+
+ *     PublicationUpdatedDTO:
+ *       type: object
+ *       required:
+ *         - cardExchangeIds
+ *       properties:
+ *         valueMoney:
+ *           type: number
+ *           example: 200
+ *         cardExchangeIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example: ["card-111", "card-222"]
 
  *     PublicationResponseDTO:
  *       type: object
  *       properties:
  *         id:
  *           type: string
- *           example: "pub-123"
  *         name:
  *           type: string
- *           example: "Pikachu EX"
  *         valueMoney:
  *           type: number
- *           example: 150
  *         cardExchangeIds:
  *           type: array
  *           items:
  *             type: string
- *           example: ["card-789", "card-321"]
  *         cardBase:
  *           type: object
  *           properties:
  *             Id:
  *               type: string
- *               example: "cb-001"
  *             Name:
  *               type: string
- *               example: "Pikachu"
  *         game:
  *           type: object
  *           properties:
  *             Id:
  *               type: string
- *               example: "game-001"
  *             Name:
  *               type: string
- *               example: "Pokémon"
  *         owner:
  *           type: object
  *           properties:
  *             ownerId:
  *               type: string
- *               example: "user-456"
  *             ownerName:
  *               type: string
- *               example: "Franco"
+ *         offers:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               offerId:
+ *                 type: string
+ *               moneyOffer:
+ *                 type: number
+ *               cardExchangeIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *         createdAt:
  *           type: string
  *           format: date-time
- *           example: "2025-04-10T15:00:00Z"
 
  *   parameters:
+ *     PublicationId:
+ *       in: path
+ *       name: id
+ *       required: true
+ *       schema:
+ *         type: string
+ *       description: Publication ID
+
  *     GamesIdsQuery:
  *       in: query
  *       name: gamesIds
  *       schema:
  *         type: string
- *       description: IDs de juegos separados por coma (game1,game2,...)
+ *       description: Comma-separated game IDs (game1,game2,...)
+
  *     CardBaseIdsQuery:
  *       in: query
  *       name: cardBaseIds
  *       schema:
  *         type: string
- *       description: IDs de cartas base separados por coma (cb1,cb2,...)
+ *       description: Comma-separated card base IDs (cb1,cb2,...)
+
  *     OwnerIdQuery:
  *       in: query
  *       name: ownerId
  *       schema:
  *         type: string
- *       description: ID del dueño de la publicación
+ *       description: Publication owner ID
+
  *     InitialDateQuery:
  *       in: query
  *       name: initialDate
  *       schema:
  *         type: string
  *         format: date-time
- *       description: Fecha mínima de creación (ISO 8601)
+ *       description: Minimum creation date (ISO 8601)
+
  *     EndDateQuery:
  *       in: query
  *       name: endDate
  *       schema:
  *         type: string
  *         format: date-time
- *       description: Fecha máxima de creación (ISO 8601)
+ *       description: Maximum creation date (ISO 8601)
+
  *     MinValueQuery:
  *       in: query
  *       name: minValue
  *       schema:
  *         type: number
- *       description: Valor mínimo en dinero
+ *       description: Minimum monetary value
+
  *     MaxValueQuery:
  *       in: query
  *       name: maxValue
  *       schema:
  *         type: number
- *       description: Valor máximo en dinero
+ *       description: Maximum monetary value
  */
 
 /**
@@ -125,7 +151,7 @@
  *   post:
  *     tags:
  *       - Publications
- *     summary: Crear una publicación
+ *     summary: Create a new publication
  *     requestBody:
  *       required: true
  *       content:
@@ -134,22 +160,22 @@
  *             $ref: '#/components/schemas/CreatePublicationDTO'
  *     responses:
  *       201:
- *         description: Publicación creada correctamente
+ *         description: Publication created successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PublicationResponseDTO'
  *       400:
- *         description: Datos inválidos
+ *         description: Invalid data
  *       401:
- *         description: No autorizado
+ *         description: Unauthorized
  *       500:
- *         description: Error inesperado
+ *         description: Unexpected server error
 
  *   get:
  *     tags:
  *       - Publications
- *     summary: Obtener publicaciones con filtros
+ *     summary: Get publications with filters
  *     parameters:
  *       - $ref: '#/components/parameters/GamesIdsQuery'
  *       - $ref: '#/components/parameters/CardBaseIdsQuery'
@@ -160,7 +186,7 @@
  *       - $ref: '#/components/parameters/MaxValueQuery'
  *     responses:
  *       200:
- *         description: Lista de publicaciones filtradas
+ *         description: Filtered list of publications
  *         content:
  *           application/json:
  *             schema:
@@ -168,9 +194,68 @@
  *               items:
  *                 $ref: '#/components/schemas/PublicationResponseDTO'
  *       400:
- *         description: Error en los filtros
+ *         description: Invalid filters
  *       401:
- *         description: No autorizado
+ *         description: Unauthorized
  *       500:
- *         description: Error inesperado del servidor
+ *         description: Unexpected server error
+
+ * /publications/{id}:
+ *   get:
+ *     tags:
+ *       - Publications
+ *     summary: Get a publication by ID
+ *     parameters:
+ *       - $ref: '#/components/parameters/PublicationId'
+ *     responses:
+ *       200:
+ *         description: Publication found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PublicationResponseDTO'
+ *       404:
+ *         description: Publication not found
+ *       500:
+ *         description: Unexpected error
+
+ *   put:
+ *     tags:
+ *       - Publications
+ *     summary: Update an existing publication
+ *     parameters:
+ *       - $ref: '#/components/parameters/PublicationId'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PublicationUpdatedDTO'
+ *     responses:
+ *       200:
+ *         description: Publication updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PublicationResponseDTO'
+ *       400:
+ *         description: Validation error
+ *       404:
+ *         description: Publication not found
+ *       500:
+ *         description: Unexpected server error
+
+ *   delete:
+ *     tags:
+ *       - Publications
+ *     summary: Delete a publication by ID
+ *     parameters:
+ *       - $ref: '#/components/parameters/PublicationId'
+ *     responses:
+ *       204:
+ *         description: Publication deleted successfully
+ *       404:
+ *         description: Publication not found
+ *       500:
+ *         description: Unexpected server error
  */

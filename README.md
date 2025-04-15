@@ -1,53 +1,40 @@
-# Express Clean Architecture Boilerplate
 
-A TypeScript Express API boilerplate following clean architecture principles with Docker support and JWT authentication.
+# 📦 Entrega 1
 
-## 🌟 Features
+Repositorio correspondiente a la **Entrega 1** del trabajo práctico. El objetivo principal es presentar una arquitectura limpia en una aplicación Express utilizando TypeScript.
 
-- **Clean Architecture**: Well-organized codebase following domain-driven design principles
-- **TypeScript**: Type-safe code development
-- **JWT Authentication**: Secure API endpoints with JSON Web Tokens
-- **Docker Support**: Easy containerization with built-in health checks
-- **Express Framework**: Fast, unopinionated web framework for Node.js
-- **Environment Configuration**: Using dotenv for environment variable management
-- **Logging**: Winston for comprehensive logging
-- **Testing**: Jest configured for unit and integration tests
+---
 
-## 📋 Prerequisites
+## 📋 Prerrequisitos
 
-Before you begin, ensure you have the following installed:
+Antes de comenzar, asegurate de tener instalado lo siguiente:
 
-- [Node.js](https://nodejs.org/) (v14 or later)
-- [npm](https://www.npmjs.com/) (normally comes with Node.js)
-- [Docker](https://www.docker.com/get-started) (optional, for containerization)
-- [Git](https://git-scm.com/) (for version control)
+- [Node.js](https://nodejs.org/) (v14 o superior)
+- [npm](https://www.npmjs.com/) (viene incluido con Node.js)
+- [Docker](https://www.docker.com/get-started) (opcional, para correr en contenedores)
+- [Git](https://git-scm.com/) (control de versiones)
 
-## 🚀 Getting Started
+---
 
-### Clone the Repository
+## 🚀 Comenzando
 
-```bash
-git clone https://github.com/yourusername/express-clean-architecture.git
-cd express-clean-architecture
-```
-
-### Install Dependencies
+### Instalación de dependencias
 
 ```bash
 npm install
 ```
 
-### Set Up Environment Variables
+### Configuración de variables de entorno
 
-Create a `.env` file in the root directory based on the provided `.env.example`:
+Crear un archivo `.env` en la raíz del proyecto basado en `.env.example`:
 
 ```bash
-# App Configuration
+# Configuración general
 NODE_ENV=development
 PORT=3001
 API_PREFIX=/api
 
-# JWT Authentication
+# Autenticación JWT
 JWT_SECRET=your_development_secret_key_change_in_production
 JWT_EXPIRES_IN=1h
 JWT_REFRESH_EXPIRES_IN=7d
@@ -56,186 +43,131 @@ JWT_REFRESH_EXPIRES_IN=7d
 LOG_LEVEL=debug
 ```
 
-### Build the Project
+### Compilar el proyecto
 
 ```bash
 npm run build
 ```
 
-### Run the Application
+### Ejecutar la aplicación
 
 ```bash
 npm start
 ```
 
-The server will start at http://localhost:3001/api
+La API estará disponible en: [http://localhost:3001/api](http://localhost:3001/api)
 
-### Run in Development Mode (with Hot Reload)
+### Ejecutar en modo desarrollo (con hot reload)
 
 ```bash
 npm run dev
 ```
 
-## 🧪 Running Tests
+---
+
+## 🧪 Correr tests
 
 ```bash
 npm test
 ```
 
-## 🐳 Docker Setup
+---
 
-### Build and Run with Docker Compose
+## 🐳 Uso con Docker
+
+### Construir y levantar con Docker Compose
 
 ```bash
 docker-compose build
 docker-compose up
 ```
 
-The application will be available at http://localhost:3001/api
+La API estará disponible en: [http://localhost:3001/api](http://localhost:3001/api)
 
-### Build and Run Docker Container Manually
+---
 
-```bash
-docker build -t express-clean-architecture .
-docker run -p 3001:3001 -d express-clean-architecture
-```
+## 📁 Estructura del proyecto
 
-## 📁 Project Structure
-
-Here's an explanation of our clean architecture structure:
+Se sigue una arquitectura limpia (Clean Architecture):
 
 ```
 src/
-├── application/         # Application business rules
-│   ├── dtos/            # Data Transfer Objects
-│   ├── services/        # Use cases / Application services
-│   └── interfaces/      # Ports for driving adapters
-├── domain/              # Enterprise business rules
-│   ├── entities/        # Business entities
-│   ├── repositories/    # Repository interfaces
-│   └── value-objects/   # Value objects
-├── infrastructure/      # Frameworks, drivers, and tools
-│   ├── config/          # Configuration
-│   ├── http/            # Express app and server
-│   ├── logging/         # Logging implementation
-│   └── repositories/    # Repository implementations
-└── interfaces/          # Interface adapters
-    ├── controllers/     # REST controllers
-    ├── middleware/      # Express middleware
-    └── routes/          # Express routes
+├── application/         # Reglas de negocio de la aplicación
+│   ├── dtos/            
+│   ├── services/        
+│   └── interfaces/      
+├── domain/              # Reglas de negocio de dominio
+│   ├── entities/        
+│   ├── repositories/    
+│   └── value-objects/   
+├── infrastructure/      # Frameworks, controladores y herramientas externas
+│   ├── config/          
+│   ├── http/            
+│   ├── logging/         
+│   └── repositories/    
+└── interfaces/          # Adaptadores de interfaz
+    ├── controllers/     
+    ├── middleware/      
+    └── routes/          
 ```
 
-### Understanding the Layers:
+### Explicación de las capas:
 
-1. **Domain Layer**: Contains business entities and rules that are independent of any framework.
-   - `entities/`: Core business objects
-   - `repositories/`: Interfaces defining data access methods
-   - `value-objects/`: Immutable objects that represent concepts in the domain
+- **Domain Layer**: Entidades y lógica de negocio independientes del resto de la app.
+- **Application Layer**: Casos de uso y lógica de aplicación.
+- **Infrastructure Layer**: Implementaciones técnicas, frameworks y servicios externos.
+- **Interface Layer**: Controladores HTTP, middleware y rutas.
 
-2. **Application Layer**: Contains application-specific business rules and use cases.
-   - `dtos/`: Objects for transferring data between layers
-   - `services/`: Implementation of business use cases
-   - `interfaces/`: Interfaces for driving adapters
+---
+## 📚 Documentación de la API
 
-3. **Infrastructure Layer**: Contains implementations of repository interfaces and external services.
-   - `config/`: Application configuration
-   - `http/`: Express server setup
-   - `logging/`: Logging implementation
-   - `repositories/`: Implementation of domain repository interfaces
+Todos los endpoints están documentados en Swagger. Podés acceder a la documentación interactiva en:
 
-4. **Interface Layer**: Contains controllers, routes, and middleware.
-   - `controllers/`: Handling HTTP requests and responses
-   - `middleware/`: Express middleware for authentication, error handling, etc.
-   - `routes/`: Express routes definition
+[http://localhost:3001/api/docs](http://localhost:3001/api/docs)
 
-## 🔐 Authentication
+---
 
-The boilerplate includes JWT-based authentication:
+## ❓ Preguntas para consultar con el ayudante
 
-### Register a New User
+- ¿Qué patrón es óptimo para guardar entidades relacionadas desde los servicios de otras entidades?  
+  _(Ej: desde el service de ofertas guardar cartas y publicaciones)_  
+  → Creemos que usar servicios en vez de acceder directo a los repositorios permite un mejor desacople y facilita la futura división en microservicios. Que opinas al respecto?
 
-```bash
-curl -X POST http://localhost:3001/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Test User","email":"test@example.com","password":"password123"}'
-```
+- ¿Conviene refactorizar `update` en métodos separados?  
+  _(Ej: `/offer/{id}/accept`)_
 
-### Login
+- ¿Conviene refactorizar Publicaciones para evitar que tenga una lista de ofertas, y que cada oferta referencie a su publicación?
 
-```bash
-curl -X POST http://localhost:3001/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password123"}'
-```
+---
 
-### Accessing Protected Routes
+## 🔧 Mejoras planeadas
 
-Use the token returned from login to access protected routes:
+- Agregar roles (Usuario y Admin): el Admin podrá ver estadísticas de la plataforma.  
+  → Sabemos cómo implementarlo, sería agregar un `enum` y permisos en middleware.
 
-```bash
-curl -X GET http://localhost:3001/api/users \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE"
-```
 
-## 🔍 API Endpoints
 
-### Authentication
+- Integración de la API de **Magic The Gathering** para enriquecer datos.
 
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login and receive JWT token
-- `GET /api/auth/me` - Get current authenticated user (requires token)
+- Nuevas rutas:
+  - `/me/publications`: Ver publicaciones históricas del usuario.
+  - `/me/offers`: Ver ofertas históricas del usuario.
 
-### Users (Protected Routes)
+- Agregar paginación a endpoints que devuelven muchos datos.
 
-- `GET /api/users` - Get all users
-- `GET /api/users/:id` - Get a specific user
-- `POST /api/users` - Create a new user
-- `PUT /api/users/:id` - Update a user
-- `DELETE /api/users/:id` - Delete a user
+---
 
-### Health Check
+## 🧠 Decisiones de diseño
 
-- `GET /api/health` - Check API health
-- `GET /api/healthz` - Alternative health check endpoint for Docker
+- **TypeScript**: Elegido por experiencia previa y facilidad de integración con Docker.
+- **Clean Architecture**: Adoptada para facilitar mantenibilidad, escalabilidad y testeo.
 
-## 📚 Common Development Tasks
+### Ventajas:
 
-### Adding a New Entity
+- 🔁 **Modularidad**: Separación clara de responsabilidades.
+- 🔧 **Desacoplamiento**: Cambios internos sin afectar capas externas.
+- 🎛️ **Flexibilidad**: Se puede modificar la infraestructura sin tocar la lógica de negocio.
+- 🔌 **Independencia tecnológica**: No atada a frameworks ni BD específicos.
+- 🧪 **Testabilidad**: Fácil de testear la lógica de negocio sin depender del servidor ni base de datos.
 
-1. Create a new entity file in `src/domain/entities/`
-2. Define the interface and class for your entity
-3. Create the repository interface in `src/domain/repositories/`
-4. Implement the repository in `src/infrastructure/repositories/`
-5. Create DTOs in `src/application/dtos/`
-6. Create a service in `src/application/services/`
-7. Create a controller in `src/interfaces/controllers/`
-8. Add routes in `src/interfaces/routes/`
-
-### Adding a New Middleware
-
-1. Create a middleware file in `src/interfaces/middleware/`
-2. Import and use the middleware in your routes or app.ts
-
-### Understanding Clean Architecture Flow
-
-The request flow:
-
-1. HTTP Request → Routes
-2. Routes → Controllers
-3. Controllers → Application Services
-4. Application Services → Domain Entities/Repositories
-5. Domain Entities/Repositories ← Application Services
-6. Application Services ← Controllers
-7. Controllers → HTTP Response
-
-## 🛠️ Troubleshooting
-
-### Port Already in Use
-
-If you encounter an error about ports being unavailable, change the port in your `.env` file:
-
-```
-PORT=3002
-```
-
-Remember to update the port in the Docker health check URLs and exposed ports if using Docker.
+> Esta estructura es clave si en el futuro queremos escalar hacia microservicios.

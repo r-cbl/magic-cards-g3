@@ -4,10 +4,10 @@
  *   get:
  *     tags:
  *       - Users
- *     summary: Obtener todos los usuarios
+ *     summary: Retrieve all users
  *     responses:
  *       200:
- *         description: Lista de usuarios
+ *         description: List of users
  *         content:
  *           application/json:
  *             schema:
@@ -18,7 +18,7 @@
  *   post:
  *     tags:
  *       - Users
- *     summary: Crear un nuevo usuario
+ *     summary: Create a new user
  *     requestBody:
  *       required: true
  *       content:
@@ -27,7 +27,7 @@
  *             $ref: '#/components/schemas/CreateUserDTO'
  *     responses:
  *       201:
- *         description: Usuario creado
+ *         description: User created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -37,7 +37,7 @@
  *   get:
  *     tags:
  *       - Users
- *     summary: Obtener un usuario por ID
+ *     summary: Retrieve a user by ID
  *     parameters:
  *       - in: path
  *         name: id
@@ -46,18 +46,18 @@
  *           type: string
  *     responses:
  *       200:
- *         description: Usuario encontrado
+ *         description: User found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/UserResponseDTO'
  *       404:
- *         description: Usuario no encontrado
+ *         description: User not found
 
  *   put:
  *     tags:
  *       - Users
- *     summary: Actualizar usuario
+ *     summary: Update a user
  *     parameters:
  *       - in: path
  *         name: id
@@ -72,18 +72,18 @@
  *             $ref: '#/components/schemas/UpdateUserDTO'
  *     responses:
  *       200:
- *         description: Usuario actualizado
+ *         description: User updated successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/UserResponseDTO'
  *       404:
- *         description: Usuario no encontrado
+ *         description: User not found
 
  *   delete:
  *     tags:
  *       - Users
- *     summary: Eliminar usuario
+ *     summary: Delete a user
  *     parameters:
  *       - in: path
  *         name: id
@@ -92,9 +92,10 @@
  *           type: string
  *     responses:
  *       204:
- *         description: Usuario eliminado correctamente
+ *         description: User deleted successfully
  *       404:
- *         description: Usuario no encontrado
+ *         description: User not found
+
  * components:
  *   schemas:
  *     CreateUserDTO:
@@ -121,13 +122,13 @@
  *       properties:
  *         name:
  *           type: string
- *           example: Franco Modificado
+ *           example: Franco Updated
  *         email:
  *           type: string
- *           example: franco@nuevo.com
+ *           example: franco@updated.com
  *         password:
  *           type: string
- *           example: nuevoPassword456
+ *           example: newPassword456
 
  *     UserResponseDTO:
  *       type: object
@@ -156,5 +157,3 @@
  *           format: date-time
  *           example: "2025-04-10T12:10:00Z"
  */
-
-export {};

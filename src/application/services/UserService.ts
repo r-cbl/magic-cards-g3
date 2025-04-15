@@ -1,6 +1,8 @@
-import { User, UserProps } from '../../domain/entities/User';
+import { Statistic, StatisticType } from '../../domain/entities/Stadistics';
+import {  User } from '../../domain/entities/User';
 import { UserRepository } from '../../domain/repositories/UserRepository';
 import { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from '../dtos/UserDTO';
+import { statisticsRepository } from '../../infrastructure/repositories/Container';
 
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
@@ -19,6 +21,7 @@ export class UserService {
     });
 
     const savedUser = await this.userRepository.save(user);
+    await statisticsRepository.increment(new Statistic(StatisticType.USERS_REGISTERED, new Date(), 1));
     return this.toUserResponseDTO(savedUser);
   }
 
@@ -38,12 +41,8 @@ export class UserService {
   }
 
   public async updateUser(id: string, userData: UpdateUserDTO): Promise<UserResponseDTO> {
-    const existingUser = await this.userRepository.findById(id);
-    
-    if (!existingUser) {
-      throw new Error('User not found');
-    }
-
+    const existingUser = await this.getSimpleUser(id);
+  
     if (userData.name) {
       existingUser.setName(userData.name);
     }
@@ -65,12 +64,7 @@ export class UserService {
   }
 
   public async deleteUser(id: string): Promise<boolean> {
-    const existingUser = await this.userRepository.findById(id);
-    
-    if (!existingUser) {
-      throw new Error('User not found');
-    }
-
+    await this.getSimpleUser(id);
     return this.userRepository.delete(id);
   }
 
@@ -83,5 +77,11 @@ export class UserService {
       createdAt: userJson.createdAt!,
       updatedAt: userJson.updatedAt!,
     };
+  }
+
+  public async getSimpleUser(id: string): Promise<User> {
+    const user = await this.userRepository.findById(id);
+    if (!user) throw new Error("User not found");
+    return user;
   }
 } 

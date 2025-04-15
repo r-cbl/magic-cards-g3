@@ -8,6 +8,7 @@ export interface CreatePublicationDTO {
   export interface PublicationResponseDTO {
     id: string;
     name: string;
+    cardId: string;
     valueMoney: number;
     cardExchangeIds: string[];
     cardBase: {
@@ -22,6 +23,12 @@ export interface CreatePublicationDTO {
       ownerId: string;
       ownerName: string;
     };
+    offers: {
+      offerId: string;
+      moneyOffer?: number;
+      statusOffer: string;
+      cardExchangeIds: string[];
+    }[];
     createdAt: Date;
   }
 
@@ -35,5 +42,9 @@ export interface CreatePublicationDTO {
     maxValue?: number;
   }
 
-
-  
+  export interface PublicationUpdatedDTO {
+    userId: string;
+    valueMoney?: number;
+    cardExchangeIds: string[];
+    cancel?: boolean;
+  }

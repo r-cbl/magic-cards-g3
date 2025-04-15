@@ -1,6 +1,8 @@
 import { Card } from "./Card";
 import { StatusOffer } from "./StatusOffer";
 import { User } from "./User";
+import { Ownable } from "./Ownable";
+import { Publication } from "./Publication";
 
 export interface OfferProps {
     id?: string;
@@ -11,9 +13,10 @@ export interface OfferProps {
     closedAt?: Date;
     createdAt?: Date;
     updatedAt?: Date;
+    publication?: Publication;
 }
 
-export class Offer {
+export class Offer extends Ownable {
     private readonly id: string;
     private offerOwner: User;
     private cardOffers?: Card[];
@@ -22,9 +25,10 @@ export class Offer {
     private closedAt?: Date;
     private readonly createdAt: Date;
     private updatedAt: Date;
+    private publication: Publication;
 
     constructor(props: OfferProps) {
-
+        super(props.offerOwner);
         if(!props.cardOffers && !props.moneyOffer) {
             throw new Error("Card or money offer is required");
         }
@@ -34,36 +38,49 @@ export class Offer {
         }
 
         if(props.cardOffers) {
-            this.areValidCards(props.cardOffers, props.offerOwner);
+            this.areMyCards(props.cardOffers, props.offerOwner);
         }
 
         this.id = props.id || this.generateId();
         this.offerOwner = props.offerOwner;
         this.cardOffers = props.cardOffers;
-        this.statusOffer = props.statusOffer || StatusOffer.DRAFT;
+        this.statusOffer = props.statusOffer || StatusOffer.PENDING;
         this.moneyOffer = props.moneyOffer;
         this.closedAt = props.closedAt;
         this.createdAt = props.createdAt || new Date();
         this.updatedAt = props.updatedAt || new Date();
+        this.publication = props.publication!;
     }
 
     private generateId(): string {
         return Math.random().toString(36).substring(2, 9);
     }
 
-    private areValidCards(cards: Card[], offerOwner: User): boolean {
-        if(!this.areMyCards(cards, offerOwner)) {
-            throw new Error("Card owner is not the same as the offer owner");
-        }
-        return true;
+    public acceptOffer(publicationOwner: User): Card[] {
+        this.statusOffer = StatusOffer.ACCEPTED;
+        this.updatedAt = new Date();
+        return this.changeOwnersOfferCards(publicationOwner);
     }
 
-    private areMyCards(cards: Card[], offerOwner: User): boolean {
-        return cards.every(card => offerOwner.doIHaveThisCard(card));
+    public rejectOffer(): void {
+        this.statusOffer = StatusOffer.REJECTED;
+        this.updatedAt = new Date();
+    }
+
+    private changeOwnersOfferCards(publicationOwner: User):Card[] {
+        if(this.cardOffers) {
+            this.cardOffers.forEach(card => card.setOwner(publicationOwner));
+            return this.cardOffers;
+        }
+        return [];
     }
     
-    public isMyOffer(offerOwner: User): boolean {
-        return this.offerOwner.getId() === offerOwner.getId();
+    private areMyCards(cards: Card[], offerOwner: User): boolean {
+        return cards.every((card: Card) => card.validateOwnership(offerOwner,"Card"));
+    }
+    
+    public getPublication() : Publication {
+        return this.publication;
     }
 
     public getId(): string {
@@ -97,4 +114,5 @@ export class Offer {
     public getUpdatedAt(): Date {
         return this.updatedAt;
     }
+
 }

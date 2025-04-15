@@ -22,22 +22,7 @@ services:
     networks:
       - app-network
 
-  # You can add more services here like databases
-  # For example:
-  # db:
-  #   image: postgres:14-alpine
-  #   environment:
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=postgres
-  #     - POSTGRES_DB=express_clean_architecture
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   networks:
-  #     - app-network
-
 networks:
   app-network:
     driver: bridge
-
-# volumes:
-#   postgres_data: 
+ 

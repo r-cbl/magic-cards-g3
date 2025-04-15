@@ -13,4 +13,21 @@ export interface OfferResponseDTO {
     cardExchangeIds?: string[];
     createdAt: Date;
     updatedAt: Date;
+    status: string;
+    ownerId: string;
 }
+
+export interface OfferFilterDTO {
+    ownerId?: string,
+    publicationId?: string,
+    status?: string
+}
+
+export interface OfferUpdatedDTO {
+    userId: string;
+    statusOffer: string;
+    publicationId: string;
+}
+
+
+
