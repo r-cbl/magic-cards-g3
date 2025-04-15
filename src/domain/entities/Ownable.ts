@@ -2,7 +2,7 @@ import { User } from "../entities/User";
 import { UnauthorizedException } from "./exceptions/exceptions";
 
 export class Ownable {
-    private owner: User;
+    protected owner: User;
 
     constructor(owner: User) {
         this.owner = owner;
