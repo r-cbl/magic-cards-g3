@@ -1,9 +1,10 @@
 import { Card } from "../../domain/entities/Card";
-import { cardBaseRepository, gameRepository, userRepository } from "../../infrastructure/repositories/Container";
-import { CardRepository } from "@/domain/repositories/CardRepository";
+import { cardBaseRepository, gameRepository, userRepository, statisticsRepository } from "../../infrastructure/repositories/Container";
+import { CardRepository } from "../../domain/repositories/CardRepository";
 import { CardFilterDTO, CardResponseDTO, CardUpdatedDTO, CreateCardDTO } from "../dtos/CardsDTO";
 import { UserService } from "./UserService";
 import { CardBaseService } from "./CardBaseService";
+import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
 
 export class CardService {
     userService : UserService = new UserService(userRepository);
@@ -22,6 +23,7 @@ export class CardService {
         });
 
         this.cardRepository.save(card)
+        await statisticsRepository.increment(new Statistic(StatisticType.CARDS_TOTAL, new Date(), 1));
         return this.toCardResponseDTO(card);
       }
 

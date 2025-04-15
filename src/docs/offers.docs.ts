@@ -6,100 +6,66 @@
  *       type: object
  *       required:
  *         - publicationId
+ *         - offerOwnerId
  *       properties:
  *         publicationId:
  *           type: string
- *           description: The ID of the publication to which the offer is being made
- *           example: "pub-abc123"
+ *           example: "valid-publication-id"
+ *         offerOwnerId:
+ *           type: string
+ *           example: "test-user-id"
  *         moneyOffer:
  *           type: number
- *           description: Amount of money being offered
  *           example: 100
  *         cardExchangeIds:
  *           type: array
  *           items:
  *             type: string
- *           description: List of card IDs being offered in exchange
- *           example: ["card-1", "card-2"]
-
- *     OfferUpdatedDTO:
- *       type: object
- *       required:
- *         - statusOffer
- *         - publicationId
- *       properties:
- *         statusOffer:
- *           type: string
- *           enum: [PENDING, ACCEPTED, REJECTED]
- *           description: New status of the offer
- *           example: "ACCEPTED"
- *         publicationId:
- *           type: string
- *           description: The ID of the related publication
- *           example: "pub-abc123"
+ *           example: ["card-id-1", "card-id-2"]
 
  *     OfferResponseDTO:
  *       type: object
  *       properties:
  *         id:
  *           type: string
- *           description: The offer ID
- *           example: "offer-123"
- *         offerOwner:
- *           type: object
- *           properties:
- *             ownerId:
- *               type: string
- *               example: "user-xyz456"
- *             ownerName:
- *               type: string
- *               example: "John Doe"
- *         cardOffers:
- *           type: array
- *           items:
- *             type: object
- *             properties:
- *               id:
- *                 type: string
- *                 example: "card-1"
- *               name:
- *                 type: string
- *                 example: "Blue Eyes White Dragon"
- *         statusOffer:
+ *           example: "offer-id"
+ *         publicationId:
  *           type: string
- *           example: "PENDING"
+ *           example: "valid-publication-id"
  *         moneyOffer:
  *           type: number
  *           example: 100
- *         closedAt:
- *           type: string
- *           format: date-time
- *           example: "2023-04-01T12:00:00Z"
+ *         cardExchangeIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example: ["card-id-1", "card-id-2"]
  *         createdAt:
  *           type: string
  *           format: date-time
- *           example: "2023-03-01T12:00:00Z"
+ *           example: "2023-01-01T00:00:00Z"
  *         updatedAt:
  *           type: string
  *           format: date-time
- *           example: "2023-03-02T12:00:00Z"
- */
+ *           example: "2023-01-01T00:00:00Z"
+ *         status:
+ *           type: string
+ *           example: "PENDING"
 
-/**
- * @swagger
- * tags:
- *   name: Offers
- *   description: API for managing trade offers
- */
-
-/**
- * @swagger
+ *   parameters:
+ *     OfferId:
+ *       in: path
+ *       name: id
+ *       required: true
+ *       schema:
+ *         type: string
+ *       description: ID of the offer
+ 
  * /offers:
  *   post:
  *     tags:
  *       - Offers
  *     summary: Create a new offer
- *     description: Allows a user to create a new offer for a publication, using cards, money or both
  *     requestBody:
  *       required: true
  *       content:
@@ -114,51 +80,75 @@
  *             schema:
  *               $ref: '#/components/schemas/OfferResponseDTO'
  *       400:
- *         description: Invalid offer data
+ *         description: Invalid data
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Unexpected error
+
+ *   get:
+ *     tags:
+ *       - Offers
+ *     summary: Get all offers with filters
+ *     parameters:
+ *       - name: ownerId
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: ID of the offer owner
+ *       - name: publicationId
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: ID of the publication
+ *       - name: status
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Status of the offer
+ *     responses:
+ *       200:
+ *         description: List of offers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/OfferResponseDTO'
+ *       400:
+ *         description: Error in filters
  *       401:
  *         description: Unauthorized
  *       500:
  *         description: Unexpected server error
 
- *   get:
- *     tags:
- *       - Offers
- *     summary: Get all offers (not implemented)
- *     responses:
- *       501:
- *         description: Not implemented
- */
-
-/**
- * @swagger
  * /offers/{id}:
  *   get:
  *     tags:
  *       - Offers
- *     summary: Get an offer by ID (not implemented)
+ *     summary: Get an offer by ID
  *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The ID of the offer
+ *       - $ref: '#/components/parameters/OfferId'
  *     responses:
- *       501:
- *         description: Not implemented
-
+ *       200:
+ *         description: Offer found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OfferResponseDTO'
+ *       404:
+ *         description: Offer not found
+ *       500:
+ *         description: Unexpected error
  *   put:
  *     tags:
  *       - Offers
- *     summary: Update an offer
- *     description: Update the status of an offer (accept or reject) and apply business logic accordingly
+ *     summary: Update an existing offer
  *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The offer ID
+ *       - $ref: '#/components/parameters/OfferId'
  *     requestBody:
  *       required: true
  *       content:
@@ -173,9 +163,22 @@
  *             schema:
  *               $ref: '#/components/schemas/OfferResponseDTO'
  *       400:
- *         description: Invalid input or business rule violation
- *       401:
- *         description: Unauthorized action
+ *         description: Validation error
+ *       404:
+ *         description: Offer not found
  *       500:
- *         description: Unexpected server error
+ *         description: Unexpected error
+ *   delete:
+ *     tags:
+ *       - Offers
+ *     summary: Delete an offer by ID
+ *     parameters:
+ *       - $ref: '#/components/parameters/OfferId'
+ *     responses:
+ *       204:
+ *         description: Offer deleted successfully
+ *       404:
+ *         description: Offer not found
+ *       500:
+ *         description: Unexpected error
  */

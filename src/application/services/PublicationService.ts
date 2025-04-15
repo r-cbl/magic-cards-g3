@@ -1,12 +1,13 @@
 import { PublicationRepository } from "../../domain/repositories/PublicationRepository";
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationResponseDTO, PublicationUpdatedDTO } from "../dtos/PublicationDTO";
 import { Publication } from "../../domain/entities/Publication";
-import { cardBaseRepository, cardRepository, gameRepository, userRepository, offerRepository } from "../../infrastructure/repositories/Container";
+import { cardBaseRepository, cardRepository, gameRepository, userRepository, offerRepository, statisticsRepository } from "../../infrastructure/repositories/Container";
 import { CardService } from "./CardService";
 import { UserService } from "./UserService";
 import { CardBase } from "../../domain/entities/CardBase";
 import { CardBaseService } from "./CardBaseService";
 import { StatusPublication } from "../../domain/entities/StatusPublication";
+import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
 
 export class PublicationService {
     cardService : CardService = new CardService(cardRepository);
@@ -40,6 +41,7 @@ export class PublicationService {
         });
 
         await this.publicationRepository.save(publication)
+        await statisticsRepository.increment(new Statistic(StatisticType.PUBLICATIONS_TOTAL, new Date(), 1));
         return this.toPublicationResponseDTO(publication);
     }
 

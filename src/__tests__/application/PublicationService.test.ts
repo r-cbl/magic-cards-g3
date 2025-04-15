@@ -1,6 +1,6 @@
 import { PublicationService } from '../../application/services/PublicationService';
 import { PublicationRepository } from '../../domain/repositories/PublicationRepository';
-import { userRepository, cardRepository, cardBaseRepository, offerRepository } from '../../infrastructure/repositories/Container';
+import { userRepository, cardRepository, cardBaseRepository, offerRepository, statisticsRepository } from '../../infrastructure/repositories/Container';
 import { Card } from '../../domain/entities/Card';
 import { CardBase } from '../../domain/entities/CardBase';
 import { Game } from '../../domain/entities/Game';
@@ -15,7 +15,8 @@ jest.mock('../../infrastructure/repositories/Container', () => ({
   userRepository: { findById: jest.fn() },
   cardRepository: { findById: jest.fn() },
   cardBaseRepository: { findById: jest.fn() },
-  offerRepository: { update: jest.fn() }
+  offerRepository: { update: jest.fn() },
+  statisticsRepository: { increment: jest.fn() }
 }));
 
 describe('PublicationService', () => {
@@ -154,14 +155,16 @@ describe('PublicationService', () => {
         offerOwner: otherUser,
         cardOffers: [offerCard1],
         moneyOffer: 50,
-        statusOffer: StatusOffer.PENDING
+        statusOffer: StatusOffer.PENDING,
+        publication: publication
       });
       
       const offer2 = new Offer({
         offerOwner: otherUser,
         cardOffers: [offerCard2, offerCard3],
         moneyOffer: 75,
-        statusOffer: StatusOffer.PENDING
+        statusOffer: StatusOffer.PENDING,
+        publication: publication
       });
       
       // Add offers to the publication
