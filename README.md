@@ -163,4 +163,4 @@ src/
 - 🔌 **Independencia tecnológica**: No atada a frameworks ni BD específicos.
 - 🧪 **Testabilidad**: Fácil de testear la lógica de negocio sin depender del servidor ni base de datos.
 
-> Esta estructura es clave si en el futuro se quiere escalar hacia microservicios.
+> Esta estructura es clave si en el futuro queremos escalar hacia microservicios.
