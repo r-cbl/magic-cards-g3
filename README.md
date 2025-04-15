@@ -84,13 +84,6 @@ docker-compose up
 
 La API estará disponible en: [http://localhost:3001/api](http://localhost:3001/api)
 
-### Construir y correr manualmente con Docker
-
-```bash
-docker build -t express-clean-architecture .
-docker run -p 3001:3001 -d express-clean-architecture
-```
-
 ---
 
 ## 📁 Estructura del proyecto
@@ -160,7 +153,7 @@ src/
 ## 🧠 Decisiones de diseño
 
 - **TypeScript**: Elegido por experiencia previa y facilidad de integración con Docker.
-- **Arquitectura Limpia**: Adoptada para facilitar mantenibilidad, escalabilidad y testeo.
+- **Clean Architecture**: Adoptada para facilitar mantenibilidad, escalabilidad y testeo.
 
 ### Ventajas:
 
