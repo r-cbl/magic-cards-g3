@@ -42,7 +42,7 @@ export class OfferController {
             const userId = req.user?.userId;
             const offerData: OfferUpdatedDTO = {
                 ...req.body,
-                offerOwnerId: userId,   
+                userId: userId,   
             };
             const offer = await this.offerService.updateOffer(id, offerData);
             res.status(200).json(offer);
