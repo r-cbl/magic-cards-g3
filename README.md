@@ -24,13 +24,6 @@ Before you begin, ensure you have the following installed:
 
 ## 🚀 Getting Started
 
-### Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/express-clean-architecture.git
-cd express-clean-architecture
-```
-
 ### Install Dependencies
 
 ```bash

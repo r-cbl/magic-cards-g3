@@ -1,13 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { AuthController } from '../controllers/AuthController';
 import { AuthService } from '../../application/services/AuthService';
-import { UserRepository } from '../../domain/repositories/UserRepository';
-import { InMemoryUserRepository } from '../../infrastructure/repositories/InMemoryUserRepository';
 import { JwtService } from '../../infrastructure/auth/jwt.service';
 import { AuthMiddleware } from '../middleware/auth.middleware';
+import { userRepository } from '../../infrastructure/repositories/Container';
 
 // Create dependencies
-const userRepository: UserRepository = new InMemoryUserRepository();
 const jwtService = new JwtService();
 const authService = new AuthService(userRepository, jwtService);
 const authController = new AuthController(authService);

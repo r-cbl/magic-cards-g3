@@ -1,4 +1,3 @@
-import { Card } from "./Card";
 import { Publication } from "./Publication";
 
 export interface UserProps {
@@ -18,7 +17,6 @@ export class User {
   private readonly createdAt: Date;
   private updatedAt: Date;
   private publications: Publication[];
-  private cards: Card[];
 
   constructor(props: UserProps) {
     this.id = props.id || this.generateId();
@@ -28,7 +26,6 @@ export class User {
     this.createdAt = props.createdAt || new Date();
     this.updatedAt = props.updatedAt || new Date();
     this.publications = [];
-    this.cards = [];
   }
 
   private generateId(): string {
@@ -94,10 +91,6 @@ export class User {
 
   public addPublication(publication: Publication): void {
     this.publications.push(publication);
-  }
-
-  public addCard(card: Card): void {
-    this.cards.push(card);
   }
 
   // Check if password matches

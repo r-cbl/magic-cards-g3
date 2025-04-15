@@ -21,8 +21,33 @@ export class Game {
         return Math.random().toString(36).substring(2, 9);
     }
 
+    public getId(): string {
+        return this.id;
+    }
+
     public getName(): string {
         return this.name;
     }
 
+    public getCreatedAt(): Date {
+        return this.createdAt;
+    }
+
+    public getUpdatedAt(): Date {
+        return this.updatedAt;
+    }
+
+    public setName(name: string): void {
+        this.name = name;
+        this.updatedAt = new Date();
+    }
+
+    public toJSON() {
+        return {
+            id: this.id,
+            name: this.name,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt
+        };
+    }
 }   
