@@ -1,10 +1,12 @@
 import { Offer } from "../../domain/entities/Offer";
 import { OfferRepository } from "../../domain/repositories/OfferRepository";
 import { CreateOfferDTO, OfferUpdatedDTO } from "../dtos/OfferDTO";  
-import { userRepository, publicationRepository, cardRepository} from "../../infrastructure/repositories/Container";
+import { userRepository, publicationRepository, cardRepository, statisticsRepository } from "../../infrastructure/repositories/Container";
 import { Card } from "../../domain/entities/Card";
 import { UserService } from "./UserService";
 import { StatusOffer } from "../../domain/entities/StatusOffer";
+import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
+
 export class OfferService {
     userService : UserService = new UserService(userRepository);
     constructor(private readonly offerRepository: OfferRepository) {}
@@ -38,6 +40,7 @@ export class OfferService {
 
         publication.addOffer(offer);
         await publicationRepository.update(publication);
+        await statisticsRepository.increment(new Statistic(StatisticType.OFFERS_TOTAL, new Date(), 1));
         return this.offerRepository.save(offer);
     }
 
@@ -53,11 +56,13 @@ export class OfferService {
             const [acceptedOffer, cards] = publication.acceptOffer(offer);
             await Promise.all(cards.map(card => cardRepository.update(card)));
             await publicationRepository.update(publication);
+            await statisticsRepository.increment(new Statistic(StatisticType.OFFERS_ACCEPTED, new Date(), 1));
             return this.offerRepository.update(acceptedOffer);
         }
         if(offerData.statusOffer === StatusOffer.REJECTED) {
             const rejectedOffer = publication.rejectOffer(offer);
             await publicationRepository.update(publication);
+            await statisticsRepository.increment(new Statistic(StatisticType.OFFERS_REJECTED, new Date(), 1));
             return this.offerRepository.update(rejectedOffer);
         }
         return this.offerRepository.update(offer);

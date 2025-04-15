@@ -1,7 +1,7 @@
 import { OfferService } from "../../application/services/OfferService";
 import { CreateOfferDTO, OfferUpdatedDTO } from "../../application/dtos/OfferDTO";
 import { OfferRepository } from "../../domain/repositories/OfferRepository";
-import { userRepository, publicationRepository, cardRepository, offerRepository } from "../../infrastructure/repositories/Container";
+import { userRepository, publicationRepository, cardRepository, offerRepository, statisticsRepository } from "../../infrastructure/repositories/Container";
 import { User } from "../../domain/entities/User";  
 import { Publication } from "../../domain/entities/Publication";
 import { Card } from "../../domain/entities/Card";
@@ -24,6 +24,9 @@ jest.mock("../../infrastructure/repositories/Container", () => ({
     findById: jest.fn(),
     findByCardsByIds: jest.fn(),
     update: jest.fn(),
+  },
+  statisticsRepository: {
+    increment: jest.fn(),
   },
 }));
 
