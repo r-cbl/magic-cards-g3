@@ -155,14 +155,16 @@ describe('PublicationService', () => {
         offerOwner: otherUser,
         cardOffers: [offerCard1],
         moneyOffer: 50,
-        statusOffer: StatusOffer.PENDING
+        statusOffer: StatusOffer.PENDING,
+        publication: publication
       });
       
       const offer2 = new Offer({
         offerOwner: otherUser,
         cardOffers: [offerCard2, offerCard3],
         moneyOffer: 75,
-        statusOffer: StatusOffer.PENDING
+        statusOffer: StatusOffer.PENDING,
+        publication: publication
       });
       
       // Add offers to the publication

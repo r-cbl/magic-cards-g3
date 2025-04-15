@@ -2,6 +2,7 @@ import { Card } from "./Card";
 import { StatusOffer } from "./StatusOffer";
 import { User } from "./User";
 import { Ownable } from "./Ownable";
+import { Publication } from "./Publication";
 
 export interface OfferProps {
     id?: string;
@@ -12,6 +13,7 @@ export interface OfferProps {
     closedAt?: Date;
     createdAt?: Date;
     updatedAt?: Date;
+    publication?: Publication;
 }
 
 export class Offer extends Ownable {
@@ -23,6 +25,7 @@ export class Offer extends Ownable {
     private closedAt?: Date;
     private readonly createdAt: Date;
     private updatedAt: Date;
+    private publication: Publication;
 
     constructor(props: OfferProps) {
         super(props.offerOwner);
@@ -46,6 +49,7 @@ export class Offer extends Ownable {
         this.closedAt = props.closedAt;
         this.createdAt = props.createdAt || new Date();
         this.updatedAt = props.updatedAt || new Date();
+        this.publication = props.publication!;
     }
 
     private generateId(): string {
@@ -75,6 +79,9 @@ export class Offer extends Ownable {
         return cards.every((card: Card) => card.validateOwnership(offerOwner,"Card"));
     }
     
+    public getPublication() : Publication {
+        return this.publication;
+    }
 
     public getId(): string {
         return this.id;
