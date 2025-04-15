@@ -1,7 +1,7 @@
 import { PublicationRepository } from "../../domain/repositories/PublicationRepository";
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationResponseDTO, PublicationUpdatedDTO } from "../dtos/PublicationDTO";
 import { Publication } from "../../domain/entities/Publication";
-import { cardBaseRepository, cardRepository, gameRepository, userRepository } from "../../infrastructure/repositories/Container";
+import { cardBaseRepository, cardRepository, gameRepository, userRepository, offerRepository } from "../../infrastructure/repositories/Container";
 import { CardService } from "./CardService";
 import { UserService } from "./UserService";
 import { CardBase } from "../../domain/entities/CardBase";
@@ -79,7 +79,8 @@ export class PublicationService {
       }
     
       if (isCancel) {
-        publication.closePublication();
+        const rejectedOffers = publication.closePublication();
+        await Promise.all(rejectedOffers.map(offer => offerRepository.update(offer)));
       } else {
         if (isUpdateValue) {
           this.validateMoney(publicationData.valueMoney!);
@@ -138,6 +139,7 @@ export class PublicationService {
         offers: offers.map((offer) => ({
           offerId: offer.getId(),
           moneyOffer: offer.getMoneyOffer(),
+          statusOffer: offer.getStatusOffer(),
           cardExchangeIds: offer.getCardOffers()?.map((c) => c.getId()) ?? []
         })),
         createdAt: publication.getCreatedAt(),

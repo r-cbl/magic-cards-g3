@@ -4,7 +4,7 @@ import { CreateOfferDTO, OfferUpdatedDTO } from "../dtos/OfferDTO";
 import { userRepository, publicationRepository, cardRepository} from "../../infrastructure/repositories/Container";
 import { Card } from "../../domain/entities/Card";
 import { UserService } from "./UserService";
-
+import { StatusOffer } from "../../domain/entities/StatusOffer";
 export class OfferService {
     userService : UserService = new UserService(userRepository);
     constructor(private readonly offerRepository: OfferRepository) {}
@@ -49,11 +49,16 @@ export class OfferService {
             throw new Error('Offer or publication not found');
         }
         publication.validateOwnership(user, "publication");
-        if(offerData.statusOffer === "accepted") {
-            publication.acceptOffer(offer);
+        if(offerData.statusOffer === StatusOffer.ACCEPTED) {
+            const [acceptedOffer, cards] = publication.acceptOffer(offer);
+            await Promise.all(cards.map(card => cardRepository.update(card)));
+            await publicationRepository.update(publication);
+            return this.offerRepository.update(acceptedOffer);
         }
-        if(offerData.statusOffer === "rejected") {
-            publication.rejectOffer(offer);
+        if(offerData.statusOffer === StatusOffer.REJECTED) {
+            const rejectedOffer = publication.rejectOffer(offer);
+            await publicationRepository.update(publication);
+            return this.offerRepository.update(rejectedOffer);
         }
         return this.offerRepository.update(offer);
     }
