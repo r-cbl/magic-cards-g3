@@ -250,4 +250,4 @@
  *               $ref: '#/components/schemas/Error'
  */
 
-export {}; 
+export {};
