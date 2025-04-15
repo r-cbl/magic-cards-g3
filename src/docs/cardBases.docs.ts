@@ -16,7 +16,7 @@
  *           type: string
  *           description: The name of the card base
  *           example: "Black Lotus"
- *
+
  *     UpdateCardBaseDTO:
  *       type: object
  *       properties:
@@ -28,7 +28,7 @@
  *           type: string
  *           description: The name of the card base
  *           example: "Black Lotus - Updated"
- *
+
  *     CardBaseResponseDTO:
  *       type: object
  *       required:
@@ -106,7 +106,7 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *
+
  *   get:
  *     tags:
  *       - CardBases
@@ -182,7 +182,7 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *
+
  *   put:
  *     tags:
  *       - CardBases
@@ -220,7 +220,7 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *
+
  *   delete:
  *     tags:
  *       - CardBases
@@ -249,5 +249,3 @@
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-
-export {};
