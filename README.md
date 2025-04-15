@@ -119,6 +119,13 @@ src/
 - **Interface Layer**: Controladores HTTP, middleware y rutas.
 
 ---
+## 📚 Documentación de la API
+
+Todos los endpoints están documentados en Swagger. Podés acceder a la documentación interactiva en:
+
+[http://localhost:3001/api/docs](http://localhost:3001/api/docs)
+
+---
 
 ## ❓ Preguntas para consultar con el ayudante
 
