@@ -1,11 +1,10 @@
 import { Offer } from "../../domain/entities/Offer";
 import { OfferRepository } from "../../domain/repositories/OfferRepository";
 import { CreateOfferDTO, OfferFilterDTO, OfferResponseDTO, OfferUpdatedDTO } from "../dtos/OfferDTO";  
-import { userRepository, publicationRepository, cardRepository} from "../../infrastructure/repositories/Container";
+import { userRepository, publicationRepository, cardRepository, statisticsRepository} from "../../infrastructure/repositories/Container";
 import { Card } from "../../domain/entities/Card";
 import { UserService } from "./UserService";
 import { StatusOffer } from "../../domain/entities/StatusOffer";
-import { off } from "process";
 import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
 
 export class OfferService {
