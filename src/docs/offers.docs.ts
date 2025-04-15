@@ -143,7 +143,6 @@
  *         description: Offer not found
  *       500:
  *         description: Unexpected error
-
  *   put:
  *     tags:
  *       - Offers
@@ -169,7 +168,6 @@
  *         description: Offer not found
  *       500:
  *         description: Unexpected error
-
  *   delete:
  *     tags:
  *       - Offers

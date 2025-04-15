@@ -91,28 +91,28 @@
  *       required: true
  *       schema:
  *         type: string
- *       description: ID de la publicación
+ *       description: Publication ID
 
  *     GamesIdsQuery:
  *       in: query
  *       name: gamesIds
  *       schema:
  *         type: string
- *       description: IDs de juegos separados por coma (game1,game2,...)
+ *       description: Comma-separated game IDs (game1,game2,...)
 
  *     CardBaseIdsQuery:
  *       in: query
  *       name: cardBaseIds
  *       schema:
  *         type: string
- *       description: IDs de cartas base separados por coma (cb1,cb2,...)
+ *       description: Comma-separated card base IDs (cb1,cb2,...)
 
  *     OwnerIdQuery:
  *       in: query
  *       name: ownerId
  *       schema:
  *         type: string
- *       description: ID del dueño de la publicación
+ *       description: Publication owner ID
 
  *     InitialDateQuery:
  *       in: query
@@ -120,7 +120,7 @@
  *       schema:
  *         type: string
  *         format: date-time
- *       description: Fecha mínima de creación (ISO 8601)
+ *       description: Minimum creation date (ISO 8601)
 
  *     EndDateQuery:
  *       in: query
@@ -128,23 +128,22 @@
  *       schema:
  *         type: string
  *         format: date-time
- *       description: Fecha máxima de creación (ISO 8601)
+ *       description: Maximum creation date (ISO 8601)
 
  *     MinValueQuery:
  *       in: query
  *       name: minValue
  *       schema:
  *         type: number
- *       description: Valor mínimo en dinero
+ *       description: Minimum monetary value
 
  *     MaxValueQuery:
  *       in: query
  *       name: maxValue
  *       schema:
  *         type: number
- *       description: Valor máximo en dinero
+ *       description: Maximum monetary value
  */
-
 
 /**
  * @swagger
@@ -152,7 +151,7 @@
  *   post:
  *     tags:
  *       - Publications
- *     summary: Crear una publicación
+ *     summary: Create a new publication
  *     requestBody:
  *       required: true
  *       content:
@@ -161,22 +160,22 @@
  *             $ref: '#/components/schemas/CreatePublicationDTO'
  *     responses:
  *       201:
- *         description: Publicación creada correctamente
+ *         description: Publication created successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PublicationResponseDTO'
  *       400:
- *         description: Datos inválidos
+ *         description: Invalid data
  *       401:
- *         description: No autorizado
+ *         description: Unauthorized
  *       500:
- *         description: Error inesperado
+ *         description: Unexpected server error
 
  *   get:
  *     tags:
  *       - Publications
- *     summary: Obtener publicaciones con filtros
+ *     summary: Get publications with filters
  *     parameters:
  *       - $ref: '#/components/parameters/GamesIdsQuery'
  *       - $ref: '#/components/parameters/CardBaseIdsQuery'
@@ -187,7 +186,7 @@
  *       - $ref: '#/components/parameters/MaxValueQuery'
  *     responses:
  *       200:
- *         description: Lista de publicaciones filtradas
+ *         description: Filtered list of publications
  *         content:
  *           application/json:
  *             schema:
@@ -195,34 +194,35 @@
  *               items:
  *                 $ref: '#/components/schemas/PublicationResponseDTO'
  *       400:
- *         description: Error en los filtros
+ *         description: Invalid filters
  *       401:
- *         description: No autorizado
+ *         description: Unauthorized
  *       500:
- *         description: Error inesperado del servidor
+ *         description: Unexpected server error
 
  * /publications/{id}:
  *   get:
  *     tags:
  *       - Publications
- *     summary: Obtener una publicación por ID
+ *     summary: Get a publication by ID
  *     parameters:
  *       - $ref: '#/components/parameters/PublicationId'
  *     responses:
  *       200:
- *         description: Publicación encontrada
+ *         description: Publication found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PublicationResponseDTO'
  *       404:
- *         description: Publicación no encontrada
+ *         description: Publication not found
  *       500:
- *         description: Error inesperado
+ *         description: Unexpected error
+
  *   put:
  *     tags:
  *       - Publications
- *     summary: Actualizar una publicación existente
+ *     summary: Update an existing publication
  *     parameters:
  *       - $ref: '#/components/parameters/PublicationId'
  *     requestBody:
@@ -233,29 +233,29 @@
  *             $ref: '#/components/schemas/PublicationUpdatedDTO'
  *     responses:
  *       200:
- *         description: Publicación actualizada correctamente
+ *         description: Publication updated successfully
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PublicationResponseDTO'
  *       400:
- *         description: Error de validación
+ *         description: Validation error
  *       404:
- *         description: Publicación no encontrada
+ *         description: Publication not found
  *       500:
- *         description: Error inesperado
+ *         description: Unexpected server error
 
  *   delete:
  *     tags:
  *       - Publications
- *     summary: Eliminar una publicación por ID
+ *     summary: Delete a publication by ID
  *     parameters:
  *       - $ref: '#/components/parameters/PublicationId'
  *     responses:
  *       204:
- *         description: Publicación eliminada correctamente
+ *         description: Publication deleted successfully
  *       404:
- *         description: Publicación no encontrada
+ *         description: Publication not found
  *       500:
- *         description: Error inesperado
+ *         description: Unexpected server error
  */
