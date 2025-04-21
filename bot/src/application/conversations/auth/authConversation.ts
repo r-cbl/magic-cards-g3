@@ -6,5 +6,5 @@ import { registerConversation } from "./registerConversations";
 
 export function registerAuthConversations(bot: Bot<BotContext>) {
     bot.use(createConversation(loginConversation));
-    bot.use(createConversation(registerConversation))
+    bot.use(createConversation(registerConversation));
   }

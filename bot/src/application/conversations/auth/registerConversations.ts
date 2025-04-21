@@ -1,6 +1,6 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { AuthClient } from "../../../client/authClient";
+import { AuthClient } from "../../../client/auth/auth.client";
 import { context } from "../../../domain/repository/container";
 
 export async function registerConversation(
@@ -21,7 +21,6 @@ export async function registerConversation(
 
     const result = await authClient.register({ name, email, password });
 
-        // Guardar sesión por ID de Telegram
     const telegramUserId = ctx.from?.id.toString();
     console.log(ctx.from?.id.toString())
     if (telegramUserId) {

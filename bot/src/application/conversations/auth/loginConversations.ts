@@ -1,6 +1,6 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { AuthClient } from "../../../client/authClient";
+import { AuthClient } from "../../../client/auth/auth.client";
 import { context } from "../../../domain/repository/container";
 
 export async function loginConversation(
@@ -18,17 +18,20 @@ export async function loginConversation(
 
     const result = await authClient.login({ email, password });
 
-    if (!result || result.user.email !== email) {
+    if (!result || !result.tokens.accessToken) {
       throw new Error("Invalid credentials");
     }
 
-    // Guardar sesión por ID de Telegram
     const userId = ctx.from!.id.toString();
-    context.get(userId);
+    context.save(userId, result);
 
-    await ctx.reply("✅ Logged in!");
+    await ctx.reply("✅ Successfully logged in!");
   } catch (error) {
     console.error("Login error:", error);
-    await ctx.reply("❌ Login failed. Please check your credentials and try again.");
+    if (error instanceof Error) {
+      await ctx.reply(`❌ Login failed: ${error.message}`);
+    } else {
+      await ctx.reply("❌ Login failed. Please check your credentials and try again.");
+    }
   }
 }

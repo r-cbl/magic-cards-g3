@@ -1,10 +1,10 @@
-// src/bot/setupBot.ts
-import { Bot, session } from "grammy";
+import { Bot} from "grammy";
 import 'dotenv/config';
 import { conversations } from "@grammyjs/conversations";
-import { registerAllCommands } from "../application/commands/bot.commands";
 import { BotContext } from "../types/botContext";
 import { registerAllConversations } from "../application/conversations/bot.conversations";
+import { registerAllMenus } from "../application/menus/bot.menus";
+import { showMenuOnFirstMessage } from "./middleware";
 
 
 export async function setupBot(): Promise<Bot<BotContext>> {
@@ -12,7 +12,9 @@ export async function setupBot(): Promise<Bot<BotContext>> {
 
   bot.use(conversations());
   registerAllConversations(bot);
-  registerAllCommands(bot);
+  registerAllMenus(bot)
+  bot.use(showMenuOnFirstMessage);
+
 
   return bot;
 }
