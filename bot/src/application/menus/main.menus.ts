@@ -1,6 +1,6 @@
 import { Menu } from "@grammyjs/menu";
 import { BotContext } from "@/types/botContext";
-import { authMenu } from "../menus/auth/auth.menus";
+import { authMenu } from "./auth/Auth.menus";
 
 export const mainMenu = new Menu<BotContext>("main-menu")
     .text("Registrarse", async (ctx) => {
@@ -24,3 +24,11 @@ export const mainMenu = new Menu<BotContext>("main-menu")
     .submenu("⚙️ Cuenta", "auth-menu");
 
 mainMenu.register(authMenu);
+
+export async function showMainMenu(ctx: BotContext) {
+    await ctx.reply("📋 Menú principal:", {
+      reply_markup: mainMenu,
+    });
+  }
+  
+  

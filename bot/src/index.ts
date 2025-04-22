@@ -1,5 +1,5 @@
 // src/index.ts
-import { setupBot } from './bot/setupBot'; // Ajustá el path si cambió
+import { setupBot } from './bot/SetupBot';
 import 'dotenv/config';
 
 async function main() {

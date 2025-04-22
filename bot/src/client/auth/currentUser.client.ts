@@ -1,8 +1,7 @@
-// src/client/auth/MeClient.ts
-import { MeResponse } from "@/domain/entities/authDTO";
+import { CurrentUserResponse } from "./response/CurrentUser.response";
 
 export class CurrentUserClient {
-  async execute(token: string): Promise<MeResponse> {
+  async execute(token: string): Promise<CurrentUserResponse> {
     const response = await fetch("http://localhost:3001/api/auth/me", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -13,6 +12,6 @@ export class CurrentUserClient {
       throw new Error("Unauthorized");
     }
 
-    return await response.json() as MeResponse;
+    return await response.json() as CurrentUserResponse;
   }
 }

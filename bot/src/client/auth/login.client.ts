@@ -1,7 +1,7 @@
-import { LoginResponse } from "@/domain/entities/authDTO";
+import { AuthSession } from "../../bot/session/AuthSession.entity";
 
 export class LoginClient {
-  async execute(credentials: { email: string; password: string }): Promise<LoginResponse> {
+  async execute(credentials: { email: string; password: string }): Promise<AuthSession> {
     const response = await fetch("http://localhost:3001/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -12,6 +12,6 @@ export class LoginClient {
       throw new Error("Invalid credentials");
     }
 
-    return await response.json() as LoginResponse;
+    return await response.json() as AuthSession;
   }
 }

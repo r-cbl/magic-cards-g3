@@ -1,7 +1,8 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { AuthClient } from "../../../client/auth/auth.client";
-import { context } from "../../../domain/repository/container";
+import { AuthClient } from "../../../client/auth/Auth.client";
+import { session } from "../../../bot/Middleware";
+import { mainMenu } from "../../../application/menus/Main.menus";
 
 export async function registerConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -10,13 +11,13 @@ export async function registerConversation(
   const authClient = new AuthClient();
 
   try {
-    await ctx.reply("🧑‍💻 What's your name?");
+    await ctx.reply("🧑‍💻 ¿Cual es tu nombre?");
     const name = await conversation.form.text();
 
-    await ctx.reply("📧 What's your email?");
+    await ctx.reply("📧 ¿Cual es tu mail?");
     const email = await conversation.form.text();
 
-    await ctx.reply("🔐 Choose a password:");
+    await ctx.reply("🔐 Elije una contraseña:");
     const password = await conversation.form.text();
 
     const result = await authClient.register({ name, email, password });
@@ -24,12 +25,14 @@ export async function registerConversation(
     const telegramUserId = ctx.from?.id.toString();
     console.log(ctx.from?.id.toString())
     if (telegramUserId) {
-        context.save(telegramUserId, result);
+      session.save(telegramUserId, result);
     }
 
-    await ctx.reply("✅ You're registered and logged in!");
+    await ctx.reply("✅ Te has registrado correctamente!");
   } catch (error) {
     console.error("Register error:", error);
-    await ctx.reply("❌ Registration failed. Please try again.");
+    await ctx.reply("❌ Registro fallido. Por favor, intenta nuevamente.");
   }
+
+
 }

@@ -1,33 +1,72 @@
 import { MiddlewareFn } from "grammy";
 import { BotContext } from "../types/botContext";
-import { context } from "../domain/repository/container";
-import { mainMenu } from "../application/menus/main.menus";
+import { mainMenu } from "../application/menus/Main.menus";
+import { InMemoryAuthSessionRepository } from "./session/InMemoryAuthSession.repository";
+
+export const session = new InMemoryAuthSessionRepository()
+const shownMenuToUsers = new Set<string>();
+
+export function withAuth(handler: (ctx: BotContext) => Promise<void>) {
+  return async (ctx: BotContext) => {
+    const userId = ctx.from?.id.toString();
+    if (!userId) return await ctx.reply("❌ ID no encontrado.");
+    const auth = session.get(userId);
+    if (!auth) return await ctx.reply("❌ Iniciá sesión primero.");
+    if (auth.tokens.expirationDate < new Date()) {
+      session.delete(userId);
+      return await ctx.reply("⚠️ Tu sesión expiró.");
+    }
+    await handler(ctx);
+  };
+}
+
 
 export const authenticate: MiddlewareFn<BotContext> = async (ctx, next) => {
   const userId = ctx.from?.id.toString();
   if (!userId) {
-    await ctx.reply("❌ User ID not found");
+    await ctx.reply("❌ No se pudo obtener tu ID de usuario.");
     return;
   }
 
-  const user = context.get(userId);
-  if (!user) {
-    await ctx.reply("❌ Please login first");
+  const authSession = session.get(userId);
+
+  if (!authSession) {
+    await ctx.reply("❌ Debes iniciar sesión primero.");
     return;
+  }
+
+  const now = new Date();
+  const expires = authSession.tokens.expirationDate;
+
+  if (expires && expires < now) {
+    session.delete(userId);
+    await ctx.reply("⚠️ Tu sesión ha expirado. Por favor, iniciá sesión nuevamente.");
+    return;
+  }
+
+  await next();
+};
+
+export const showMenuOnFirstMessage: MiddlewareFn<BotContext> = async (ctx, next) => {
+  const userId = ctx.from?.id?.toString();
+  if (!userId) return await next();
+
+
+  if (!session.get(userId) && !shownMenuToUsers.has(userId)) {
+    await ctx.reply("👋 ¡Bienvenido! Elegí una opción desde el menú de abajo 👇", {
+      reply_markup: mainMenu,
+    });
+
+    await ctx.reply("ℹ️ Si más adelante querés volver a ver el menú, escribí: *Menu*", {
+      parse_mode: "Markdown",
+    });
+
+    shownMenuToUsers.add(userId);
   }
 
   return next();
 };
 
-export const showMenuOnFirstMessage: MiddlewareFn<BotContext> = async (ctx, next) => {
-  if (!context.get(ctx.from!.id.toString())) {
-    await ctx.reply("👋 ¡Bienvenido! Elegí una opción:", {
-      reply_markup: mainMenu,
-    });
-  }
-
-  await next();
-};
 
 export const validateEmail: MiddlewareFn<BotContext> = async (ctx, next) => {
   const email = ctx.match as string;
