@@ -1,4 +1,5 @@
 import { BotContext } from "./botContext";
+import logger from '../utils/logger';
 
 export class BotError extends Error {
   constructor(
@@ -38,7 +39,7 @@ export class SessionError extends BotError {
 }
 
 export const handleError = async (ctx: BotContext, error: unknown): Promise<void> => {
-  console.error('Bot error:', error);
+  logger.error('Bot error:', error);
 
   let userMessage = 'An unexpected error occurred. Please try again later.';
   
@@ -51,6 +52,6 @@ export const handleError = async (ctx: BotContext, error: unknown): Promise<void
   try {
     await ctx.reply(userMessage);
   } catch (replyError) {
-    console.error('Failed to send error message to user:', replyError);
+    logger.error('Failed to send error message to user:', replyError);
   }
 }; 

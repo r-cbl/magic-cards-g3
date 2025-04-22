@@ -7,6 +7,7 @@ import { registerAllMenus } from "../application/menus/bot.menus";
 import { showMenuOnFirstMessage } from "./middleware";
 import { showMainMenu } from "../application/menus/main.menus";
 import { handleError } from "../types/errors";
+import logger from '../utils/logger';
 
 export async function setupBot(): Promise<Bot<BotContext>> {
   const bot = new Bot<BotContext>(process.env.BOT_TOKEN!);
@@ -26,7 +27,7 @@ export async function setupBot(): Promise<Bot<BotContext>> {
   bot.hears("Menu", showMainMenu);
 
   bot.catch(async (err) => {
-    console.error("💥 Uncaught error:", err.error);
+    logger.error("💥 Uncaught error:", err.error);
     if (err.ctx) {
       await handleError(err.ctx, err.error);
     }
