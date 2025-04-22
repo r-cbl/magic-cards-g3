@@ -35,6 +35,26 @@ export function withAuth(handler: (ctx: BotContext) => Promise<void>) {
   }
 };
 
+export function withPreventDuplicateLogin(handler: (ctx: BotContext) => Promise<void>) {
+  return async (ctx: BotContext) => {
+    const userId = ctx.from?.id.toString();
+    if (!userId) {
+      await ctx.reply("❌ No se pudo obtener tu ID de Telegram.");
+      return;
+    }
+
+    const existingSession = session.get(userId);
+    const now = new Date();
+
+    if (existingSession && existingSession.tokens.expirationDate > now) {
+      await ctx.reply("⚠️ Ya estás logueado. Cerrá sesión antes de iniciar una nueva.");
+      return;
+    }
+
+    await handler(ctx);
+  };
+}
+
 export const showMenuOnFirstMessage: MiddlewareFn<BotContext> = async (ctx, next) => {
   const userId = ctx.from?.id?.toString();
   if (!userId) return await next();

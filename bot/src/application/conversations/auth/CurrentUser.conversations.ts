@@ -15,9 +15,9 @@ ctx: BotContext
     }catch (error) {
     if (error instanceof Error) {
         console.error("Register error:", error.message);
-        await ctx.reply("❌ Registro fallido. Por favor, intenta nuevamente.");
+        await ctx.reply("❌ No se pudo obtener usuario. Por favor, intenta nuevamente.");
     } else {
-        await ctx.reply("❌ Registro fallido. Por favor, intenta nuevamente.");
+        await ctx.reply("❌ No se pudo obtener usuario. Por favor, intenta nuevamente.");
     }
   }
 }

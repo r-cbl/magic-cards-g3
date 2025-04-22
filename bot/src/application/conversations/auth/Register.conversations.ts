@@ -10,6 +10,7 @@ export async function registerConversation(
   const authClient = new AuthClient();
 
   try {
+
     await ctx.reply("🧑‍💻 ¿Cual es tu nombre?");
     const name = await conversation.form.text();
 
@@ -21,11 +22,7 @@ export async function registerConversation(
 
     const result = await authClient.register({ name, email, password });
 
-    const telegramUserId = ctx.from?.id.toString();
-    console.log(ctx.from?.id.toString())
-    if (telegramUserId) {
-      session.save(telegramUserId, result);
-    }
+    session.save(ctx.from!.id.toString(), result); //El middelware valida que viene. 
 
     await ctx.reply("✅ Te has registrado correctamente!");
   } catch (error) {
