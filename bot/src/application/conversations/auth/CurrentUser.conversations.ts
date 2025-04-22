@@ -1,6 +1,6 @@
 import { BotContext } from "../../../types/botContext";
-import { AuthClient } from "../../../client/auth/Auth.client";
-import { session } from "../../../bot/Middleware";
+import { AuthClient } from "../../../client/auth/auth.client";
+import { session } from "../../../bot/middleware";
 
 
 export async function getCurrentUser(

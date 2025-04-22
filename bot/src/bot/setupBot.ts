@@ -1,25 +1,35 @@
-import { Bot} from "grammy";
+import { Bot } from "grammy";
 import 'dotenv/config';
 import { conversations } from "@grammyjs/conversations";
 import { BotContext } from "../types/botContext";
-import { registerAllConversations } from "../application/conversations/Bot.conversations";
-import { registerAllMenus } from "../application/menus/Bot.menus";
+import { registerAllConversations } from "../application/conversations/bot.conversations";
+import { registerAllMenus } from "../application/menus/bot.menus";
 import { showMenuOnFirstMessage } from "./Middleware";
-import { showMainMenu } from "../application/menus/Main.menus";
-
-
+import { showMainMenu } from "../application/menus/main.menus";
+import { handleError } from "../types/errors";
 
 export async function setupBot(): Promise<Bot<BotContext>> {
   const bot = new Bot<BotContext>(process.env.BOT_TOKEN!);
+
+  bot.use(async (ctx, next) => {
+    try {
+      await next();
+    } catch (err) {
+      await handleError(ctx, err);
+    }
+  });
 
   bot.use(conversations());
   registerAllConversations(bot);
   registerAllMenus(bot);
   bot.use(showMenuOnFirstMessage);
-  bot.hears("Menu", showMainMenu)
+  bot.hears("Menu", showMainMenu);
 
-  bot.catch((err) => {
+  bot.catch(async (err) => {
     console.error("💥 Uncaught error:", err.error);
+    if (err.ctx) {
+      await handleError(err.ctx, err.error);
+    }
   });
 
   return bot;
