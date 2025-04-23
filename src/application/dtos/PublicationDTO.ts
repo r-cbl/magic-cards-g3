@@ -28,6 +28,7 @@ export interface CreatePublicationDTO {
       moneyOffer?: number;
       statusOffer: string;
       cardExchangeIds: string[];
+      ownerId: string;
     }[];
     createdAt: Date;
   }
@@ -40,6 +41,8 @@ export interface CreatePublicationDTO {
     ownerId?: string;
     minValue?: number;
     maxValue?: number;
+    limit?: number;
+    offset?: number;
   }
 
   export interface PublicationUpdatedDTO {

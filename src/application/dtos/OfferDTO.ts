@@ -20,7 +20,9 @@ export interface OfferResponseDTO {
 export interface OfferFilterDTO {
     ownerId?: string,
     publicationId?: string,
-    status?: string
+    status?: string,
+    limit?: number,
+    offset?: number
 }
 
 export interface OfferUpdatedDTO {
