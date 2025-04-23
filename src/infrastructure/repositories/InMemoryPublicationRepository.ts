@@ -1,7 +1,7 @@
 import { Publication } from "@/domain/entities/Publication";
 import { PublicationRepository } from "@/domain/repositories/PublicationRepository";
 import { PublicationFilterDTO } from "@/application/dtos/PublicationDTO";
-import { PaginatedResponseDTO } from "@/application/dtos/PaginationDTO";
+import { PaginatedResponseDTO, PaginationDTO } from "@/application/dtos/PaginationDTO";
 
 export class InMemoryPublicationRepository implements PublicationRepository {
     private publications: Publication[] = [];
@@ -49,8 +49,8 @@ export class InMemoryPublicationRepository implements PublicationRepository {
     }
 
 
-    async findPaginated(filters: PublicationFilterDTO): Promise<PaginatedResponseDTO<Publication>> {
-        const filteredOffers = await this.find(filters);
+    async findPaginated(filters: PaginationDTO<PublicationFilterDTO>): Promise<PaginatedResponseDTO<Publication>> {
+        const filteredOffers = await this.find(filters.data);
         const limit = filters.limit || 10;
         const offset = filters.offset || 0;
         const total = filteredOffers.length;

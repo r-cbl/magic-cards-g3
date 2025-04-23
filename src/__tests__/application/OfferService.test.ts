@@ -71,6 +71,7 @@ describe('OfferService', () => {
       update: jest.fn(),
       delete: jest.fn(),
       find: jest.fn(),
+      findPaginated: jest.fn()
     };
     
     offerService = new OfferService(mockOfferRepository);

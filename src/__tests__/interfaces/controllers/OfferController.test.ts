@@ -12,6 +12,7 @@ jest.mock('../../../infrastructure/repositories/Container', () => ({
         findById: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        findPaginated: jest.fn()
     },
 }));
 

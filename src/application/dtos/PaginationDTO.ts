@@ -1,4 +1,5 @@
-export interface PaginationDTO {
+export interface PaginationDTO<T> {
+    data: T;
     limit?: number;
     offset?: number;
 }

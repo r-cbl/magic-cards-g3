@@ -18,11 +18,15 @@ export interface OfferResponseDTO {
 }
 
 export interface OfferFilterDTO {
-    ownerId?: string,
-    publicationId?: string,
-    status?: string,
-    limit?: number,
-    offset?: number
+    ownerId?: string;
+    publicationId?: string;
+    cardId?: string;
+    userId?: string;
+    status?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    limit?: number;
+    offset?: number;
 }
 
 export interface OfferUpdatedDTO {

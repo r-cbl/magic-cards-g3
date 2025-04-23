@@ -44,6 +44,7 @@ describe('CardService', () => {
       update: jest.fn(),
       delete: jest.fn(),
       findByCardsByIds: jest.fn(),
+      findPaginated: jest.fn()
     };
 
     cardService = new CardService(mockCardRepository);

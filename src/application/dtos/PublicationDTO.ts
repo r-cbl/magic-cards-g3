@@ -28,7 +28,6 @@ export interface CreatePublicationDTO {
       moneyOffer?: number;
       statusOffer: string;
       cardExchangeIds: string[];
-      ownerId: string;
     }[];
     createdAt: Date;
   }

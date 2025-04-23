@@ -32,6 +32,7 @@ describe('PublicationService', () => {
       update: jest.fn(),
       delete: jest.fn(),
       find: jest.fn(),
+      findPaginated: jest.fn()
     };
     publicationService = new PublicationService(mockRepository);
   });

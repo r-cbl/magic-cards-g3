@@ -1,7 +1,7 @@
 import { OfferFilterDTO } from "@/application/dtos/OfferDTO";
 import { Offer } from "../../domain/entities/Offer";
 import { OfferRepository } from "../../domain/repositories/OfferRepository";
-import { PaginatedResponseDTO } from "@/application/dtos/PaginationDTO";
+import { PaginatedResponseDTO, PaginationDTO } from "@/application/dtos/PaginationDTO";
 
 
 export class InMemoryOfferRepository implements OfferRepository {
@@ -44,8 +44,8 @@ export class InMemoryOfferRepository implements OfferRepository {
     }
 
 
-    async findPaginated(filters: OfferFilterDTO): Promise<PaginatedResponseDTO<Offer>> {
-        const filteredOffers = await this.find(filters);
+    async findPaginated(filters: PaginationDTO<OfferFilterDTO>): Promise<PaginatedResponseDTO<Offer>> {
+        const filteredOffers = await this.find(filters.data);
         const limit = filters.limit || 10;
         const offset = filters.offset || 0;
         const total = filteredOffers.length;

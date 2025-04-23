@@ -6,7 +6,8 @@ import { Card } from "../../domain/entities/Card";
 import { UserService } from "./UserService";
 import { StatusOffer } from "../../domain/entities/StatusOffer";
 import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
-import { PaginatedResponseDTO } from "../dtos/PaginationDTO";
+import { PaginatedResponseDTO, PaginationDTO } from "../dtos/PaginationDTO";
+import { UnauthorizedException } from '../../domain/entities/exceptions/exceptions';
 
 export class OfferService {
     userService : UserService = new UserService(userRepository);
@@ -56,9 +57,9 @@ export class OfferService {
         return offers.map(offer => this.toOfferResponseDTO(offer));
     }
 
-    public async getAllCardsPaginated(filters: OfferFilterDTO): Promise<PaginatedResponseDTO<OfferResponseDTO>> {
-        if(filters.ownerId){
-            await this.userService.getSimpleUser(filters.ownerId)
+    public async getAllCardsPaginated(filters: PaginationDTO<OfferFilterDTO>): Promise<PaginatedResponseDTO<OfferResponseDTO>> {
+        if(filters.data.ownerId){
+            await this.userService.getSimpleUser(filters.data.ownerId)
         }
         const paginatedOffers = await this.offerRepository.findPaginated(filters);
         return {
