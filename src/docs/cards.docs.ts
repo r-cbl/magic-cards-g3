@@ -78,6 +78,29 @@
  *           format: date-time
  *           example: "2023-01-01T00:00:00Z"
 
+ *     PaginatedResponse:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/CardResponseDTO'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: number
+ *               example: 100
+ *             page:
+ *               type: number
+ *               example: 1
+ *             limit:
+ *               type: number
+ *               example: 10
+ *             totalPages:
+ *               type: number
+ *               example: 10
+
  *   parameters:
  *     CardId:
  *       in: path
@@ -115,7 +138,7 @@
  *   get:
  *     tags:
  *       - Cards
- *     summary: Get all cards with filters
+ *     summary: Get all cards with filters and pagination
  *     parameters:
  *       - name: ownerId
  *         in: query
@@ -123,17 +146,29 @@
  *         schema:
  *           type: string
  *         description: ID of the card owner
+ *       - name: page
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: number
+ *           default: 1
+ *         description: Page number for pagination
+ *       - name: limit
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: number
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
- *         description: List of cards
+ *         description: Paginated list of cards
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/CardResponseDTO'
+ *               $ref: '#/components/schemas/PaginatedResponse'
  *       400:
- *         description: Error in filters
+ *         description: Error in filters or pagination parameters
  *       401:
  *         description: Unauthorized
  *       500:

@@ -52,6 +52,29 @@
  *           type: string
  *           example: "PENDING"
 
+ *     PaginatedResponse:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/OfferResponseDTO'
+ *         meta:
+ *           type: object
+ *           properties:
+ *             total:
+ *               type: number
+ *               example: 100
+ *             page:
+ *               type: number
+ *               example: 1
+ *             limit:
+ *               type: number
+ *               example: 10
+ *             totalPages:
+ *               type: number
+ *               example: 10
+
  *   parameters:
  *     OfferId:
  *       in: path
@@ -60,6 +83,22 @@
  *       schema:
  *         type: string
  *       description: ID of the offer
+
+ *     PageQuery:
+ *       in: query
+ *       name: page
+ *       schema:
+ *         type: number
+ *         default: 1
+ *       description: Page number for pagination
+
+ *     LimitQuery:
+ *       in: query
+ *       name: limit
+ *       schema:
+ *         type: number
+ *         default: 10
+ *       description: Number of items per page
  
  * /offers:
  *   post:
@@ -89,7 +128,7 @@
  *   get:
  *     tags:
  *       - Offers
- *     summary: Get all offers with filters
+ *     summary: Get all offers with filters and pagination
  *     parameters:
  *       - name: ownerId
  *         in: query
@@ -109,17 +148,17 @@
  *         schema:
  *           type: string
  *         description: Status of the offer
+ *       - $ref: '#/components/parameters/PageQuery'
+ *       - $ref: '#/components/parameters/LimitQuery'
  *     responses:
  *       200:
- *         description: List of offers
+ *         description: Paginated list of offers
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/OfferResponseDTO'
+ *               $ref: '#/components/schemas/PaginatedResponse'
  *       400:
- *         description: Error in filters
+ *         description: Error in filters or pagination parameters
  *       401:
  *         description: Unauthorized
  *       500:

@@ -16,7 +16,7 @@ const publicationRouter = Router();
 publicationRouter.use(authMiddleware.authenticate);
 
 publicationRouter.post('/', (req: Request, res: Response) => publicationController.createPublication(req, res));
-publicationRouter.get('/', (req: Request, res: Response) => publicationController.getAllPublications(req, res));
+publicationRouter.get('/', (req: Request, res: Response) => publicationController.getAllPublicationsPaginated(req, res));
 publicationRouter.get('/:id', (req: Request, res: Response) => publicationController.getPublication(req, res));
 publicationRouter.put('/:id', (req: Request, res: Response) => publicationController.updatePublication(req, res));
 publicationRouter.delete('/:id', (req: Request, res: Response) => publicationController.deletePublication(req, res));
