@@ -58,22 +58,19 @@
  *         data:
  *           type: array
  *           items:
- *             $ref: '#/components/schemas/OfferResponseDTO'
- *         meta:
- *           type: object
- *           properties:
- *             total:
- *               type: number
- *               example: 100
- *             page:
- *               type: number
- *               example: 1
- *             limit:
- *               type: number
- *               example: 10
- *             totalPages:
- *               type: number
- *               example: 10
+ *             $ref: '#/components/schemas/CardResponseDTO'
+ *         total:
+ *           type: number
+ *           example: 100
+ *         limit:
+ *            type: number
+ *            example: 10
+ *         offset:
+ *            type: number
+ *            example: 10
+ *         hasMore:
+ *            type: boolean
+ *            example: true
 
  *   parameters:
  *     OfferId:
