@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@grammyjs/conversations": "^2.0.1",
+    "dotenv": "^16.5.0",
+    "grammy": "^1.36.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

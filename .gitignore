@@ -3,30 +3,30 @@ logs
 *.log
 npm-debug.log*
 
-# Dependencies
-node_modules/
-package-lock.json
+# Dependencies - ignore in all subfolders
+**/node_modules/
+**/package-lock.json
 
 # Build output
-dist/
-build/
+**/dist/
+**/build/
 
 # Environment variables
-.env
-.env.local
-.env.development
-.env.test
-.env.production
+**/.env
+**/.env.local
+**/.env.development
+**/.env.test
+**/.env.production
 
 # Coverage reports
-coverage/
+**/coverage/
 
 # Editor directories and files
-.idea/
-.vscode/
+**/.idea/
+**/.vscode/
 *.sublime-project
 *.sublime-workspace
 
 # OS specific
 .DS_Store
-Thumbs.db 
+Thumbs.db
