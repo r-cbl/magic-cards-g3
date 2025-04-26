@@ -1,12 +1,23 @@
 import { ApiError } from "../../types/errors";
+import { GetRequest } from "../publications/request/get.request";
 
 export abstract class BaseApiClient {
   protected async fetchWithErrorHandling<T>(
     url: string,
     options: RequestInit,
-    userErrorMessage: string
+    userErrorMessage: string,
+    token?: string
   ): Promise<T> {
     try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+
       const response = await fetch(url, options);
       const data = await response.json();
 
@@ -61,14 +72,20 @@ export abstract class BaseApiClient {
   protected async get<T>(
     url: string,
     userErrorMessage: string,
-    token?: string
+    token?: string,
+    queryParams?: Record<string, any>,
   ): Promise<T> {
     const headers: Record<string, string> = {};
-
+  
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-
+  
+    if (queryParams) {
+      const queryString = new URLSearchParams(this.buildQueryParams(queryParams)).toString();
+      url += `?${queryString}`;
+    }
+  
     return this.fetchWithErrorHandling<T>(
       url,
       {
@@ -78,4 +95,30 @@ export abstract class BaseApiClient {
       userErrorMessage
     );
   }
+  
+
+  private buildQueryParams(params: Record<string, any>): Record<string, string> {
+    const queryParams: Record<string, string> = {};
+  
+    for (const key in params) {
+      const value = params[key];
+  
+      if (value === undefined || value === null) {
+        continue; // Ignorar valores nulos o undefined
+      }
+  
+      if (Array.isArray(value)) {
+        if (value.length > 0) {
+          queryParams[key] = value.join(',');
+        }
+      } else if (value instanceof Date) {
+        queryParams[key] = value.toISOString();
+      } else {
+        queryParams[key] = String(value);
+      }
+    }
+  
+    return queryParams;
+  }
+  
 }

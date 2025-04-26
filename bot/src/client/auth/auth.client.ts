@@ -1,6 +1,6 @@
-import { CurrentUserClient } from "./CurrentUser.client";
-import { LoginClient } from "./Login.client";
-import { RegisterClient } from "./Register.client";
+import { CurrentUserClient } from "./currentUser.client";
+import { LoginClient } from "./login.client";
+import { RegisterClient } from "./register.client";
 import { RegisterRequest } from "./request/Register.request";
 import { CurrentUserResponse } from "./response/CurrentUser.response";
 import { AuthSession } from "../../bot/session/AuthSession.entity";
