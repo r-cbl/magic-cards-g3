@@ -1,0 +1,53 @@
+// Import or define any variables (like colors, spacing) if needed
+// Example: $primary-color: #1976d2;
+
+.navbar-appbar {
+  // Styles equivalent to sx={{ boxShadow: 0, bgcolor: 'transparent', backgroundImage: 'none', mt: 'calc(var(--template-frame-height, 0px) + 28px)' }}
+  box-shadow: none !important; // Use !important cautiously, only if needed to override MUI defaults
+  background-color: transparent !important;
+  background-image: none !important;
+  // Consider if this margin is still universally needed or should be applied differently
+  margin-top: calc(var(--template-frame-height, 0px) + 28px);
+}
+
+.navbar-toolbar {
+  // Styles from the original StyledToolbar and sx props
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  // Using hardcoded values for borderRadius, border, backgroundColor, boxShadow
+  // Ideally, use theme variables if available in your SCSS setup
+  border-radius: 12px; // Example: theme.shape.borderRadius (8px) + 8px = 16px (adjust as needed)
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 0, 0, 0.12); // Example: theme.palette.divider
+  background-color: rgba(255, 255, 255, 0.4); // Example: alpha(theme.palette.background.default, 0.4) - Adjust for dark mode if needed
+  box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12); // Example: theme.shadows[1]
+  padding: 8px 12px;
+}
+
+.navbar-box-container {
+  // Styles from sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.navbar-link-container {
+  // Styles from sx={{ display: { xs: 'none', md: 'flex' } }}
+  display: flex; // Defaulting to flex, hide on smaller screens if needed via media queries
+
+  // Example media query to hide on small screens (like xs breakpoint)
+  // @media (max-width: 600px) {
+  //   display: none;
+  // }
+}
+
+.navbar-button {
+  // Add any specific styles for the button if needed
+  // e.g., text-transform: none;
+}
+
+// Add styles for Sitemark or ColorModeIconDropdown if you re-add them later 
