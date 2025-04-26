@@ -1,7 +1,7 @@
 import { useDispatch } from 'react-redux';
 import { useState } from 'react';
 
-export const dispatchWithLoading = () => {
+export const useDispatchWithLoading = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
