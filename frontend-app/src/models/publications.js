@@ -1,4 +1,3 @@
-import { dispatchWithLoading, dispatchWithAlert } from "../utils/withNoResultsView.jsx";
 import magicCardsApi from "../services/magicCardsApi.js"
 
 export default {
@@ -19,8 +18,7 @@ export default {
   },
   effects: (dispatch) => ({
     fetchAllPublications(params){
-      const request = () => magicCardsApi.getPublications(params).then(this.setPublications);
-      return dispatchWithLoading(dispatch, request);
+      return magicCardsApi.getPublications(params).then(this.setPublications);
     }
   }),
 };

@@ -1,3 +1,4 @@
+import { mockedPublications } from "../helpers/fixture";
 import BaseApi from "./baseApi";
 
 class MagicCardsApi extends BaseApi {
@@ -6,7 +7,9 @@ class MagicCardsApi extends BaseApi {
     }
 
     getPublications(queryParams){
-        return this.get("/publications", queryParams);
+        //TODO: PASS USER TOKEN AS HEADER.
+        //return this.get("/publications", queryParams); 
+        return Promise.resolve(mockedPublications);
     }
 
     getPublication(id) {

@@ -1,12 +1,12 @@
 import axios from "axios";
 import querystring from "querystring";
 import Promise from "bluebird";
-import Resource from "../pages/resources/resource.js";
+import Resource from "./resources/resource";
 
 class BaseApi {
   constructor({ resource = "", token, Type = Resource, http, baseUrl }) {
     this.Type = Type;
-    const defaultBaseUrl = `${process.env.domain}/api`;
+    const defaultBaseUrl = `http://localhost:3001/api`;
     this.http =
       http ||
       axios.create({
