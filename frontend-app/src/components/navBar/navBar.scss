@@ -1,5 +1,6 @@
 // Import or define any variables (like colors, spacing) if needed
 // Example: $primary-color: #1976d2;
+// Example: $info-color: #0288d1; // Example info color
 
 .navbar-appbar {
   // Styles equivalent to sx={{ boxShadow: 0, bgcolor: 'transparent', backgroundImage: 'none', mt: 'calc(var(--template-frame-height, 0px) + 28px)' }}
@@ -45,9 +46,30 @@
   // }
 }
 
-.navbar-button {
-  // Add any specific styles for the button if needed
-  // e.g., text-transform: none;
+// Styles for the navigation buttons
+.navbar-link-button {
+  text-decoration: none !important; // Ensure no underline
+  // Use theme variable or hardcoded color for default state (info color)
+  color: #0288d1 !important; // Example: Use $info-color or var(--mui-palette-info-main) if available
+  // Add other base styles if needed (e.g., text-transform: none;)
+
+  // Active state styling
+  &.navbar-link-active {
+    // Use theme variable or hardcoded color for active state (primary color)
+    color: #1976d2 !important; // Example: Use $primary-color or var(--mui-palette-primary-main) if available
+    // Optionally add other active styles:
+    // font-weight: bold;
+  }
+
+  // Override MUI's default button text color if needed, especially for 'text' variant
+  &.MuiButton-text {
+     // Use the same color as the default state or define specifically
+     color: #0288d1 !important; // Example: Use $info-color or var(--mui-palette-info-main)
+
+     &.navbar-link-active {
+         color: #1976d2 !important; // Example: Use $primary-color or var(--mui-palette-primary-main)
+     }
+  }
 }
 
 // Add styles for Sitemark or ColorModeIconDropdown if you re-add them later 
