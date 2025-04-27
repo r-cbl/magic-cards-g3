@@ -3,7 +3,8 @@ import { BaseApiClient } from "../base/BaseApiClient";
 
 export class LoginClient extends BaseApiClient {
   async execute(credentials: { email: string; password: string }): Promise<AuthSession> {
-    return this.post<AuthSession>(
+    return this.requestWithBody<AuthSession>(
+      "POST",
       "http://localhost:3001/api/auth/login",
       credentials,
       "Invalid email or password. Please try again."

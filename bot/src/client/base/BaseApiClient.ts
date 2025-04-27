@@ -44,30 +44,32 @@ export abstract class BaseApiClient {
     }
   }
 
-  protected async post<T>(
+  protected async requestWithBody<T>(
+    method: "POST" | "PUT" | "DELETE",
     url: string,
-    body: unknown,
     userErrorMessage: string,
+    body?: unknown,
     token?: string
   ): Promise<T> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
-
+  
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-
+  
     return this.fetchWithErrorHandling<T>(
       url,
       {
-        method: 'POST',
+        method,
         headers,
         body: JSON.stringify(body),
       },
       userErrorMessage
     );
   }
+  
 
   protected async get<T>(
     url: string,
