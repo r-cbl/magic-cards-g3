@@ -20,7 +20,7 @@ export class PublicationsClient {
         return this.createClient.execute(request, token);
     }
 
-    getAll(request: GetRequest, token: string): Promise<PublicationResponse> {
+    getAll(request: GetRequest, token: string): Promise<PaginatedResponse<PublicationResponse>> {
         return this.getAllClient.execute(request, token);
     }
 
