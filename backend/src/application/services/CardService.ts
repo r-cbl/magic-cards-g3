@@ -5,6 +5,7 @@ import { CardFilterDTO, CardResponseDTO, CardUpdatedDTO, CreateCardDTO } from ".
 import { UserService } from "./UserService";
 import { CardBaseService } from "./CardBaseService";
 import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
+import { PaginatedResponseDTO, PaginationDTO } from "../dtos/PaginationDTO";
 
 export class CardService {
     userService : UserService = new UserService(userRepository);
@@ -34,6 +35,20 @@ export class CardService {
 
         const filteredCards: Card[] = await this.cardRepository.find(filters);
         return filteredCards.map(card => this.toCardResponseDTO(card));
+    }
+
+    public async getAllCardsPaginated(filters: PaginationDTO<CardFilterDTO>): Promise<PaginatedResponseDTO<CardResponseDTO>> {
+        if(filters.data.ownerId){
+            await this.userService.getSimpleUser(filters.data.ownerId)
+        }
+        const paginatedCards = await this.cardRepository.findPaginated(filters);
+        return {
+            data: paginatedCards.data.map(card => this.toCardResponseDTO(card)),
+            total: paginatedCards.total,
+            limit: paginatedCards.limit,
+            offset: paginatedCards.offset,
+            hasMore: paginatedCards.hasMore
+        };
     }
 
     public async getCard(id: string): Promise<CardResponseDTO>{
@@ -69,21 +84,27 @@ export class CardService {
         const card = await this.getSimpleCard(id);
         const user = await this.userService.getSimpleUser(cardData.ownerId);
 
-        if(user) card.setOwner(user);
-        if(cardData.statusCard) card.setStatusCard(cardData.statusCard);
-        if(cardData.urlImage) card.setUrlImage(cardData.urlImage);
+        if (card.getOwner().getId() !== user.getId()) {
+            throw new Error('User is not the owner of the card');
+        }
 
-        card.validateOwnership(user,"publication")
-      
-        card.setUpdatedAt(new Date())
-        return this.toCardResponseDTO(await this.cardRepository.update(card))
+        if (cardData.urlImage) {
+            card.setUrlImage(cardData.urlImage);
+        }
+
+        card.setStatusCard(cardData.statusCard);
+        await this.cardRepository.update(card);
+
+        return this.toCardResponseDTO(card);
     }
   
     public async deleteCard(userId: string, id: string): Promise<boolean>{
         const card = await this.getSimpleCard(id);
-        const user = await this.userService.getSimpleUser(userId)
-        
-        card.validateOwnership(user, "publication");
+        const user = await this.userService.getSimpleUser(userId);
+
+        if (card.getOwner().getId() !== user.getId()) {
+            throw new Error('User is not the owner of the card');
+        }
 
         return this.cardRepository.delete(id);
     }

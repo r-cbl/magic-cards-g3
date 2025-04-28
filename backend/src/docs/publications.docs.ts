@@ -84,6 +84,26 @@
  *           type: string
  *           format: date-time
 
+ *     PaginatedResponse:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/CardResponseDTO'
+ *         total:
+ *           type: number
+ *           example: 100
+ *         limit:
+ *            type: number
+ *            example: 10
+ *         offset:
+ *            type: number
+ *            example: 10
+ *         hasMore:
+ *            type: boolean
+ *            example: true
+
  *   parameters:
  *     PublicationId:
  *       in: path
@@ -143,6 +163,22 @@
  *       schema:
  *         type: number
  *       description: Maximum monetary value
+
+ *     PageQuery:
+ *       in: query
+ *       name: page
+ *       schema:
+ *         type: number
+ *         default: 1
+ *       description: Page number for pagination
+
+ *     LimitQuery:
+ *       in: query
+ *       name: limit
+ *       schema:
+ *         type: number
+ *         default: 10
+ *       description: Number of items per page
  */
 
 /**
@@ -175,7 +211,7 @@
  *   get:
  *     tags:
  *       - Publications
- *     summary: Get publications with filters
+ *     summary: Get publications with filters and pagination
  *     parameters:
  *       - $ref: '#/components/parameters/GamesIdsQuery'
  *       - $ref: '#/components/parameters/CardBaseIdsQuery'
@@ -184,17 +220,17 @@
  *       - $ref: '#/components/parameters/EndDateQuery'
  *       - $ref: '#/components/parameters/MinValueQuery'
  *       - $ref: '#/components/parameters/MaxValueQuery'
+ *       - $ref: '#/components/parameters/PageQuery'
+ *       - $ref: '#/components/parameters/LimitQuery'
  *     responses:
  *       200:
- *         description: Filtered list of publications
+ *         description: Paginated list of publications
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/PublicationResponseDTO'
+ *               $ref: '#/components/schemas/PaginatedResponse'
  *       400:
- *         description: Invalid filters
+ *         description: Invalid filters or pagination parameters
  *       401:
  *         description: Unauthorized
  *       500:
@@ -257,5 +293,5 @@
  *       404:
  *         description: Publication not found
  *       500:
- *         description: Unexpected server error
+ *         description: Unexpected error
  */

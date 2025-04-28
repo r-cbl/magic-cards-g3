@@ -44,6 +44,7 @@ describe('CardService', () => {
       update: jest.fn(),
       delete: jest.fn(),
       findByCardsByIds: jest.fn(),
+      findPaginated: jest.fn()
     };
 
     cardService = new CardService(mockCardRepository);
@@ -142,5 +143,69 @@ describe('CardService', () => {
 
     expect(result).toBe(true);
     expect(mockCardRepository.delete).toHaveBeenCalledWith(cardId);
+  });
+
+  it('should return paginated cards with correct structure', async () => {
+    const filters = {
+      data: { ownerId: testUser.getId() },
+      limit: 2,
+      offset: 0
+    };
+
+    // Create multiple test cards
+    const mockCards = [
+      new Card({ owner: testUser, cardBase: testCardBase, statusCard: 100 }),
+      new Card({ owner: testUser, cardBase: testCardBase, statusCard: 90 }),
+      new Card({ owner: testUser, cardBase: testCardBase, statusCard: 80 }),
+      new Card({ owner: testUser, cardBase: testCardBase, statusCard: 70 })
+    ];
+
+    (mockCardRepository.findPaginated as jest.Mock).mockResolvedValue({
+      data: mockCards.slice(0, 2),
+      total: mockCards.length,
+      limit: filters.limit,
+      offset: filters.offset,
+      hasMore: true
+    });
+
+    const result = await cardService.getAllCardsPaginated(filters);
+
+    expect(result).toBeDefined();
+    expect(result.data).toHaveLength(2);
+    expect(result.total).toBe(4);
+    expect(result.limit).toBe(2);
+    expect(result.offset).toBe(0);
+    expect(result.hasMore).toBe(true);
+    expect(mockCardRepository.findPaginated).toHaveBeenCalledWith(filters);
+  });
+
+  it('should handle pagination with no more results', async () => {
+    const filters = {
+      data: { ownerId: testUser.getId() },
+      limit: 2,
+      offset: 2
+    };
+
+    const mockCards = [
+      new Card({ owner: testUser, cardBase: testCardBase, statusCard: 100 }),
+      new Card({ owner: testUser, cardBase: testCardBase, statusCard: 90 })
+    ];
+
+    (mockCardRepository.findPaginated as jest.Mock).mockResolvedValue({
+      data: mockCards,
+      total: mockCards.length,
+      limit: filters.limit,
+      offset: filters.offset,
+      hasMore: false
+    });
+
+    const result = await cardService.getAllCardsPaginated(filters);
+
+    expect(result).toBeDefined();
+    expect(result.data).toHaveLength(2);
+    expect(result.total).toBe(2);
+    expect(result.limit).toBe(2);
+    expect(result.offset).toBe(2);
+    expect(result.hasMore).toBe(false);
   });
 });

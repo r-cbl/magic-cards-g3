@@ -1,6 +1,7 @@
 import { Publication } from "@/domain/entities/Publication";
 import { PublicationRepository } from "@/domain/repositories/PublicationRepository";
 import { PublicationFilterDTO } from "@/application/dtos/PublicationDTO";
+import { PaginatedResponseDTO, PaginationDTO } from "@/application/dtos/PaginationDTO";
 
 export class InMemoryPublicationRepository implements PublicationRepository {
     private publications: Publication[] = [];
@@ -45,6 +46,24 @@ export class InMemoryPublicationRepository implements PublicationRepository {
                 (!filters.ownerId || ownerId === filters.ownerId)
             );
         });
+    }
+
+
+    async findPaginated(filters: PaginationDTO<PublicationFilterDTO>): Promise<PaginatedResponseDTO<Publication>> {
+        const filteredOffers = await this.find(filters.data);
+        const limit = filters.limit || 10;
+        const offset = filters.offset || 0;
+        const total = filteredOffers.length;
+        const paginatedOffers = filteredOffers.slice(offset, offset + limit);
+        const hasMore = offset + limit < total;
+
+        return {
+            data: paginatedOffers,
+            total,
+            limit,
+            offset,
+            hasMore
+        };
     }
 
     async update(publication: Publication): Promise<Publication> {

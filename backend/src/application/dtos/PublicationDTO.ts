@@ -40,6 +40,8 @@ export interface CreatePublicationDTO {
     ownerId?: string;
     minValue?: number;
     maxValue?: number;
+    limit?: number;
+    offset?: number;
   }
 
   export interface PublicationUpdatedDTO {
