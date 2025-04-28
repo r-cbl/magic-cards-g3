@@ -1,14 +1,15 @@
 // src/index.ts
-import { setupBot } from './bot/setupBot'; // Ajustá el path si cambió
+import { setupBot } from './bot/setupBot';
 import 'dotenv/config';
+import logger from './utils/logger';
 
 async function main() {
   try {
     const bot = await setupBot();
-    console.log('🤖 Bot is starting...');
+    logger.info('🤖 Bot is starting...');
     await bot.start();
   } catch (err) {
-    console.error('❌ Failed to start the bot:', err);
+    logger.error('❌ Failed to start the bot:', err);
   }
 }
 
