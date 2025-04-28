@@ -6,8 +6,8 @@ export class LoginClient extends BaseApiClient {
     return this.requestWithBody<AuthSession>(
       "POST",
       "http://localhost:3001/api/auth/login",
+      "Invalid email or password. Please try again.",
       credentials,
-      "Invalid email or password. Please try again."
     );
   }
 }

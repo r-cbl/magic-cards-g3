@@ -7,8 +7,8 @@ export class RegisterClient extends BaseApiClient{
     return this.requestWithBody<AuthSession>(
       "POST",
       "http://localhost:3001/api/auth/register",
+      "Invalid email or password. Please try again.",
       request,
-      "Invalid email or password. Please try again."
     );
   }
 }

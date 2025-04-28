@@ -7,8 +7,8 @@ export class CreatePublicationClient extends BaseApiClient {
     return this.requestWithBody<PublicationResponse>(
       "POST",
       "http://localhost:3001/api/publications",
-      request,
       "",
+      request,
       token,
     );
   }
