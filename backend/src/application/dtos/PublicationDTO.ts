@@ -8,7 +8,10 @@ export interface CreatePublicationDTO {
   export interface PublicationResponseDTO {
     id: string;
     name: string;
-    cardId: string;
+    card: {
+      cardId: string;
+      urlImage: string;
+    };
     valueMoney: number;
     cardExchangeIds: string[];
     cardBase: {
