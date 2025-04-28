@@ -7,10 +7,11 @@ export class UserController {
 
   public async createUser(req: Request, res: Response): Promise<void> {
     try {
+      const adminId = req.user?.userId
       const userData: CreateUserDTO = req.body;
-      const user = await this.userService.createUser(userData);
+      const user = await this.userService.createUserByAdmin(adminId, userData);
       res.status(201).json(user);
-    } catch (error) {
+    } catch (error) { 
       if (error instanceof Error) {
         res.status(400).json({ error: error.message });
       } else {

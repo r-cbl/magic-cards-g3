@@ -46,6 +46,10 @@ export class AuthService {
     const savedUser = await this.userRepository.save(user);
     const tokens = this.jwtService.generateTokens(savedUser);
 
+    await statisticsRepository.increment(
+      new Statistic(StatisticType.USERS_REGISTERED, new Date(), 1)
+    );
+
     return {
       user: {
         id: savedUser.getId(),

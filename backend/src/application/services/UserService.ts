@@ -3,27 +3,46 @@ import {  User } from '../../domain/entities/User';
 import { UserRepository } from '../../domain/repositories/UserRepository';
 import { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from '../dtos/UserDTO';
 import { statisticsRepository } from '../../infrastructure/repositories/Container';
+import bcrypt from 'bcrypt';
+import { UserAlreadyExistsError } from './exceptions/service_exceptions';
 
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  public async createUser(userData: CreateUserDTO): Promise<UserResponseDTO> {
+  public async createUser(userData: CreateUserDTO): Promise<User>{
     const existingUser = await this.userRepository.findByEmail(userData.email);
-    
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      throw new UserAlreadyExistsError('User with this email already exists');
     }
-
+    const hashedPassword = await this.hashPassword(userData.password);
+  
     const user = new User({
       name: userData.name,
       email: userData.email,
-      password: userData.password, // In a real app, password should be hashed
+      password: hashedPassword,
     });
-
+  
     const savedUser = await this.userRepository.save(user);
-    await statisticsRepository.increment(new Statistic(StatisticType.USERS_REGISTERED, new Date(), 1));
-    return this.toUserResponseDTO(savedUser);
+  
+    await statisticsRepository.increment(
+      new Statistic(StatisticType.USERS_REGISTERED, new Date(), 1)
+    );
+  
+    return savedUser;
   }
+
+  public async createUserByAdmin(adminId:string, userData: CreateUserDTO): Promise<UserResponseDTO> {
+    const adminUser = await this.userRepository.findById(adminId)
+    
+    if (adminUser.isAdmin()) {
+      throw new Error('User with this email already exists');
+    }
+
+    const user = await this.createUser(userData)
+
+    return this.toUserResponseDTO(user);
+  }
+  
 
   public async getUser(id: string): Promise<UserResponseDTO> {
     const user = await this.userRepository.findById(id);
@@ -84,4 +103,12 @@ export class UserService {
     if (!user) throw new Error("User not found");
     return user;
   }
+
+
+    private async hashPassword(password: string): Promise<string> {
+      const salt = await bcrypt.genSalt(10);
+      return bcrypt.hash(password, salt);
+    }
+
+
 } 
