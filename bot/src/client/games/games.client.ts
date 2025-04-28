@@ -31,10 +31,10 @@ export class GamesClient {
                 name:"Mock Game 0-2"
               },
             ],
-            total: 4,
+            total: 0,
             limit: request.limit,
             offset: 0,
-            hasMore: true,
+            hasMore: false,
           };
         } else {
           page = {
