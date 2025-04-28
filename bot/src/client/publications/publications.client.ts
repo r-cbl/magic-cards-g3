@@ -1,6 +1,6 @@
 import { CreatePublicationClient } from "./createPublication.client";
 import { DeletePublicationClient } from "./deletePublication.client";
-import { GetAllPublicationClient } from "./getAllPublications.client";
+import { GetAllPublicationsClient } from "./getAllPublications.client";
 import { GetByIdPublicationClient } from "./getPublicationByID.client";
 import { CreateRequest } from "./request/create.request";
 import { GetRequest } from "./request/get.request";
@@ -11,7 +11,7 @@ import { UpdatePublicationClient } from "./updatePublication.client";
 export class PublicationsClient {
     
     createClient = new CreatePublicationClient()
-    getAllClient = new GetAllPublicationClient()
+    getAllClient = new GetAllPublicationsClient()
     getByIdClient = new GetByIdPublicationClient()
     updateClient = new UpdatePublicationClient()
     deleteClient = new DeletePublicationClient() 
@@ -35,8 +35,4 @@ export class PublicationsClient {
     delete(request: string, token: string): Promise<void> {
        return this.deleteClient.execute(request,token);
     }
-
-
-
-
 }
