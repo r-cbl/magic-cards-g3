@@ -4,7 +4,7 @@ import { UserRepository } from '../../domain/repositories/UserRepository';
 import { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from '../dtos/UserDTO';
 import { statisticsRepository } from '../../infrastructure/repositories/Container';
 import bcrypt from 'bcrypt';
-import { UserAlreadyExistsError } from './exceptions/service_exceptions';
+import { UserAlreadyExistsError, UnauthorizedException, UserNotFoundError } from '../../domain/entities/exceptions/exceptions';
 
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
@@ -31,11 +31,12 @@ export class UserService {
     return savedUser;
   }
 
-  public async createUserByAdmin(adminId:string, userData: CreateUserDTO): Promise<UserResponseDTO> {
-    const adminUser = await this.userRepository.findById(adminId)
-    
-    if (adminUser.isAdmin()) {
-      throw new Error('User with this email already exists');
+  public async createUserByAdmin(userData: CreateUserDTO, adminId?:string): Promise<UserResponseDTO> {
+
+    const adminUser = await this.getSimpleUser(adminId)
+
+    if (!adminUser.isAdmin()) {
+      throw new UnauthorizedException('Only administrators can create users');
     }
 
     const user = await this.createUser(userData)
@@ -43,24 +44,38 @@ export class UserService {
     return this.toUserResponseDTO(user);
   }
   
-
-  public async getUser(id: string): Promise<UserResponseDTO> {
-    const user = await this.userRepository.findById(id);
+  public async getUser(email:string): Promise<User>{
+    const user = await this.userRepository.findByEmail(email);
     
     if (!user) {
       throw new Error('User not found');
     }
+
+    return user;
+  }
+
+  public async getUserByAdmin(email: string, adminId?:string): Promise<UserResponseDTO> {
+    const adminUser = await this.getSimpleUser(adminId)
+
+    if (!adminUser.isAdmin()) {
+      throw new UnauthorizedException('Only administrators can create users');
+    }
+
+    const user = await this.getUser(email);
     
     return this.toUserResponseDTO(user);
   }
 
-  public async getAllUsers(): Promise<UserResponseDTO[]> {
-    const users = await this.userRepository.findAll();
-    return users.map(user => this.toUserResponseDTO(user));
-  }
 
-  public async updateUser(id: string, userData: UpdateUserDTO): Promise<UserResponseDTO> {
-    const existingUser = await this.getSimpleUser(id);
+  public async updateUser(toUpdateUserId: string, userData: UpdateUserDTO, userId:string): Promise<UserResponseDTO> {
+
+    const user = await this.getSimpleUser(userId)
+
+    const existingUser = await this.getSimpleUser(toUpdateUserId);
+
+    if (existingUser.getId() != user.getId() || !user.isAdmin()) {
+      throw new UnauthorizedException('Only onceself or admins can update users');
+    }
   
     if (userData.name) {
       existingUser.setName(userData.name);
@@ -68,23 +83,23 @@ export class UserService {
 
     if (userData.email) {
       const userWithEmail = await this.userRepository.findByEmail(userData.email);
-      if (userWithEmail && userWithEmail.getId() !== id) {
+      if (userWithEmail && userWithEmail.getId() !== toUpdateUserId) {
         throw new Error('Email is already in use');
       }
       existingUser.setEmail(userData.email);
     }
 
     if (userData.password) {
-      existingUser.setPassword(userData.password); // In a real app, password should be hashed
+      existingUser.setPassword(await this.hashPassword(userData.password)); 
     }
 
     const updatedUser = await this.userRepository.update(existingUser);
     return this.toUserResponseDTO(updatedUser);
   }
 
-  public async deleteUser(id: string): Promise<boolean> {
-    await this.getSimpleUser(id);
-    return this.userRepository.delete(id);
+  public async deleteUser(toDeleteUserId: string, userId:string): Promise<boolean> {
+    await this.getSimpleUser(toDeleteUserId);
+    return this.userRepository.delete(toDeleteUserId);
   }
 
   private toUserResponseDTO(user: User): UserResponseDTO {
@@ -98,9 +113,10 @@ export class UserService {
     };
   }
 
-  public async getSimpleUser(id: string): Promise<User> {
+  public async getSimpleUser(id?: string): Promise<User> {
+    if (!id) throw new UserNotFoundError("User ID is required");
     const user = await this.userRepository.findById(id);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new UserNotFoundError("User not found");
     return user;
   }
 
