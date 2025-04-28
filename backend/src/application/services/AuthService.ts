@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
-import { User } from '../../domain/entities/User';
-import { UserRepository } from '../../domain/repositories/UserRepository';
 import { JwtService, TokenResponse } from '../../infrastructure/auth/jwt.service';
 import { CreateUserDTO } from '../dtos/UserDTO';
 import { UserService } from './UserService';
+import { UnauthorizedException, UserNotFoundError } from '../../domain/entities/exceptions/exceptions';
+
 
 interface LoginDTO {
   email: string;
@@ -21,7 +21,6 @@ interface AuthResponseDTO {
 
 export class AuthService {
   constructor(
-    private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly userService: UserService
   ) {}

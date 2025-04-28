@@ -9,7 +9,7 @@ import { UserService } from '../../application/services/UserService';
 // Create dependencies
 const jwtService = new JwtService();
 const userService = new UserService(userRepository);
-const authService = new AuthService(userRepository, jwtService, userService);
+const authService = new AuthService(jwtService, userService);
 const authController = new AuthController(authService);
 const authMiddleware = new AuthMiddleware(jwtService);
 

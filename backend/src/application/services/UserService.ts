@@ -48,7 +48,7 @@ export class UserService {
     const user = await this.userRepository.findByEmail(email);
     
     if (!user) {
-      throw new Error('User not found');
+      throw new UserNotFoundError('User not found by Email');
     }
 
     return user;
@@ -67,7 +67,7 @@ export class UserService {
   }
 
 
-  public async updateUser(toUpdateUserId: string, userData: UpdateUserDTO, userId:string): Promise<UserResponseDTO> {
+  public async updateUser(toUpdateUserId: string, userData: UpdateUserDTO, userId?:string): Promise<UserResponseDTO> {
 
     const user = await this.getSimpleUser(userId)
 
@@ -97,7 +97,7 @@ export class UserService {
     return this.toUserResponseDTO(updatedUser);
   }
 
-  public async deleteUser(toDeleteUserId: string, userId:string): Promise<boolean> {
+  public async deleteUser(toDeleteUserId: string, userId?:string): Promise<boolean> {
     await this.getSimpleUser(toDeleteUserId);
     return this.userRepository.delete(toDeleteUserId);
   }
