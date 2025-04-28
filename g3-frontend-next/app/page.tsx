@@ -7,7 +7,7 @@ export default function HomePage() {
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] px-4 text-center">
       <div className="mb-8">
         <img
-          src="https://wallpapercave.com/wp/wp4788989.jpg"
+          src="http://cdn.hobbyconsolas.com/sites/navi.axelspringer.es/public/media/image/2023/02/pokemon-mundo-megamisterioso-2958262.jpg?tf=3840x"
           alt="Pokemon Trading Cards Banner"
           className="rounded-lg shadow-lg max-w-full h-auto md:max-w-2xl lg:max-w-4xl"
         />

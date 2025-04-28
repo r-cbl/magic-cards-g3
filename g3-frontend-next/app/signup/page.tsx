@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks"
-import { loginStart, loginSuccess, loginFailure } from "@/lib/redux/slices/userSlice"
+import { useAppDispatch, useAppSelector } from "@/lib/hooks"
+import { loginStart, loginSuccess, loginFailure } from "@/lib/userSlice"
 import type { CreateUserDTO } from "@/types/user"
 
 export default function SignupPage() {

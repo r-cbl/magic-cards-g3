@@ -6,7 +6,7 @@ import type { GameResponseDTO } from "@/types/game"
 const mockCards: CardResponseDTO[] = [
   {
     id: "1",
-    urlImage: "/placeholder.svg?height=300&width=200",
+    urlImage: "https://img.pokemondb.net/artwork/pikachu.jpg",
     cardBase: {
       Id: "cb1",
       Name: "Pikachu",
@@ -23,7 +23,7 @@ const mockCards: CardResponseDTO[] = [
   },
   {
     id: "2",
-    urlImage: "/placeholder.svg?height=300&width=200",
+    urlImage: "https://img.pokemondb.net/artwork/charizard.jpg",
     cardBase: {
       Id: "cb2",
       Name: "Charizard",
@@ -40,7 +40,7 @@ const mockCards: CardResponseDTO[] = [
   },
   {
     id: "3",
-    urlImage: "/placeholder.svg?height=300&width=200",
+    urlImage: "https://img.pokemondb.net/artwork/bulbasaur.jpg",
     cardBase: {
       Id: "cb3",
       Name: "Bulbasaur",
@@ -57,7 +57,7 @@ const mockCards: CardResponseDTO[] = [
   },
   {
     id: "4",
-    urlImage: "/placeholder.svg?height=300&width=200",
+    urlImage: "https://img.pokemondb.net/artwork/squirtle.jpg",
     cardBase: {
       Id: "cb4",
       Name: "Squirtle",
@@ -74,7 +74,7 @@ const mockCards: CardResponseDTO[] = [
   },
   {
     id: "5",
-    urlImage: "/placeholder.svg?height=300&width=200",
+    urlImage: "https://img.pokemondb.net/artwork/mewtwo.jpg",
     cardBase: {
       Id: "cb5",
       Name: "Mewtwo",
@@ -90,6 +90,7 @@ const mockCards: CardResponseDTO[] = [
     createdAt: new Date(),
   },
 ]
+
 
 // Mock games
 const mockGames: GameResponseDTO[] = [

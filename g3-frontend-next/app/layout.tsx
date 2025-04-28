@@ -5,7 +5,10 @@ import { ThemeProvider } from "@/components/theme-provider"
 import Navbar from "@/components/navbar"
 import { ReduxProvider } from "@/components/redux-provider"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+})
 
 export const metadata = {
   title: "PokéTrade - Pokemon Card Trading Platform",

@@ -34,7 +34,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <img
-              src="/placeholder.svg?height=32&width=32"
+              src="https://upload.wikimedia.org/wikipedia/commons/5/53/Pok%C3%A9_Ball_icon.svg"
               alt="PokéTrade Logo"
               width={32}
               height={32}
