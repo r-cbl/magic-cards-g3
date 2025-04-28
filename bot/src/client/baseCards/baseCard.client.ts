@@ -15,7 +15,7 @@ export class BaseCardsClient {
         return this.createClient.execute(request, token);
     }
 
-    getAll(request: GetRequest, token: string): Promise<BaseCardResponse> {
+    getAll(request: GetRequest, token: string): Promise<PaginatedResponse<BaseCardResponse>> {
         return this.getAllClient.execute(request, token);
     }
 
