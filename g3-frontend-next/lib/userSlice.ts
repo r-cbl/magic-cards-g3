@@ -1,5 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import type { UserResponseDTO, UpdateUserDTO } from "@/types/user"
+import type { UserResponseDTO, UpdateUserDTO, CreateUserDTO } from "@/types/user"
+import { userService } from "@/services/user-service"
+import Promise from "bluebird"
 
 interface UserState {
   currentUser: UserResponseDTO | null
@@ -91,25 +93,44 @@ export const {
 
 export const updateUserProfile =
   ({ userId, userData }: { userId: string; userData: UpdateUserDTO }) =>
-  async (dispatch: any) => {
+  (dispatch: any) => {
     dispatch(updateUserProfileStart())
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
+    Promise.resolve(userService.updateProfile(userId, userData))
+      .then((updatedUser: UserResponseDTO) => dispatch(updateUserProfileSuccess(updatedUser)))
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : "Failed to update user"
+        dispatch(updateUserProfileFailure(message))
+      })
+  }
 
-      const updatedUser = {
-        id: userId,
-        name: userData.name || "Test User",
-        lastName: userData.lastName || "",
-        email: userData.email || "test@example.com",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
+export const loginUser =
+  ({ email, password }: { email: string; password: string }) =>
+  (dispatch: any) => {
+    dispatch(loginStart())
+    Promise.resolve(userService.login(email, password))
+      .then((response: { user: UserResponseDTO; token: string }) => {
+        localStorage.setItem("token", response.token)
+        dispatch(loginSuccess(response.user))
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : "Login failed"
+        dispatch(loginFailure(message))
+      })
+  }
 
-      dispatch(updateUserProfileSuccess(updatedUser as UserResponseDTO))
-    } catch (error: any) {
-      dispatch(updateUserProfileFailure(error.message))
-    }
+export const registerUser =
+  (userData: CreateUserDTO) =>
+  (dispatch: any) => {
+    dispatch(loginStart())
+    Promise.resolve(userService.signup(userData))
+      .then((response: { user: UserResponseDTO; token: string }) => {
+        localStorage.setItem("token", response.token)
+        dispatch(loginSuccess(response.user))
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : "Signup failed"
+        dispatch(loginFailure(message))
+      })
   }
 
 export default userSlice.reducer

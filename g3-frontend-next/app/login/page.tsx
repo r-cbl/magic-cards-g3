@@ -1,6 +1,5 @@
 "use client"
-import { useState } from "react"
-import type React from "react"
+import React, { useState } from "react"
 
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -9,12 +8,12 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { loginStart, loginSuccess, loginFailure } from "@/lib/userSlice"
+import { loginUser } from "@/lib/userSlice"
 
 export default function LoginPage() {
   const router = useRouter()
   const dispatch = useAppDispatch()
-  const { isLoading, error } = useAppSelector((state) => state.user)
+  const { isLoading, error, currentUser } = useAppSelector((state) => state.user)
 
   // Form state
   const [email, setEmail] = useState("")
@@ -42,41 +41,18 @@ export default function LoginPage() {
     return Object.keys(errors).length === 0
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
-
-    dispatch(loginStart())
-
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // For demo purposes, just check if email contains "test"
-      if (!email.includes("test")) {
-        throw new Error("Invalid credentials")
-      }
-
-      // Login successful
-      dispatch(
-        loginSuccess({
-          id: "user-123",
-          name: "Test User",
-          email,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }),
-      )
-
-      // Redirect to home page
-      router.push("/")
-    } catch (err) {
-      dispatch(loginFailure("Invalid email or password. Please try again."))
-    }
+    if (!validateForm()) return
+    dispatch(loginUser({ email, password }))
   }
+
+  // Redirect on login
+  React.useEffect(() => {
+    if (currentUser) {
+      router.push("/")
+    }
+  }, [currentUser, router])
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-4rem)]">

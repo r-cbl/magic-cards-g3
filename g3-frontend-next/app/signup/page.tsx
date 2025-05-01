@@ -1,7 +1,5 @@
 "use client"
-import { useState } from "react"
-import type React from "react"
-
+import React, { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -9,13 +7,12 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { loginStart, loginSuccess, loginFailure } from "@/lib/userSlice"
-import type { CreateUserDTO } from "@/types/user"
+import { registerUser } from "@/lib/userSlice"
 
 export default function SignupPage() {
   const router = useRouter()
   const dispatch = useAppDispatch()
-  const { isLoading, error } = useAppSelector((state) => state.user)
+  const { isLoading, error, currentUser } = useAppSelector((state) => state.user)
 
   // Form state
   const [name, setName] = useState("")
@@ -57,43 +54,18 @@ export default function SignupPage() {
     return Object.keys(errors).length === 0
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
-
-    dispatch(loginStart())
-
-    try {
-      // This would be replaced with actual API call
-      const userData: CreateUserDTO = {
-        name,
-        email,
-        password,
-      }
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Login successful
-      dispatch(
-        loginSuccess({
-          id: "user-123",
-          name: userData.name,
-          email: userData.email,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }),
-      )
-
-      // Redirect to home page
-      router.push("/")
-    } catch (err) {
-      dispatch(loginFailure("Failed to create account. Please try again."))
-    }
+    if (!validateForm()) return
+    dispatch(registerUser({ name, email, password }))
   }
+
+  // Redirect on signup
+  useEffect(() => {
+    if (currentUser) {
+      router.push("/")
+    }
+  }, [currentUser, router])
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-4rem)]">
