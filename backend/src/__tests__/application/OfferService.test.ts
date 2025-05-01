@@ -515,7 +515,7 @@ describe('OfferService', () => {
       (mockOfferRepository.find as jest.Mock).mockResolvedValue(mockOffers);
 
       // Act
-      const result = await offerService.getAllCards(filters);
+      const result = await offerService.getAllOffer(filters);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -529,7 +529,7 @@ describe('OfferService', () => {
       (mockOfferRepository.find as jest.Mock).mockResolvedValue(mockOffers);
 
       // Act
-      const result = await offerService.getAllCards({}); // No filters
+      const result = await offerService.getAllOffer({}); // No filters
 
       // Assert
       expect(result).toHaveLength(1);

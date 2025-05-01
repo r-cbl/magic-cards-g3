@@ -36,7 +36,7 @@ export class InMemoryGameRepository implements GameRepository {
         return [...this.games];
     }
 
-    async find(filters: String): Promise<Game[]>{
+    async find(filters: String | undefined): Promise<Game[]>{
         return this.games.filter(game => {
             const gameName = game.getName().toLocaleLowerCase();
 
@@ -46,7 +46,7 @@ export class InMemoryGameRepository implements GameRepository {
         });
     }
 
-    async findPaginated(filters: PaginationDTO<String>): Promise<PaginatedResponseDTO<Game>> {
+    async findPaginated(filters: PaginationDTO<String | undefined>): Promise<PaginatedResponseDTO<Game>> {
         const filter = await this.find(filters.data);
         const limit = filters.limit || 10;
         const offset = filters.offset || 0;

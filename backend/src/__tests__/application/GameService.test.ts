@@ -18,7 +18,8 @@ describe('GameService', () => {
       update: jest.fn(),
       delete: jest.fn(),
       findById: jest.fn(),
-      findAll: jest.fn()
+      findAll: jest.fn(),
+      findPaginated: jest.fn()
     } as jest.Mocked<GameRepository>;
 
     // Create the service with the mocked repository
