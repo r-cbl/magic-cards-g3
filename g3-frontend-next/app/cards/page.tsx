@@ -8,9 +8,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Plus } from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { fetchCardsStart, fetchCardsSuccess, fetchCardsFailure } from "@/lib/cardsSlice"
 import type { GameResponseDTO } from "@/types/game"
 import { useState } from "react"
+import { fetchCards } from "@/lib/cardsSlice"
 
 // Mock data
 const mockGames: GameResponseDTO[] = [
@@ -21,27 +21,16 @@ const mockGames: GameResponseDTO[] = [
 
 export default function CardsPage() {
   const router = useRouter()
-  const dispatch = useAppDispatch()
   const { cards, isLoading } = useAppSelector((state) => state.cards)
   const { currentUser } = useAppSelector((state) => state.user)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedGame, setSelectedGame] = useState<string>("")
 
   useEffect(() => {
-    dispatch(fetchCardsStart())
+    fetchCards();
+  }, [])
 
-    // Simulate API call
-    setTimeout(() => {
-      try {
-        // In a real app, this would be an API call
-        dispatch(fetchCardsSuccess(cards))
-      } catch (error) {
-        dispatch(fetchCardsFailure("Failed to load cards"))
-      }
-    }, 500)
-  }, [dispatch])
-
-  const filteredCards = cards.filter((card) => {
+  const filteredCards = cards.filter((card: any) => {
     let matchesSearch = true
     let matchesGame = true
 

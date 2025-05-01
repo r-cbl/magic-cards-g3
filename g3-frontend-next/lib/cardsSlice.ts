@@ -1,113 +1,8 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { CardResponseDTO } from "@/types/card"
 import type { GameResponseDTO } from "@/types/game"
-
-// Mock data
-const mockCards: CardResponseDTO[] = [
-  {
-    id: "1",
-    urlImage: "https://img.pokemondb.net/artwork/pikachu.jpg",
-    cardBase: {
-      Id: "cb1",
-      Name: "Pikachu",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user1",
-      ownerName: "Ash Ketchum",
-    },
-    createdAt: new Date(),
-  },
-  {
-    id: "2",
-    urlImage: "https://img.pokemondb.net/artwork/charizard.jpg",
-    cardBase: {
-      Id: "cb2",
-      Name: "Charizard",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user2",
-      ownerName: "Gary Oak",
-    },
-    createdAt: new Date(),
-  },
-  {
-    id: "3",
-    urlImage: "https://img.pokemondb.net/artwork/bulbasaur.jpg",
-    cardBase: {
-      Id: "cb3",
-      Name: "Bulbasaur",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user1",
-      ownerName: "Ash Ketchum",
-    },
-    createdAt: new Date(),
-  },
-  {
-    id: "4",
-    urlImage: "https://img.pokemondb.net/artwork/squirtle.jpg",
-    cardBase: {
-      Id: "cb4",
-      Name: "Squirtle",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user3",
-      ownerName: "Misty",
-    },
-    createdAt: new Date(),
-  },
-  {
-    id: "5",
-    urlImage: "https://img.pokemondb.net/artwork/mewtwo.jpg",
-    cardBase: {
-      Id: "cb5",
-      Name: "Mewtwo",
-    },
-    game: {
-      Id: "2",
-      Name: "Pokemon Gold/Silver",
-    },
-    owner: {
-      ownerId: "user4",
-      ownerName: "Professor Oak",
-    },
-    createdAt: new Date(),
-  },
-]
-
-
-// Mock games
-const mockGames: GameResponseDTO[] = [
-  { id: "1", name: "Pokemon Red/Blue", createdAt: new Date(), updatedAt: new Date() },
-  { id: "2", name: "Pokemon Gold/Silver", createdAt: new Date(), updatedAt: new Date() },
-  { id: "3", name: "Pokemon Ruby/Sapphire", createdAt: new Date(), updatedAt: new Date() },
-]
-
-// Mock card bases
-const mockCardBases = [
-  { id: "cb1", name: "Pikachu", gameId: "1" },
-  { id: "cb2", name: "Charizard", gameId: "1" },
-  { id: "cb3", name: "Bulbasaur", gameId: "1" },
-  { id: "cb4", name: "Squirtle", gameId: "1" },
-  { id: "cb5", name: "Mewtwo", gameId: "2" },
-  { id: "cb6", name: "Lugia", gameId: "2" },
-]
+import { cardService } from "@/services/card-service"
+import { useAppSelector } from "@/lib/hooks"
 
 interface CardsState {
   cards: CardResponseDTO[]
@@ -120,11 +15,11 @@ interface CardsState {
 }
 
 const initialState: CardsState = {
-  cards: mockCards,
+  cards: [],
   userCards: [],
   selectedCard: null,
-  games: mockGames,
-  cardBases: mockCardBases,
+  games: [],
+  cardBases: [],
   isLoading: false,
   error: null,
 }
@@ -175,7 +70,6 @@ export const cardsSlice = createSlice({
     },
     createCardSuccess: (state, action: PayloadAction<CardResponseDTO>) => {
       if (action.payload.id) {
-        // Only add if it's a real card, not just clearing loading state
         state.cards.push(action.payload)
         state.userCards.push(action.payload)
       }
@@ -238,3 +132,24 @@ export const {
 } = cardsSlice.actions
 
 export default cardsSlice.reducer
+
+export const fetchCards = () => (dispatch: any) => {
+  dispatch(fetchCardsStart());
+  Promise.resolve(cardService.getAllCards())
+    .then((cards: CardResponseDTO[]) => dispatch(fetchCardsSuccess(cards)))
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to load cards";
+      dispatch(fetchCardsFailure(message));
+    });
+}
+
+export const fetchCardById = (cardId: string) => (dispatch: any) => {
+  dispatch(fetchCardByIdStart());
+  Promise.resolve(cardService.getCardById(cardId))
+    .then((card: CardResponseDTO) => dispatch(fetchCardByIdSuccess(card)))
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to load card details";
+      dispatch(fetchCardByIdFailure(message));
+    });
+};
+

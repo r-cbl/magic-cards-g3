@@ -15,6 +15,8 @@ import { createCardStart, createCardSuccess, createCardFailure } from "@/lib/car
 import type { GameResponseDTO } from "@/types/game"
 import type { CreateCardBaseDTO, CreateCardDTO, CardResponseDTO } from "@/types/card"
 import { Plus } from "lucide-react"
+import { cardService } from "@/services/card-service"
+import Promise from "bluebird";
 
 // Mock data
 const mockGames: GameResponseDTO[] = [
@@ -58,16 +60,14 @@ export default function CreateCardPage() {
     cardBase?: string
     statusCard?: string
     urlImage?: string
+    game?: string
   }>({})
 
   useEffect(() => {
-    // Check if user is logged in
     if (!currentUser) {
       router.push("/login")
       return
     }
-
-    // Filter card bases by selected game
     if (selectedGameId) {
       setFilteredCardBases(cardBases.filter((cb) => cb.gameId === selectedGameId))
     } else {
@@ -85,11 +85,7 @@ export default function CreateCardPage() {
     dispatch(createCardStart())
 
     try {
-      // This would be replaced with actual API call to create a new game
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // Create a new game with a unique ID
+      //Falta la llamada par acrear el juego.
       const newGameId = `game-${Date.now()}`
       const newGame: GameResponseDTO = {
         id: newGameId,
@@ -97,22 +93,11 @@ export default function CreateCardPage() {
         createdAt: new Date(),
         updatedAt: new Date(),
       }
-
-      // Update games state
       setGames((prevGames) => [...prevGames, newGame])
-
-      // Select the newly created game
       setSelectedGameId(newGameId)
-
-      // Reset the new game name
       setNewGameName("")
-
-      // Switch back to existing game mode
       setGameSelectionMode("existing")
-
-      // Clear any form errors
       setFormErrors((prev) => ({ ...prev, game: undefined }))
-
       dispatch(createCardSuccess({} as CardResponseDTO)) // Just to clear loading state
     } catch (err) {
       dispatch(createCardFailure("Failed to create game. Please try again."))
@@ -151,22 +136,11 @@ export default function CreateCardPage() {
         gameId: selectedGameId,
       }
 
-      // Update card bases state
       setCardBases((prevCardBases) => [...prevCardBases, newCardBase])
-
-      // Update filtered card bases
       setFilteredCardBases((prevFiltered) => [...prevFiltered, newCardBase])
-
-      // Set the selected card base
       setSelectedCardBaseId(newCardBaseId)
-
-      // Reset the new card base name
       setNewCardBaseName("")
-
-      // Switch back to existing card base mode
       setCardBaseSelectionMode("existing")
-
-      // Clear any form errors
       setFormErrors((prev) => ({ ...prev, cardBase: undefined }))
 
       dispatch(createCardSuccess({} as CardResponseDTO)) // Just to clear loading state
@@ -180,6 +154,7 @@ export default function CreateCardPage() {
       cardBase?: string
       statusCard?: string
       urlImage?: string
+      game?: string
     } = {}
 
     // Check if we have a card base selected or created
@@ -202,6 +177,11 @@ export default function CreateCardPage() {
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
+
+  // Function to create a card using the service and Bluebird
+  const createCardWithService = (cardData: CreateCardDTO) => {
+    return Promise.resolve(cardService.createCard(cardData));
+  };
 
   // Handle form submission to create a new card
   const handleSubmit = async (e: React.FormEvent) => {
@@ -232,7 +212,7 @@ export default function CreateCardPage() {
         }
       }
 
-      // This would be replaced with actual API call
+      // Use the service to create the card
       const cardData: CreateCardDTO = {
         cardBaseId: cardBaseId!,
         statusCard,
@@ -240,35 +220,15 @@ export default function CreateCardPage() {
         ownerId: currentUser.id,
       }
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Create a mock response
-      const selectedCardBase = cardBases.find((cb) => cb.id === cardBaseId)
-      const selectedGame = games.find((g) => g.id === selectedCardBase?.gameId)
-
-      const newCard: CardResponseDTO = {
-        id: `card-${Date.now()}`,
-        urlImage,
-        cardBase: {
-          Id: cardBaseId!,
-          Name: selectedCardBase?.name || newCardBaseName,
-        },
-        game: {
-          Id: selectedGame?.id || selectedGameId,
-          Name: selectedGame?.name || games.find((g) => g.id === selectedGameId)?.name || "",
-        },
-        owner: {
-          ownerId: currentUser.id,
-          ownerName: currentUser.name,
-        },
-        createdAt: new Date(),
-      }
-
-      dispatch(createCardSuccess(newCard))
-
-      // Redirect to cards page
-      router.push("/cards")
+      createCardWithService(cardData)
+        .then((newCard: CardResponseDTO) => {
+          dispatch(createCardSuccess(newCard))
+          router.push("/cards")
+        })
+        .catch((err: unknown) => {
+          const message = err instanceof Error ? err.message : "Failed to create card. Please try again."
+          dispatch(createCardFailure(message))
+        })
     } catch (err) {
       dispatch(createCardFailure("Failed to create card. Please try again."))
     }
