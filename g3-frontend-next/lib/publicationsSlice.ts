@@ -1,79 +1,8 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { PublicationResponseDTO } from "@/types/publication"
+import { publicationService } from "@/services/publication-service"
+import Promise from "bluebird"
 
-// Mock data
-const mockPublications: PublicationResponseDTO[] = [
-  {
-    id: "1",
-    name: "Pikachu for trade",
-    cardId: "1",
-    valueMoney: 0,
-    cardExchangeIds: ["cb2", "cb3"],
-    cardBase: {
-      Id: "cb1",
-      Name: "Pikachu",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user1",
-      ownerName: "Ash Ketchum",
-    },
-    offers: [],
-    createdAt: new Date(),
-  },
-  {
-    id: "2",
-    name: "Charizard for sale",
-    cardId: "2",
-    valueMoney: 50,
-    cardExchangeIds: [],
-    cardBase: {
-      Id: "cb2",
-      Name: "Charizard",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user2",
-      ownerName: "Gary Oak",
-    },
-    offers: [
-      {
-        offerId: "offer1",
-        moneyOffer: 45,
-        statusOffer: "PENDING",
-        cardExchangeIds: [],
-      },
-    ],
-    createdAt: new Date(),
-  },
-  {
-    id: "3",
-    name: "Mewtwo - looking for Lugia",
-    cardId: "5",
-    valueMoney: 0,
-    cardExchangeIds: ["cb6"],
-    cardBase: {
-      Id: "cb5",
-      Name: "Mewtwo",
-    },
-    game: {
-      Id: "2",
-      Name: "Pokemon Gold/Silver",
-    },
-    owner: {
-      ownerId: "user4",
-      ownerName: "Professor Oak",
-    },
-    offers: [],
-    createdAt: new Date(),
-  },
-]
 
 interface PublicationsState {
   publications: PublicationResponseDTO[]
@@ -84,7 +13,7 @@ interface PublicationsState {
 }
 
 const initialState: PublicationsState = {
-  publications: mockPublications,
+  publications: [],
   userPublications: [],
   selectedPublication: null,
   isLoading: false,
@@ -163,3 +92,43 @@ export const {
 } = publicationsSlice.actions
 
 export default publicationsSlice.reducer
+
+export const fetchPublications = () => (dispatch: any) => {
+  dispatch(fetchPublicationsStart());
+  Promise.resolve(publicationService.getAllPublications())
+    .then((publications: PublicationResponseDTO[]) => dispatch(fetchPublicationsSuccess(publications)))
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to load publications";
+      dispatch(fetchPublicationsFailure(message));
+    });
+};
+
+export const fetchUserPublications = (userId: string) => (dispatch: any) => {
+  dispatch(fetchUserPublicationsStart());
+  Promise.resolve(publicationService.getUserPublications(userId))
+    .then((publications: PublicationResponseDTO[]) => dispatch(fetchUserPublicationsSuccess(publications)))
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to load your publications";
+      dispatch(fetchUserPublicationsFailure(message));
+    });
+};
+
+export const fetchPublicationById = (id: string) => (dispatch: any) => {
+  dispatch(fetchPublicationByIdStart());
+  Promise.resolve(publicationService.getPublicationById(id))
+    .then((publication: PublicationResponseDTO) => dispatch(fetchPublicationByIdSuccess(publication)))
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to load publication";
+      dispatch(fetchPublicationByIdFailure(message));
+    });
+};
+
+export const createPublication = (data: any) => (dispatch: any) => {
+  dispatch(createPublicationStart());
+  Promise.resolve(publicationService.createPublication(data))
+    .then((publication: PublicationResponseDTO) => dispatch(createPublicationSuccess(publication)))
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to create publication";
+      dispatch(createPublicationFailure(message));
+    });
+};
