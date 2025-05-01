@@ -8,6 +8,7 @@
     "start": "node dist/infrastructure/http/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/infrastructure/http/server.ts",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "lint": "eslint . --ext .ts"
   },
   "dependencies": {

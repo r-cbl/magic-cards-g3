@@ -1,7 +1,8 @@
 import { CardBase } from '../../domain/entities/CardBase';
 import { CardBaseRepository } from '../../domain/repositories/CardBaseRepository';
 import { GameRepository } from '../../domain/repositories/GameRepository';
-import { CreateCardBaseDTO, UpdateCardBaseDTO, CardBaseResponseDTO } from '../dtos/CardBaseDTO';
+import { CreateCardBaseDTO, UpdateCardBaseDTO, CardBaseResponseDTO, CardBaseFilterDTO } from '../dtos/CardBaseDTO';
+import { PaginationDTO, PaginatedResponseDTO } from '../dtos/PaginationDTO';
 import { GameService } from './GameService';
 
 export class CardBaseService {
@@ -56,6 +57,17 @@ export class CardBaseService {
     // Otherwise, return all card bases
     const cardBases = await this.cardBaseRepository.findAll();
     return cardBases.map(cardBase => this.toCardBaseResponseDTO(cardBase));
+  }
+
+  public async getAllCardBasesPaginated(filters: PaginationDTO<CardBaseFilterDTO>): Promise<PaginatedResponseDTO<CardBaseFilterDTO>> {
+      const paginatedCards = await this.cardBaseRepository.findPaginated(filters);
+      return {
+          data: paginatedCards.data.map(cardBase => this.toCardBaseResponseDTO(cardBase)),
+          total: paginatedCards.total,
+          limit: paginatedCards.limit,
+          offset: paginatedCards.offset,
+          hasMore: paginatedCards.hasMore
+      };
   }
 
   public async updateCardBase(id: string, cardBaseData: UpdateCardBaseDTO): Promise<CardBaseResponseDTO> {

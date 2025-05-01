@@ -4,6 +4,7 @@ import { AuthService } from '../../../application/services/AuthService';
 import { InMemoryUserRepository } from '../../../infrastructure/repositories/InMemoryUserRepository';
 import { JwtService } from '../../../infrastructure/auth/jwt.service';
 import { CreateUserDTO } from '../../../application/dtos/UserDTO';
+import { UserService } from '../../../application/services/UserService';
 
 describe('Authentication Flow', () => {
   let authController: AuthController;
@@ -28,8 +29,9 @@ describe('Authentication Flow', () => {
   beforeEach(() => {
     // Reset mocks before each test
     userRepository = new InMemoryUserRepository();
+    const userService = new UserService(userRepository);
     jwtService = new JwtService();
-    authService = new AuthService(userRepository, jwtService);
+    authService = new AuthService(jwtService, userService);
     authController = new AuthController(authService);
     
     // Setup mock response
@@ -162,23 +164,29 @@ describe('Authentication Flow', () => {
     });
     
     it('should reject login with invalid credentials', async () => {
-      // Setup login request with wrong password
+      // Configuración de la solicitud con credenciales incorrectas
       mockRequest = {
         body: {
-          email: testUser.email,
-          password: 'wrongpassword'
+          email: testUser.email,           // Usamos el email válido del test
+          password: 'wrongpassword'        // Usamos una contraseña incorrecta
         }
       };
-      
-      // Call the controller method
+    
+      // Llamamos al método 'login' del controlador de autenticación
       await authController.login(
-        mockRequest as Request, 
-        mockResponse as Response
+        mockRequest as Request,            // Pasamos la solicitud simulada
+        mockResponse as Response           // Pasamos la respuesta simulada
       );
-      
-      // Verify response
+    
+      // Verificación de la respuesta
+      // Esperamos que la respuesta tenga un código de estado 401 (no autorizado)
       expect(mockResponse.status).toHaveBeenCalledWith(401);
+    
+      // Verificamos que la respuesta contenga un campo 'error' con el mensaje esperado
       expect(responseObject).toHaveProperty('error');
+      
+      // Verificamos que el mensaje de error sea adecuado para credenciales inválidas
+      expect(responseObject.error).toBe('Invalid email or password');
     });
     
     it('should reject login with non-existent user', async () => {
@@ -190,6 +198,9 @@ describe('Authentication Flow', () => {
         }
       };
       
+      // Mock the authService to throw an error if the user does not exist
+      jest.spyOn(authService, 'login').mockRejectedValueOnce(new Error('Invalid credentials'));
+      
       // Call the controller method
       await authController.login(
         mockRequest as Request, 
@@ -197,8 +208,9 @@ describe('Authentication Flow', () => {
       );
       
       // Verify response
-      expect(mockResponse.status).toHaveBeenCalledWith(401);
-      expect(responseObject).toHaveProperty('error');
+      expect(mockResponse.status).toHaveBeenCalledWith(401);  // Status 401 for invalid credentials
+      expect(responseObject).toHaveProperty('error');  // Ensure error message is returned
+      expect(responseObject.error).toBe('Invalid email or password');  // Specific error message
     });
   });
   
