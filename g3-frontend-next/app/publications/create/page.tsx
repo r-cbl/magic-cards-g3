@@ -12,23 +12,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { fetchUserCardsStart, fetchUserCardsSuccess } from "@/lib/cardsSlice"
-import {
-  createPublicationStart,
-  createPublicationSuccess,
-  createPublicationFailure,
-} from "@/lib/publicationsSlice"
+import { createPublication } from "@/lib/publicationsSlice"
 import type { CardResponseDTO } from "@/types/card"
 import type { CreatePublicationDTO } from "@/types/publication"
-
-// Mock card bases for exchange options
-const mockCardBases = [
-  { id: "cb1", name: "Pikachu", gameId: "1" },
-  { id: "cb2", name: "Charizard", gameId: "1" },
-  { id: "cb3", name: "Bulbasaur", gameId: "1" },
-  { id: "cb4", name: "Squirtle", gameId: "1" },
-  { id: "cb5", name: "Mewtwo", gameId: "2" },
-  { id: "cb6", name: "Lugia", gameId: "2" },
-]
 
 export default function CreatePublicationPage() {
   const router = useRouter()
@@ -54,71 +40,25 @@ export default function CreatePublicationPage() {
   const [selectedCard, setSelectedCard] = useState<CardResponseDTO | null>(null)
 
   useEffect(() => {
-    // Check if user is logged in
     if (!currentUser) {
       router.push("/login")
       return
     }
-
-    // Get card ID from query params if available
     const cardId = searchParams.get("cardId")
     if (cardId) {
       setSelectedCardId(cardId)
     }
-
-    // Fetch user's cards if not already loaded
     if (userCards.length === 0) {
       dispatch(fetchUserCardsStart())
-
-      // Mock data for user cards
-      const mockUserCards = [
-        {
-          id: "1",
-          urlImage: "/placeholder.svg?height=300&width=200",
-          cardBase: {
-            Id: "cb1",
-            Name: "Pikachu",
-          },
-          game: {
-            Id: "1",
-            Name: "Pokemon Red/Blue",
-          },
-          owner: {
-            ownerId: "user-123",
-            ownerName: "Test User",
-          },
-          createdAt: new Date(),
-        },
-        {
-          id: "3",
-          urlImage: "/placeholder.svg?height=300&width=200",
-          cardBase: {
-            Id: "cb3",
-            Name: "Bulbasaur",
-          },
-          game: {
-            Id: "1",
-            Name: "Pokemon Red/Blue",
-          },
-          owner: {
-            ownerId: "user-123",
-            ownerName: "Test User",
-          },
-          createdAt: new Date(),
-        },
-      ]
-
-      dispatch(fetchUserCardsSuccess(mockUserCards))
+      // TODO: Replace with real API call to fetch user cards
     }
   }, [router, searchParams, dispatch, currentUser, userCards.length])
 
-  // Update selected card when card ID changes
   useEffect(() => {
     if (selectedCardId && userCards.length > 0) {
       const card = userCards.find((card) => card.id === selectedCardId)
       if (card) {
         setSelectedCard(card)
-        // Auto-generate a publication name based on the card
         if (!name) {
           setName(`${card.cardBase.Name} for trade/sale`)
         }
@@ -142,80 +82,36 @@ export default function CreatePublicationPage() {
       cardId?: string
       valueMoney?: string
     } = {}
-
     if (!name || name.trim().length < 2) {
       errors.name = "Publication title must be at least 2 characters"
     }
-
     if (!selectedCardId) {
       errors.cardId = "Please select a card to offer"
     }
-
     if (valueMoney < 0) {
       errors.valueMoney = "Price cannot be negative"
     }
-
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!currentUser) {
-      dispatch(createPublicationFailure("You must be logged in to create a publication"))
+      // dispatch(createPublicationFailure("You must be logged in to create a publication"))
       return
     }
-
     if (!validateForm()) {
       return
     }
-
-    dispatch(createPublicationStart())
-
-    try {
-      // This would be replaced with actual API call
-      const publicationData: CreatePublicationDTO = {
-        cardId: selectedCardId,
-        ownerId: currentUser.id,
-        cardExchangeIds: wantExchange ? selectedCardExchanges : [],
-        valueMoney: valueMoney > 0 ? valueMoney : undefined,
-      }
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Create a mock response
-      const newPublication = {
-        id: `pub-${Date.now()}`,
-        name,
-        cardId: selectedCardId,
-        valueMoney: valueMoney || 0,
-        cardExchangeIds: wantExchange ? selectedCardExchanges : [],
-        cardBase: {
-          Id: selectedCard?.cardBase.Id || "",
-          Name: selectedCard?.cardBase.Name || "",
-        },
-        game: {
-          Id: selectedCard?.game.Id || "",
-          Name: selectedCard?.game.Name || "",
-        },
-        owner: {
-          ownerId: currentUser.id,
-          ownerName: currentUser.name,
-        },
-        offers: [],
-        createdAt: new Date(),
-        imageUrl: selectedCard?.urlImage || "",
-      }
-
-      dispatch(createPublicationSuccess(newPublication))
-
-      // Redirect to publications page
-      router.push("/publications")
-    } catch (err) {
-      dispatch(createPublicationFailure("Failed to create publication. Please try again."))
+    const publicationData: CreatePublicationDTO = {
+      cardId: selectedCardId,
+      ownerId: currentUser.id,
+      cardExchangeIds: wantExchange ? selectedCardExchanges : [],
+      valueMoney: valueMoney > 0 ? valueMoney : undefined,
     }
+    dispatch(createPublication(publicationData))
+    router.push("/publications")
   }
 
   const isLoading = isCardsLoading || isPublicationLoading
@@ -325,21 +221,7 @@ export default function CreatePublicationPage() {
               <div className="space-y-4 border rounded-md p-4">
                 <h3 className="text-sm font-medium">Cards I'm looking for:</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {mockCardBases.map((cardBase) => (
-                    <div key={cardBase.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={cardBase.id}
-                        checked={selectedCardExchanges.includes(cardBase.id)}
-                        onCheckedChange={() => handleCardExchangeToggle(cardBase.id)}
-                      />
-                      <label
-                        htmlFor={cardBase.id}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {cardBase.name}
-                      </label>
-                    </div>
-                  ))}
+                  {/* Add your card bases here */}
                 </div>
               </div>
             )}

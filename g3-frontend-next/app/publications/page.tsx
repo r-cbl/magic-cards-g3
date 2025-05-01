@@ -8,123 +8,22 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import {
-  fetchPublicationsStart,
-  fetchPublicationsSuccess,
-  fetchPublicationsFailure,
-} from "@/lib/publicationsSlice"
-import type { PublicationResponseDTO } from "@/types/publication"
-import type { GameResponseDTO } from "@/types/game"
+import { fetchPublications } from "@/lib/publicationsSlice"
 import { Search, DollarSign, Plus } from "lucide-react"
 import Link from "next/link"
 import { OfferStatus } from "@/types/offer"
-
-// Mock data
-const mockGames: GameResponseDTO[] = [
-  { id: "1", name: "Pokemon Red/Blue", createdAt: new Date(), updatedAt: new Date() },
-  { id: "2", name: "Pokemon Gold/Silver", createdAt: new Date(), updatedAt: new Date() },
-  { id: "3", name: "Pokemon Ruby/Sapphire", createdAt: new Date(), updatedAt: new Date() },
-]
 
 export default function PublicationsPage() {
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { publications, isLoading, error } = useAppSelector((state) => state.publications)
   const { currentUser } = useAppSelector((state) => state.user)
+  const games = useAppSelector((state) => state.cards.games)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedGame, setSelectedGame] = useState<string>("")
 
   useEffect(() => {
-    dispatch(fetchPublicationsStart())
-
-    // Simulate API call
-    setTimeout(() => {
-      try {
-        // In a real app, this would be an API call
-        const mockPublications: PublicationResponseDTO[] = [
-          {
-            id: "1",
-            name: "Pikachu for trade",
-            cardId: "1",
-            valueMoney: 0,
-            cardExchangeIds: ["cb2", "cb3"],
-            cardBase: {
-              Id: "cb1",
-              Name: "Pikachu",
-            },
-            imageUrl: "https://assets.pokemon.com/assets/cms2/img/cards/web/SM10/SM10_EN_194.png",
-            game: {
-              Id: "1",
-              Name: "Pokemon Red/Blue",
-            },
-            owner: {
-              ownerId: "user1",
-              ownerName: "Ash Ketchum",
-            },
-            offers: [],
-            createdAt: new Date(),
-          },
-          {
-            id: "2",
-            name: "Charizard for sale",
-            cardId: "2",
-            valueMoney: 50,
-            cardExchangeIds: [],
-            cardBase: {
-              Id: "cb2",
-              Name: "Charizard",
-            },
-            imageUrl: "https://assets.pokemon.com/assets/cms2/img/cards/web/SM10/SM10_EN_194.png",
-            game: {
-              Id: "1",
-              Name: "Pokemon Red/Blue",
-            },
-            owner: {
-              ownerId: "user2",
-              ownerName: "Gary Oak",
-            },
-            offers: [
-              {
-                id: "offer6",
-                publicationId: "3",
-                userId: "user-101",
-                userName: "Brock",
-                cardExchangeIds: ["4"],
-                moneyOffer: 15,
-                statusOffer: OfferStatus.ACCEPTED,
-                createdAt: new Date(Date.now() - 172800000),
-              },
-            ],
-            createdAt: new Date(),
-          },
-          {
-            id: "3",
-            name: "Mewtwo - looking for Lugia",
-            cardId: "5",
-            valueMoney: 0,
-            cardExchangeIds: ["cb6"],
-            cardBase: {
-              Id: "cb5",
-              Name: "Mewtwo",
-            },
-            imageUrl: "https://assets.pokemon.com/assets/cms2/img/cards/web/SM11/SM11_EN_71.png",
-            game: {
-              Id: "2",
-              Name: "Pokemon Gold/Silver",
-            },
-            owner: {
-              ownerId: "user4",
-              ownerName: "Professor Oak",
-            },
-            offers: [],
-            createdAt: new Date(),
-          },
-        ]
-        dispatch(fetchPublicationsSuccess(mockPublications))
-      } catch (error) {
-        dispatch(fetchPublicationsFailure("Failed to load publications"))
-      }
-    }, 500)
+    dispatch(fetchPublications())
   }, [dispatch])
 
   const filteredPublications = publications.filter((pub) => {
@@ -175,7 +74,7 @@ export default function PublicationsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Games</SelectItem>
-            {mockGames.map((game) => (
+            {games.map((game) => (
               <SelectItem key={game.id} value={game.id}>
                 {game.name}
               </SelectItem>

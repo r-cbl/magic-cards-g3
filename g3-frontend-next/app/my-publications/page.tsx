@@ -11,11 +11,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import {
-  fetchUserPublicationsStart,
-  fetchUserPublicationsSuccess,
-  fetchUserPublicationsFailure,
-} from "@/lib/publicationsSlice"
+import { fetchUserPublications } from "@/lib/publicationsSlice"
 import type { PublicationResponseDTO } from "@/types/publication"
 import type { OfferResponseDTO } from "@/types/offer"
 import type { RootState } from "@/lib/store"
@@ -37,85 +33,7 @@ export default function MyPublicationsPage() {
       return
     }
 
-    dispatch(fetchUserPublicationsStart())
-
-    // Simulate API call
-    setTimeout(() => {
-      try {
-        // Mock data for user publications
-        const mockUserPublications: PublicationResponseDTO[] = [
-          {
-            id: "1",
-            name: "Pikachu for trade",
-            cardId: "1",
-            valueMoney: 0,
-            cardExchangeIds: ["cb2", "cb3"],
-            cardBase: {
-              Id: "cb1",
-              Name: "Pikachu",
-            },
-            imageUrl: "https://assets.pokemon.com/assets/cms2/img/cards/web/SV01/SV01_EN_63.png",
-            game: {
-              Id: "1",
-              Name: "Pokemon Red/Blue",
-            },
-            owner: {
-              ownerId: "user-123",
-              ownerName: "Test User",
-            },
-            offers: [
-              {
-                id: "offer-abc",
-                publicationId: "1",
-                userId: "user-other-1",
-                userName: "Offer Maker 1",
-                moneyOffer: 20,
-                statusOffer: "PENDING",
-                cardExchangeIds: [],
-                createdAt: new Date(Date.now() - 86400000),
-              },
-              {
-                id: "offer-def",
-                publicationId: "1",
-                userId: "user-other-2",
-                userName: "Offer Maker 2",
-                moneyOffer: undefined,
-                statusOffer: "PENDING",
-                cardExchangeIds: ["2"],
-                createdAt: new Date(Date.now() - 172800000),
-              },
-            ],
-            createdAt: new Date(),
-          },
-          {
-            id: "3",
-            name: "Bulbasaur - looking for Squirtle",
-            cardId: "3",
-            valueMoney: 0,
-            cardExchangeIds: ["cb4"],
-            cardBase: {
-              Id: "cb3",
-              Name: "Bulbasaur",
-            },
-            imageUrl: "https://assets.pokemon.com/assets/cms2/img/cards/web/SV02/SV02_EN_1.png",
-            game: {
-              Id: "1",
-              Name: "Pokemon Red/Blue",
-            },
-            owner: {
-              ownerId: "user-123",
-              ownerName: "Test User",
-            },
-            offers: [],
-            createdAt: new Date(),
-          },
-        ]
-
-        dispatch(fetchUserPublicationsSuccess(mockUserPublications))
-      } catch (error) {
-        dispatch(fetchUserPublicationsFailure("Failed to load your publications"))
-      }
-    }, 500)
+    dispatch(fetchUserPublications(currentUser.id))
   }, [dispatch, currentUser, router])
 
   const filteredPublications = userPublications.filter((pub: PublicationResponseDTO) => {
