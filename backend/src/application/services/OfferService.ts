@@ -6,6 +6,8 @@ import { Card } from "../../domain/entities/Card";
 import { UserService } from "./UserService";
 import { StatusOffer } from "../../domain/entities/StatusOffer";
 import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
+import { PaginatedResponseDTO, PaginationDTO } from "../dtos/PaginationDTO";
+import { UnauthorizedException } from '../../domain/entities/exceptions/exceptions';
 
 export class OfferService {
     userService : UserService = new UserService(userRepository);
@@ -51,18 +53,30 @@ export class OfferService {
         if(filters.ownerId){
             await this.userService.getSimpleUser(filters.ownerId)
         }
+        const offers = await this.offerRepository.find(filters);
+        return offers.map(offer => this.toOfferResponseDTO(offer));
+    }
 
-        const filteredOffers: Offer[] = await this.offerRepository.find(filters);
-        return filteredOffers.map(offer => this.toOfferResponseDTO(offer));
+    public async getAllCardsPaginated(filters: PaginationDTO<OfferFilterDTO>): Promise<PaginatedResponseDTO<OfferResponseDTO>> {
+        if(filters.data.ownerId){
+            await this.userService.getSimpleUser(filters.data.ownerId)
+        }
+        const paginatedOffers = await this.offerRepository.findPaginated(filters);
+        return {
+            data: paginatedOffers.data.map(offer => this.toOfferResponseDTO(offer)),
+            total: paginatedOffers.total,
+            limit: paginatedOffers.limit,
+            offset: paginatedOffers.offset,
+            hasMore: paginatedOffers.hasMore
+        };
     }
 
     public async getOffer(id: string): Promise<OfferResponseDTO | null>{
-        const offer = await this.getSimpleOffer(id);
-        if(offer) {
-            return this.toOfferResponseDTO(offer);
-        } else {
-            return null
-        }      
+        const offer = await this.offerRepository.findById(id);
+        if (!offer) {
+            return null;
+        }
+        return this.toOfferResponseDTO(offer);
     }
 
     public async updateOffer(offerId: string, offerData: OfferUpdatedDTO): Promise<OfferResponseDTO> {

@@ -25,7 +25,8 @@ describe('PublicationController', () => {
             findAll: jest.fn(),
             update: jest.fn(),
             delete: jest.fn(),
-            find: jest.fn()
+            find: jest.fn(),
+            findPaginated: jest.fn()
         };
 
         mockPublicationService = new PublicationService(mockRepository) as jest.Mocked<PublicationService>;

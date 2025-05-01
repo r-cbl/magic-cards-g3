@@ -1,6 +1,8 @@
 import { OfferFilterDTO } from "@/application/dtos/OfferDTO";
 import { Offer } from "../../domain/entities/Offer";
 import { OfferRepository } from "../../domain/repositories/OfferRepository";
+import { PaginatedResponseDTO, PaginationDTO } from "@/application/dtos/PaginationDTO";
+
 
 export class InMemoryOfferRepository implements OfferRepository {
     private offers: Offer[] = [];
@@ -40,4 +42,23 @@ export class InMemoryOfferRepository implements OfferRepository {
             return matchesOwnerId && matchesPublicationId && matchesStatus;
         });
     }
+
+
+    async findPaginated(filters: PaginationDTO<OfferFilterDTO>): Promise<PaginatedResponseDTO<Offer>> {
+        const filteredOffers = await this.find(filters.data);
+        const limit = filters.limit || 10;
+        const offset = filters.offset || 0;
+        const total = filteredOffers.length;
+        const paginatedOffers = filteredOffers.slice(offset, offset + limit);
+        const hasMore = offset + limit < total;
+
+        return {
+            data: paginatedOffers,
+            total,
+            limit,
+            offset,
+            hasMore
+        };
+    }
+   
 } 

@@ -8,6 +8,7 @@ import { CardBase } from "../../domain/entities/CardBase";
 import { CardBaseService } from "./CardBaseService";
 import { StatusPublication } from "../../domain/entities/StatusPublication";
 import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
+import { PaginatedResponseDTO, PaginationDTO } from "../dtos/PaginationDTO";
 
 export class PublicationService {
     cardService : CardService = new CardService(cardRepository);
@@ -49,20 +50,27 @@ export class PublicationService {
         if (filters.ownerId) {
             await this.userService.getSimpleUser(filters.ownerId);
         }
+        const publications = await this.publicationRepository.find(filters);
+        return publications.map(pub => this.toPublicationResponseDTO(pub));
+    }
 
-        if (filters.initialDate && filters.endDate && filters.initialDate > filters.endDate) {
-            throw new Error("initialDate must be before endDate");
+    public async getAllPublicationsPaginated(filters: PaginationDTO<PublicationFilterDTO>): Promise<PaginatedResponseDTO<PublicationResponseDTO>> {
+        if (filters.data.ownerId) {
+            await this.userService.getSimpleUser(filters.data.ownerId);
         }
-
-        const filteredPublications: Publication[] = await this.publicationRepository.find(filters);
-        
-
-        return filteredPublications.filter(pub => pub.getStatusPublication() === StatusPublication.OPEN)
-        .map(pub => this.toPublicationResponseDTO(pub));
+        const paginatedPublications = await this.publicationRepository.findPaginated(filters);
+        return {
+            data: paginatedPublications.data.map(pub => this.toPublicationResponseDTO(pub)),
+            total: paginatedPublications.total,
+            limit: paginatedPublications.limit,
+            offset: paginatedPublications.offset,
+            hasMore: paginatedPublications.hasMore
+        };
     }
 
     public async getPublication(id: string): Promise<PublicationResponseDTO> {
-      return this.toPublicationResponseDTO(await this.getPublicationById(id));
+        const publication = await this.getPublicationById(id);
+        return this.toPublicationResponseDTO(publication);
     }
 
     public async updatePublication(id: string, publicationData: PublicationUpdatedDTO): Promise<PublicationResponseDTO> {

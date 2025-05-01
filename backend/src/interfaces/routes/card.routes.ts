@@ -15,7 +15,7 @@ const cardRouter = Router();
 cardRouter.use(authMiddleware.authenticate);
 
 cardRouter.post('/', cardController.createCard.bind(cardController));
-cardRouter.get('/', cardController.getAllCards.bind(cardController));
+cardRouter.get('/', cardController.getAllCardsPaginated.bind(cardController));
 cardRouter.get('/:id', cardController.getCard.bind(cardController));
 cardRouter.put('/:id', cardController.updateCard.bind(cardController));
 cardRouter.delete('/:id', cardController.deleteCard.bind(cardController));
