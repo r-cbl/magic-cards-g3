@@ -1,39 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { OfferResponseDTO } from "@/types/offer"
-
-// Mock data
-const mockOffers: OfferResponseDTO[] = [
-  {
-    id: "offer1",
-    publicationId: "2",
-    userId: "user-123",
-    userName: "Test User",
-    cardExchangeIds: [],
-    moneyOffer: 45,
-    statusOffer: "PENDING",
-    createdAt: new Date(),
-  },
-  {
-    id: "offer2",
-    publicationId: "1",
-    userId: "user-123",
-    userName: "Test User",
-    cardExchangeIds: ["1"],
-    moneyOffer: undefined,
-    statusOffer: "ACCEPTED",
-    createdAt: new Date(Date.now() - 86400000), // 1 day ago
-  },
-  {
-    id: "offer3",
-    publicationId: "3",
-    userId: "user-123",
-    userName: "Test User",
-    cardExchangeIds: ["2"],
-    moneyOffer: 20,
-    statusOffer: "REJECTED",
-    createdAt: new Date(Date.now() - 172800000), // 2 days ago
-  },
-]
+import { offerService } from "@/services/offer-service"
+import Promise from "bluebird"
 
 interface OffersState {
   userOffers: OfferResponseDTO[]
@@ -43,7 +11,7 @@ interface OffersState {
 }
 
 const initialState: OffersState = {
-  userOffers: mockOffers,
+  userOffers: [],
   receivedOffers: [],
   isLoading: false,
   error: null,
@@ -124,3 +92,33 @@ export const {
 } = offersSlice.actions
 
 export default offersSlice.reducer
+
+export const fetchUserOffers = (userId: string) => (dispatch: any) => {
+  dispatch(fetchUserOffersStart());
+  Promise.resolve(offerService.getUserOffers(userId))
+    .then((offers: OfferResponseDTO[]) => dispatch(fetchUserOffersSuccess(offers)))
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to load offers";
+      dispatch(fetchUserOffersFailure(message));
+    });
+};
+
+export const fetchReceivedOffers = (userId: string) => (dispatch: any) => {
+  dispatch(fetchReceivedOffersStart());
+  Promise.resolve(offerService.getReceivedOffers(userId))
+    .then((offers: OfferResponseDTO[]) => dispatch(fetchReceivedOffersSuccess(offers)))
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to load received offers";
+      dispatch(fetchReceivedOffersFailure(message));
+    });
+};
+
+export const createOffer = (data: any) => (dispatch: any) => {
+  dispatch(createOfferStart());
+  Promise.resolve(offerService.createOffer(data))
+    .then((offer: OfferResponseDTO) => dispatch(createOfferSuccess(offer)))
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Failed to create offer";
+      dispatch(createOfferFailure(message));
+    });
+};
