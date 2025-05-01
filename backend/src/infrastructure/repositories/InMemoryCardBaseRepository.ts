@@ -1,3 +1,5 @@
+import { CardBaseFilterDTO } from "@/application/dtos/CardBaseDTO";
+import { PaginationDTO, PaginatedResponseDTO } from "@/application/dtos/PaginationDTO";
 import { CardBase } from "@/domain/entities/CardBase";
 import { Game } from "@/domain/entities/Game";
 import { CardBaseRepository } from "@/domain/repositories/CardBaseRepository";
@@ -41,7 +43,36 @@ export class InMemoryCardBaseRepository implements CardBaseRepository {
         return this.cards.filter(c => c.getGame().getId() === game.getId());
     }
     
+    async find(filters: CardBaseFilterDTO){
+        return this.cards.filter(card => {
+            const gameId = card.getGame().getId();
+            const cardName = card.getName().toLowerCase();
+
+            return (
+                (!filters.gameId ||  card.getGame().getId() === filters.gameId) &&
+                (!filters.nameCard || cardName.includes(filters.nameCard.toLowerCase()))
+            );
+        });
+    }
+
     async findAll(): Promise<CardBase[]> {
         return [...this.cards];
+    }
+
+    async findPaginated(filters: PaginationDTO<CardBaseFilterDTO>): Promise<PaginatedResponseDTO<Game>> {
+        const filterCards = await this.find(filters.data);
+        const limit = filters.limit || 10;
+        const offset = filters.offset || 0;
+        const total = filterCards.length;
+        const paginatedCards = filterCards.slice(offset, offset + limit);
+        const hasMore = offset + limit < total;
+        
+        return {
+            data: paginatedCards,
+            total,
+            limit,
+            offset,
+            hasMore
+        };
     }
 } 
