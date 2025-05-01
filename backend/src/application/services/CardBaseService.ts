@@ -60,15 +60,15 @@ export class CardBaseService {
   }
 
   public async getAllCardBasesPaginated(filters: PaginationDTO<CardBaseFilterDTO>): Promise<PaginatedResponseDTO<CardBaseFilterDTO>> {
-    const paginatedCards = await this.cardBaseRepository.findPaginated(filters);
-    return {
-        data: paginatedCards.data.map(cardBase => this.toCardResponseDTO(card)),
-        total: paginatedCards.total,
-        limit: paginatedCards.limit,
-        offset: paginatedCards.offset,
-        hasMore: paginatedCards.hasMore
-    };
-}
+      const paginatedCards = await this.cardBaseRepository.findPaginated(filters);
+      return {
+          data: paginatedCards.data.map(cardBase => this.toCardBaseResponseDTO(cardBase)),
+          total: paginatedCards.total,
+          limit: paginatedCards.limit,
+          offset: paginatedCards.offset,
+          hasMore: paginatedCards.hasMore
+      };
+  }
 
   public async updateCardBase(id: string, cardBaseData: UpdateCardBaseDTO): Promise<CardBaseResponseDTO> {
     const existingCardBase = await this.cardBaseRepository.findById(id);

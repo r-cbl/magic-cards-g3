@@ -48,6 +48,19 @@ export class GameController {
     }
   }
 
+  public async getAllGamesPaginated(req: Request, res: Response): Promise<void> {
+    try {
+      const games = await this.gameService.getAllGamePaginated();
+      res.status(200).json(games);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'An unexpected error occurred' });
+      }
+    }
+  }
+
   public async updateGame(req: Request, res: Response): Promise<void> {
     try {
       const gameId = req.params.id;

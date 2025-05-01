@@ -1,3 +1,4 @@
+import { PaginationDTO, PaginatedResponseDTO } from "@/application/dtos/PaginationDTO";
 import { Game } from "../../domain/entities/Game";
 import { GameRepository } from "../../domain/repositories/GameRepository";
 
@@ -33,5 +34,33 @@ export class InMemoryGameRepository implements GameRepository {
     
     async findAll(): Promise<Game[]> {
         return [...this.games];
+    }
+
+    async find(filters: String): Promise<Game[]>{
+        return this.games.filter(game => {
+            const gameName = game.getName().toLocaleLowerCase();
+
+            return (
+                (!filters ||  gameName.includes(filters.toLocaleLowerCase()))
+            );
+        });
+    }
+
+    async findPaginated(filters: PaginationDTO<String>): Promise<PaginatedResponseDTO<Game>> {
+        const filter = await this.find(filters.data);
+        const limit = filters.limit || 10;
+        const offset = filters.offset || 0;
+        const total = filter.length;
+        const paginatedGames = filter.slice(offset, offset + limit);
+        const hasMore = offset + limit < total;
+        
+        return {
+            data: paginatedGames,
+            total,
+            limit,
+            offset,
+            hasMore
+        
+        }
     }
 } 

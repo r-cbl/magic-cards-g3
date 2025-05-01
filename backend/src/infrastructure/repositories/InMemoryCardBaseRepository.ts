@@ -59,7 +59,7 @@ export class InMemoryCardBaseRepository implements CardBaseRepository {
         return [...this.cards];
     }
 
-    async findPaginated(filters: PaginationDTO<CardBaseFilterDTO>): Promise<PaginatedResponseDTO<Game>> {
+    async findPaginated(filters: PaginationDTO<CardBaseFilterDTO>): Promise<PaginatedResponseDTO<CardBase>> {
         const filterCards = await this.find(filters.data);
         const limit = filters.limit || 10;
         const offset = filters.offset || 0;

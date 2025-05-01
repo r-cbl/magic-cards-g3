@@ -68,9 +68,7 @@ export class CardBaseController {
         const cards = await this.cardBaseService.getAllCardBasesPaginated(filters);
         res.status(200).json(cards);
     } catch (error) {
-        if (error instanceof UnauthorizedException) {
-            res.status(401).json({ error: error.message });
-        } else if (error instanceof Error) {
+        if (error instanceof Error) {
             res.status(400).json({ error: error.message });
         } else {
             res.status(500).json({ error: 'An unexpected error occurred' });
