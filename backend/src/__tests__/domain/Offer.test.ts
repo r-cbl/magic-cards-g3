@@ -1,10 +1,10 @@
-import { Offer, OfferProps } from '../../../../domain/entities/Offer';
-import { User, UserProps } from '../../../../domain/entities/User';
-import { Card, CardProps } from '../../../../domain/entities/Card';
-import { CardBase, CardBaseProps } from '../../../../domain/entities/CardBase';
-import { Game } from '../../../../domain/entities/Game';
-import { StatusOffer } from '../../../../domain/entities/StatusOffer';
-import { Publication } from '../../../../domain/entities/Publication';
+import { Offer, OfferProps } from '../../domain/entities/Offer';
+import { User, UserProps } from '../../domain/entities/User';
+import { Card, CardProps } from '../../domain/entities/Card';
+import { CardBase, CardBaseProps } from '../../domain/entities/CardBase';
+import { Game } from '../../domain/entities/Game';
+import { StatusOffer } from '../../domain/entities/StatusOffer';
+import { Publication } from '../../domain/entities/Publication';
 
 describe('Offer Entity', () => {
   // Create test users

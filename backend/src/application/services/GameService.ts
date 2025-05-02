@@ -31,13 +31,13 @@ export class GameService {
   }
 
   public async getAllGamesPaginated(filters: PaginationDTO<String>): Promise<PaginatedResponseDTO<GameResponseDTO>> {
-    const paginatedCards = await this.gameRepository.findPaginated(filters);
+    const paginatedGames = await this.gameRepository.findPaginated(filters);
     return {
-        data: paginatedCards.data.map(game => this.toGameResponseDTO(game)),
-        total: paginatedCards.total,
-        limit: paginatedCards.limit,
-        offset: paginatedCards.offset,
-        hasMore: paginatedCards.hasMore
+        data: paginatedGames.data.map(game => this.toGameResponseDTO(game)),
+        total: paginatedGames.total,
+        limit: paginatedGames.limit,
+        offset: paginatedGames.offset,
+        hasMore: paginatedGames.hasMore
     };
 }
 
