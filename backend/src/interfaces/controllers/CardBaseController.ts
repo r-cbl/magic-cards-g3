@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { CardBaseService } from '../../application/services/CardBaseService';
-import { CreateCardBaseDTO, UpdateCardBaseDTO } from '../../application/dtos/CardBaseDTO';
+import { CardBaseFilterDTO, CreateCardBaseDTO, UpdateCardBaseDTO } from '../../application/dtos/CardBaseDTO';
+import { PaginationDTO } from '../../application/dtos/PaginationDTO';
 
 export class CardBaseController {
   constructor(private readonly cardBaseService: CardBaseService) {}
@@ -52,6 +53,28 @@ export class CardBaseController {
       }
     }
   }
+
+  public async getAllCardBasesPaginated(req: Request, res: Response): Promise<void> {
+    try {
+        const filters: PaginationDTO<CardBaseFilterDTO> = {
+            data: {
+                nameCard: req.query.name ? (req.query.name as string) : undefined,
+                gameId: req.query.gameId ? (req.query.gameId as string) : undefined,
+            },
+            limit: req.query.limit ? Number(req.query.limit) : undefined,
+            offset: req.query.offset ? Number(req.query.offset) : undefined,
+        };
+
+        const cards = await this.cardBaseService.getAllCardBasesPaginated(filters);
+        res.status(200).json(cards);
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: 'An unexpected error occurred' });
+        }
+    }
+}
 
   public async updateCardBase(req: Request, res: Response): Promise<void> {
     try {

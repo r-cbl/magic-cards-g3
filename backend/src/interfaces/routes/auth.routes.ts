@@ -4,10 +4,12 @@ import { AuthService } from '../../application/services/AuthService';
 import { JwtService } from '../../infrastructure/auth/jwt.service';
 import { AuthMiddleware } from '../middleware/auth.middleware';
 import { userRepository } from '../../infrastructure/repositories/Container';
+import { UserService } from '../../application/services/UserService';
 
 // Create dependencies
 const jwtService = new JwtService();
-const authService = new AuthService(userRepository, jwtService);
+const userService = new UserService(userRepository);
+const authService = new AuthService(jwtService, userService);
 const authController = new AuthController(authService);
 const authMiddleware = new AuthMiddleware(jwtService);
 

@@ -1,6 +1,7 @@
 import { Game } from '../../domain/entities/Game';
 import { GameRepository } from '../../domain/repositories/GameRepository';
 import { CreateGameDTO, UpdateGameDTO, GameResponseDTO } from '../dtos/GameDTO';
+import { PaginatedResponseDTO, PaginationDTO } from '../dtos/PaginationDTO';
 
 export class GameService {
   constructor(private readonly gameRepository: GameRepository) {}
@@ -24,10 +25,21 @@ export class GameService {
     return this.toGameResponseDTO(game);
   }
 
-  public async getAllGames(): Promise<GameResponseDTO[]> {
+  public async getAllGames(): Promise<GameResponseDTO[]> {  
     const games = await this.gameRepository.findAll();
     return games.map(game => this.toGameResponseDTO(game));
   }
+
+  public async getAllGamesPaginated(filters: PaginationDTO<String>): Promise<PaginatedResponseDTO<GameResponseDTO>> {
+    const paginatedGames = await this.gameRepository.findPaginated(filters);
+    return {
+        data: paginatedGames.data.map(game => this.toGameResponseDTO(game)),
+        total: paginatedGames.total,
+        limit: paginatedGames.limit,
+        offset: paginatedGames.offset,
+        hasMore: paginatedGames.hasMore
+    };
+}
 
   public async updateGame(id: string, gameData: UpdateGameDTO): Promise<GameResponseDTO> {
     const existingGame = await this.gameRepository.findById(id);

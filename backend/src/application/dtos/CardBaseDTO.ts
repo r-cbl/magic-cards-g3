@@ -10,6 +10,11 @@ export interface UpdateCardBaseDTO {
   nameCard?: string;
 }
 
+export interface CardBaseFilterDTO {
+  gameId?: string;
+  nameCard?: string;
+}
+
 export interface CardBaseResponseDTO {
   id: string;
   game: GameResponseDTO;

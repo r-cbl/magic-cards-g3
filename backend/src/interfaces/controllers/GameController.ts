@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { GameService } from '../../application/services/GameService';
 import { CreateGameDTO, UpdateGameDTO } from '../../application/dtos/GameDTO';
+import { PaginationDTO } from '@/application/dtos/PaginationDTO';
 
 export class GameController {
   constructor(private readonly gameService: GameService) {}
@@ -38,6 +39,24 @@ export class GameController {
   public async getAllGames(req: Request, res: Response): Promise<void> {
     try {
       const games = await this.gameService.getAllGames();
+      res.status(200).json(games);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'An unexpected error occurred' });
+      }
+    }
+  }
+
+  public async getAllGamesPaginated(req: Request, res: Response): Promise<void> {
+    try {
+      const filters: PaginationDTO<String> = {
+        data: req.query.game ? (req.query.game as string) : "",
+        limit: req.query.limit ? Number(req.query.limit) : undefined,
+        offset: req.query.offset ? Number(req.query.offset) : undefined,
+    };
+      const games = await this.gameService.getAllGamesPaginated(filters);
       res.status(200).json(games);
     } catch (error) {
       if (error instanceof Error) {

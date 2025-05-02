@@ -12,7 +12,7 @@ const gameRouter = Router();
 
 // Define routes (no authentication required)
 gameRouter.post('/', (req: Request, res: Response) => gameController.createGame(req, res));
-gameRouter.get('/', (req: Request, res: Response) => gameController.getAllGames(req, res));
+gameRouter.get('/', (req: Request, res: Response) => gameController.getAllGamesPaginated(req, res));
 gameRouter.get('/:id', (req: Request, res: Response) => gameController.getGame(req, res));
 gameRouter.put('/:id', (req: Request, res: Response) => gameController.updateGame(req, res));
 gameRouter.delete('/:id', (req: Request, res: Response) => gameController.deleteGame(req, res));

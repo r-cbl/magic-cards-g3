@@ -1,6 +1,7 @@
 import { Card } from "../../domain/entities/Card";
 import { CardRepository } from "../../domain/repositories/CardRepository";
 import { CardFilterDTO } from "../../application/dtos/CardsDTO";
+import { PaginatedResponseDTO, PaginationDTO } from "@/application/dtos/PaginationDTO";
 
 export class InMemoryCardRepository implements CardRepository {
     private cards: Card[] = [];
@@ -40,6 +41,23 @@ export class InMemoryCardRepository implements CardRepository {
         return this.cards.filter(card => {
             return filters.ownerId ? card.getOwner().getId() === filters.ownerId : true;
         });
+    }
+    
+    async findPaginated(filters: PaginationDTO<CardFilterDTO>): Promise<PaginatedResponseDTO<Card>> {
+        const filterCards = await this.find(filters.data);
+        const limit = filters.limit || 10;
+        const offset = filters.offset || 0;
+        const total = filterCards.length;
+        const paginatedCards = filterCards.slice(offset, offset + limit);
+        const hasMore = offset + limit < total;
+        
+        return {
+            data: paginatedCards,
+            total,
+            limit,
+            offset,
+            hasMore
+        };
     }
 
     async findByCardsByIds(ids: string[]): Promise<Card[] | undefined> {

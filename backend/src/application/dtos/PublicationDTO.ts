@@ -8,7 +8,10 @@ export interface CreatePublicationDTO {
   export interface PublicationResponseDTO {
     id: string;
     name: string;
-    cardId: string;
+    card: {
+      cardId: string;
+      urlImage: string;
+    };
     valueMoney: number;
     cardExchangeIds: string[];
     cardBase: {
@@ -40,6 +43,8 @@ export interface CreatePublicationDTO {
     ownerId?: string;
     minValue?: number;
     maxValue?: number;
+    limit?: number;
+    offset?: number;
   }
 
   export interface PublicationUpdatedDTO {
