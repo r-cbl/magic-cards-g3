@@ -16,46 +16,9 @@ export class GamesClient {
     }
 
     getAll(request: GetRequest, token: string): Promise<PaginatedResponse<GameResponse>> {
-
-        let page: PaginatedResponse<GameResponse>;
-
-        if (request.offset === 0) {
-          page = {
-            data: [
-              {
-                id: "game-0-1",
-                name:"Mock Game 0-1"
-              },
-              {
-                id: "game-0-2",
-                name:"Mock Game 0-2"
-              },
-            ],
-            total: 0,
-            limit: request.limit,
-            offset: 0,
-            hasMore: false,
-          };
-        } else {
-          page = {
-            data: [
-                {
-                    id: "game-1-1",
-                    name:"Mock Game 1-1"
-                  },
-                  {
-                    id: "game-1-2",
-                    name:"Mock Game 1-2"
-                  },
-            ],
-            total: 4,
-            limit: request.limit,
-            offset: request.limit,
-            hasMore: false,
-          };
-        }
-    
-        return Promise.resolve(page);
+        let response = this.getAllClient.execute(request, token)
+        console.log(JSON.stringify(response));            // en una única línea
+        return response;
       }
     // getById(request: string, token: string): Promise<CardResponse> {
     //     return this.getByIdClient.execute(request, token);

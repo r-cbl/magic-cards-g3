@@ -1,12 +1,13 @@
 import { Menu } from "@grammyjs/menu";
 import { BotContext } from "@/types/botContext";
-import { getCurrentUser } from "../../conversations/auth/CurrentUser.conversations";
-import { session, withAuth } from "../../../bot/middleware";
-import { createCardConversation } from "@/application/conversations/cards/Create.conversations";
+import { withAuth } from "../../../bot/middleware";
+import { getAllCardConversation } from "../../../application/conversations/cards/GetAll.conversations";
 
 export const cardsMenu = new Menu<BotContext>("cards-menu")
-    .text("👤 Add card", withAuth(async (ctx) => {
-      await ctx.conversation.enter("createCardConversation");
-    }))
-    .row()
-    .back("🔙 Volver");
+  .text("🃏 Add card", withAuth(async (ctx) => {
+    await ctx.conversation.enter("createCardConversation");
+  }))
+  .row()
+  .text("📋 View your cards", withAuth(getAllCardConversation))
+  .row()
+  .back("🔙 Back");

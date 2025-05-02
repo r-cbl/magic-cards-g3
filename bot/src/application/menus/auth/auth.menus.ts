@@ -4,11 +4,11 @@ import { getCurrentUser } from "../../../application/conversations/auth/CurrentU
 import { session, withAuth } from "../../../bot/middleware";
 
 export const authMenu = new Menu<BotContext>("auth-menu")
-  .text("👤 Ver Email", withAuth(getCurrentUser))
+  .text("👤 View Email", withAuth(getCurrentUser))
   .row()
-  .text("🔓 Cerrar sesión", withAuth(async (ctx) => {
+  .text("🔓 Log out", withAuth(async (ctx) => {
     session.delete(ctx.from!.id.toString());
-    await ctx.reply("Sesión cerrada.");
+    await ctx.reply("You have been logged out.");
   }))
   .row()
-  .back("🔙 Volver");
+  .back("🔙 Back");
