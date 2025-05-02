@@ -3,6 +3,7 @@ import { PaginationDTO, PaginatedResponseDTO } from "@/application/dtos/Paginati
 import { CardBase } from "@/domain/entities/CardBase";
 import { Game } from "@/domain/entities/Game";
 import { CardBaseRepository } from "@/domain/repositories/CardBaseRepository";
+import logger from "../logging/logger";
 
 export class InMemoryCardBaseRepository implements CardBaseRepository {
     private cards: CardBase[] = [];
@@ -49,7 +50,7 @@ export class InMemoryCardBaseRepository implements CardBaseRepository {
             const cardName = card.getName().toLowerCase();
 
             return (
-                (!filters.gameId ||  card.getGame().getId() === filters.gameId) &&
+                (!filters.gameId ||  gameId === filters.gameId) &&
                 (!filters.nameCard || cardName.includes(filters.nameCard.toLowerCase()))
             );
         });

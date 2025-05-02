@@ -59,7 +59,7 @@ export class CardBaseController {
         const filters: PaginationDTO<CardBaseFilterDTO> = {
             data: {
                 nameCard: req.query.name ? (req.query.name as string) : undefined,
-                gameId: req.query.game ? (req.query.game as string) : undefined,
+                gameId: req.query.gameId ? (req.query.gameId as string) : undefined,
             },
             limit: req.query.limit ? Number(req.query.limit) : undefined,
             offset: req.query.offset ? Number(req.query.offset) : undefined,
