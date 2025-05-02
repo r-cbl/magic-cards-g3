@@ -36,7 +36,7 @@ export class OfferController {
                 status: req.query.status ? (req.query.status as string) : undefined,
             };
 
-            const offers = await this.offerService.getAllCards(filters);
+            const offers = await this.offerService.getAllOffer(filters);
             res.status(200).json(offers);
         } catch (error) {
             if (error instanceof UnauthorizedException) {
@@ -61,7 +61,7 @@ export class OfferController {
                 offset: req.query.offset ? Number(req.query.offset) : undefined,
             };
 
-            const offers = await this.offerService.getAllCardsPaginated(filters);
+            const offers = await this.offerService.getAllOfferPaginated(filters);
             res.status(200).json(offers);
         } catch (error) {
             if (error instanceof UnauthorizedException) {

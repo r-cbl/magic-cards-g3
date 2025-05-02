@@ -50,15 +50,15 @@ export class InMemoryPublicationRepository implements PublicationRepository {
 
 
     async findPaginated(filters: PaginationDTO<PublicationFilterDTO>): Promise<PaginatedResponseDTO<Publication>> {
-        const filteredOffers = await this.find(filters.data);
+        const filterPublications = await this.find(filters.data);
         const limit = filters.limit || 10;
         const offset = filters.offset || 0;
-        const total = filteredOffers.length;
-        const paginatedOffers = filteredOffers.slice(offset, offset + limit);
+        const total = filterPublications.length;
+        const paginatedPublications = filterPublications.slice(offset, offset + limit);
         const hasMore = offset + limit < total;
 
         return {
-            data: paginatedOffers,
+            data: paginatedPublications,
             total,
             limit,
             offset,

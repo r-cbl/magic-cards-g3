@@ -44,15 +44,15 @@ export class InMemoryCardRepository implements CardRepository {
     }
     
     async findPaginated(filters: PaginationDTO<CardFilterDTO>): Promise<PaginatedResponseDTO<Card>> {
-        const filteredOffers = await this.find(filters.data);
+        const filterCards = await this.find(filters.data);
         const limit = filters.limit || 10;
         const offset = filters.offset || 0;
-        const total = filteredOffers.length;
-        const paginatedOffers = filteredOffers.slice(offset, offset + limit);
+        const total = filterCards.length;
+        const paginatedCards = filterCards.slice(offset, offset + limit);
         const hasMore = offset + limit < total;
         
         return {
-            data: paginatedOffers,
+            data: paginatedCards,
             total,
             limit,
             offset,

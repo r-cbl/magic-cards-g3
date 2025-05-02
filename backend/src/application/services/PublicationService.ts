@@ -131,7 +131,10 @@ export class PublicationService {
       return {
         id: publication.getId(),
         name: cardBase.getName(),
-        cardId: card.getId(),
+        card:{
+          cardId: card.getId(),
+          urlImage: card.getUrlImage(),
+        },
         valueMoney: publication.getValueMoney() ?? 0,
         cardExchangeIds: cardExchange.map((c) => c.getId()),
         cardBase: {

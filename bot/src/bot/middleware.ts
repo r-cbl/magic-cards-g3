@@ -2,6 +2,7 @@ import { MiddlewareFn } from "grammy";
 import { BotContext } from "../types/botContext";
 import { mainMenu } from "../application/menus/main.menus";
 import { InMemoryAuthSessionRepository } from "./session/InMemoryAuthSession.repository";
+import { SessionError, handleError } from "../types/errors";
 
 export const session = new InMemoryAuthSessionRepository()
 const shownMenuToUsers = new Set<string>();
@@ -9,49 +10,54 @@ const shownMenuToUsers = new Set<string>();
 
 export function withAuth(handler: (ctx: BotContext) => Promise<void>) {
   return async (ctx: BotContext) => {
-    const userId = ctx.from?.id.toString();
-    if (!userId) {
-      await ctx.reply("❌ No se pudo obtener tu ID de usuario.");
-      return;
+    try {
+      const userId = ctx.from?.id.toString();
+      if (!userId) {
+        throw new SessionError("Could not retrieve user ID", "❌ Unable to get your user ID.");
+      }
+
+      const authSession = session.get(userId);
+      if (!authSession) {
+        throw new SessionError("Session not found", "❌ You must log in first.");
+      }
+
+      const now = new Date();
+      const expires = authSession.tokens.expirationDate;
+      if (expires && expires < now) {
+        session.delete(userId);
+        throw new SessionError("Session expired", "⚠️ Your session has expired. Please log in again.");
+      }
+
+      await handler(ctx);
+
+    } catch (error) {
+      await handleError(ctx, error);
     }
-
-    const authSession = session.get(userId);
-
-    if (!authSession) {
-      await ctx.reply("❌ Debes iniciar sesión primero.");
-      return;
-    }
-
-    const now = new Date();
-    const expires = authSession.tokens.expirationDate;
-
-    if (expires && expires < now) {
-      session.delete(userId);
-      await ctx.reply("⚠️ Tu sesión ha expirado. Por favor, iniciá sesión nuevamente.");
-      return;
-    }
-
-    await handler(ctx);
-  }
-};
+  };
+}
 
 export function withPreventDuplicateLogin(handler: (ctx: BotContext) => Promise<void>) {
   return async (ctx: BotContext) => {
-    const userId = ctx.from?.id.toString();
-    if (!userId) {
-      await ctx.reply("❌ No se pudo obtener tu ID de Telegram.");
-      return;
+    try {
+      const userId = ctx.from?.id.toString();
+      if (!userId) {
+        throw new SessionError("Could not retrieve Telegram user ID", "❌ Unable to get your Telegram user ID.");
+      }
+
+      const existingSession = session.get(userId);
+      const now = new Date();
+
+      if (existingSession && existingSession.tokens.expirationDate > now) {
+        throw new SessionError(
+          "Active session detected",
+          "⚠️ You are already logged in. Please log out before starting a new session."
+        );
+      }
+
+      await handler(ctx);
+    } catch (error) {
+      await handleError(ctx, error);
     }
-
-    const existingSession = session.get(userId);
-    const now = new Date();
-
-    if (existingSession && existingSession.tokens.expirationDate > now) {
-      await ctx.reply("⚠️ Ya estás logueado. Cerrá sesión antes de iniciar una nueva.");
-      return;
-    }
-
-    await handler(ctx);
   };
 }
 
@@ -61,11 +67,11 @@ export const showMenuOnFirstMessage: MiddlewareFn<BotContext> = async (ctx, next
 
 
   if (!session.get(userId) && !shownMenuToUsers.has(userId)) {
-    await ctx.reply("👋 ¡Bienvenido! Elegí una opción desde el menú de abajo 👇", {
+    await ctx.reply("👋 Welcome! Choose an option from the menu below 👇", {
       reply_markup: mainMenu,
     });
-
-    await ctx.reply("ℹ️ Si más adelante querés volver a ver el menú, escribí: *Menu*", {
+    
+    await ctx.reply("ℹ️ If you want to see the menu again later, type: *Menu*", {
       parse_mode: "Markdown",
     });
 
