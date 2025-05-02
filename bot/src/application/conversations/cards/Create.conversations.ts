@@ -23,6 +23,10 @@ export async function createCardConversation(
   try {
 
     let game = await selectGameConversation(conversation,ctx,token)
+    if (!game){
+      conversation.halt()
+      return;
+    }
     let baseCard = await selectBaseCardConversation(conversation, ctx, token,true,false, game.id);
     if (!baseCard){
       conversation.halt()
