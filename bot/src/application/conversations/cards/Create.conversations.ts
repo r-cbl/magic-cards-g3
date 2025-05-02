@@ -23,13 +23,17 @@ export async function createCardConversation(
   try {
 
     let game = await selectGameConversation(conversation,ctx,token)
-    let baseCard = await selectBaseCardConversation(conversation, ctx, token, game.id);
+    let baseCard = await selectBaseCardConversation(conversation, ctx, token,true,false, game.id);
+    if (!baseCard){
+      conversation.halt()
+      return;
+    }
     
     await ctx.reply("What is the condition of the card? (Enter a number from 1 to 100)");
 
     let statusCard: number;
     while (true) {
-      const raw = await conversation.form.text(); // ✅ Usa form API segura
+      const raw = await conversation.form.text(); 
       const parsed = parseInt(raw.trim(), 10);
     
       if (!isNaN(parsed) && parsed >= 1 && parsed <= 100) {

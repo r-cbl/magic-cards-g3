@@ -1,32 +1,31 @@
 import { InlineKeyboard } from "grammy";
-import { GetRequest } from "../../../client/baseCards/request/get.request";
-import { BaseCardsClient } from "../../../client/baseCards/baseCard.client";
-import { BaseCardResponse } from "../../../client/baseCards/response/baseCard.response";
+import { GamesClient } from "../../../client/games/games.client";
+import { GetRequest } from "../../../client/games/request/get.request";
+import { GameResponse } from "../../../client/games/response/game.response";
 
-export class BaseCardKeyboard {
-  private baseCardClient: BaseCardsClient;
+export class GameKeyboard {
+  private gameClient: GamesClient;
 
   constructor(private token: string, private limit: number = 10, private enableOther: boolean) {
-    this.baseCardClient = new BaseCardsClient();
+    this.gameClient = new GamesClient();
   }
 
-  public async fetchPage(offset: number, gameId?: string): Promise<PaginatedResponse<BaseCardResponse>> {
+  public async fetchPage(offset: number): Promise<PaginatedResponse<GameResponse>> {
     const request: GetRequest = {
       limit: this.limit,
       offset: offset,
-      gameId: gameId
     };
 
-    const response = await this.baseCardClient.getAll(request, this.token);
+    const response = await this.gameClient.getAll(request, this.token);
     return response;
   }
 
-  public buildKeyboard(resp: PaginatedResponse<BaseCardResponse>): InlineKeyboard {
+  public buildKeyboard(resp: PaginatedResponse<GameResponse>): InlineKeyboard {
     const kb = new InlineKeyboard();
     const items = resp.data || [];
   
     items.forEach((item, index) => {
-      const name = item.nameCard; // ✅ usamos directamente el nombre del juego
+      const name = item.name;
       kb.text(name, `select|${index}`).row();
     });
   
