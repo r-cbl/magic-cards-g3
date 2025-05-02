@@ -1,6 +1,7 @@
 import { CardFilterDTO } from "@/application/dtos/CardsDTO";
 import { Card } from "../entities/Card";
 import { PaginatedResponseDTO } from "@/application/dtos/PaginationDTO";
+import { PaginationDTO } from "@/application/dtos/PaginationDTO";
 
 export interface CardRepository {
     save(card: Card): Promise<Card>;
@@ -9,6 +10,6 @@ export interface CardRepository {
     findById(id: string): Promise<Card>;
     findByCardsByIds(ids?: string[]): Promise<Card[] | undefined>;
     find(filters: CardFilterDTO): Promise<Card[]>;
-    findPaginated(filters: CardFilterDTO): Promise<PaginatedResponseDTO<Card>>;
+    findPaginated(filters: PaginationDTO<CardFilterDTO>): Promise<PaginatedResponseDTO<Card>>;
 }
     

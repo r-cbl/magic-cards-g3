@@ -49,7 +49,7 @@ export class OfferService {
         return this.toOfferResponseDTO(offer);
     }
 
-    public async getAllCards(filters: OfferFilterDTO): Promise<OfferResponseDTO[]> {
+    public async getAllOffer(filters: OfferFilterDTO): Promise<OfferResponseDTO[]> {
         if(filters.ownerId){
             await this.userService.getSimpleUser(filters.ownerId)
         }
@@ -57,7 +57,7 @@ export class OfferService {
         return offers.map(offer => this.toOfferResponseDTO(offer));
     }
 
-    public async getAllCardsPaginated(filters: PaginationDTO<OfferFilterDTO>): Promise<PaginatedResponseDTO<OfferResponseDTO>> {
+    public async getAllOfferPaginated(filters: PaginationDTO<OfferFilterDTO>): Promise<PaginatedResponseDTO<OfferResponseDTO>> {
         if(filters.data.ownerId){
             await this.userService.getSimpleUser(filters.data.ownerId)
         }

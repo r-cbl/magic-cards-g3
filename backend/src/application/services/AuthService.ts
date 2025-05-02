@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
-import { User } from '../../domain/entities/User';
-import { UserRepository } from '../../domain/repositories/UserRepository';
 import { JwtService, TokenResponse } from '../../infrastructure/auth/jwt.service';
 import { CreateUserDTO } from '../dtos/UserDTO';
+import { UserService } from './UserService';
+import { UnauthorizedException, UserNotFoundError } from '../../domain/entities/exceptions/exceptions';
+
 
 interface LoginDTO {
   email: string;
@@ -20,30 +21,17 @@ interface AuthResponseDTO {
 
 export class AuthService {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly userService: UserService
   ) {}
 
   /**
    * Register a new user
    */
   public async register(userData: CreateUserDTO): Promise<AuthResponseDTO> {
-    const existingUser = await this.userRepository.findByEmail(userData.email);
     
-    if (existingUser) {
-      throw new Error('User with this email already exists');
-    }
+    const savedUser = await this.userService.createUser(userData);
 
-    // Hash password
-    const hashedPassword = await this.hashPassword(userData.password);
-
-    const user = new User({
-      name: userData.name,
-      email: userData.email,
-      password: hashedPassword,
-    });
-
-    const savedUser = await this.userRepository.save(user);
     const tokens = this.jwtService.generateTokens(savedUser);
 
     return {
@@ -60,11 +48,8 @@ export class AuthService {
    * Login a user
    */
   public async login(credentials: LoginDTO): Promise<AuthResponseDTO> {
-    const user = await this.userRepository.findByEmail(credentials.email);
     
-    if (!user) {
-      throw new Error('Invalid credentials');
-    }
+    const user = await this.userService.getUser(credentials.email);
 
     const isPasswordValid = await user.isPasswordValid(
       credentials.password,
@@ -85,14 +70,6 @@ export class AuthService {
       },
       tokens,
     };
-  }
-
-  /**
-   * Hash a password
-   */
-  private async hashPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt(10);
-    return bcrypt.hash(password, salt);
   }
 
   /**

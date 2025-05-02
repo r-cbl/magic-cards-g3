@@ -114,18 +114,18 @@ describe('OfferController', () => {
                 }
             ];
 
-            mockOfferService.getAllCards.mockResolvedValue(expectedOffers);
+            mockOfferService.getAllOffer.mockResolvedValue(expectedOffers);
 
             await offerController.getAllOffers(mockRequest as Request, mockResponse as Response);
 
-            expect(mockOfferService.getAllCards).toHaveBeenCalledWith(filters);
+            expect(mockOfferService.getAllOffer).toHaveBeenCalledWith(filters);
             expect(mockResponse.status).toHaveBeenCalledWith(200);
             expect(mockResponse.json).toHaveBeenCalledWith(expectedOffers);
         });
 
         it('should handle errors when getting offers', async () => {
             const error = new Error('Test error');
-            mockOfferService.getAllCards.mockRejectedValue(error);
+            mockOfferService.getAllOffer.mockRejectedValue(error);
 
             await offerController.getAllOffers(mockRequest as Request, mockResponse as Response);
 

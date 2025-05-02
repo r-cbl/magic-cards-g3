@@ -27,8 +27,6 @@ export interface CardFilterDTO {
     name?: string;
     game?: string;
     ownerId?: string;
-    limit?: number;
-    offset?: number;
 }
 
 export interface CardUpdatedDTO {

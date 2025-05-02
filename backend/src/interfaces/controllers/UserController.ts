@@ -7,10 +7,11 @@ export class UserController {
 
   public async createUser(req: Request, res: Response): Promise<void> {
     try {
+      const adminId = req.user?.userId;
       const userData: CreateUserDTO = req.body;
-      const user = await this.userService.createUser(userData);
+      const user = await this.userService.createUserByAdmin(userData, adminId);
       res.status(201).json(user);
-    } catch (error) {
+    } catch (error) { 
       if (error instanceof Error) {
         res.status(400).json({ error: error.message });
       } else {
@@ -21,8 +22,9 @@ export class UserController {
 
   public async getUser(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.params.id;
-      const user = await this.userService.getUser(userId);
+      const adminId = req.user?.userId;
+      const userEmail = req.params.email;
+      const user = await this.userService.getUserByAdmin(userEmail, adminId);
       res.status(200).json(user);
     } catch (error) {
       if (error instanceof Error && error.message === 'User not found') {
@@ -35,24 +37,12 @@ export class UserController {
     }
   }
 
-  public async getAllUsers(req: Request, res: Response): Promise<void> {
-    try {
-      const users = await this.userService.getAllUsers();
-      res.status(200).json(users);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: 'An unexpected error occurred' });
-      }
-    }
-  }
-
   public async updateUser(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.params.id;
+      const userId = req.user?.userId;
+      const toUpdateUserId = req.params.id;
       const userData: UpdateUserDTO = req.body;
-      const user = await this.userService.updateUser(userId, userData);
+      const user = await this.userService.updateUser(toUpdateUserId, userData, userId);
       res.status(200).json(user);
     } catch (error) {
       if (error instanceof Error && error.message === 'User not found') {
@@ -67,8 +57,9 @@ export class UserController {
 
   public async deleteUser(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.params.id;
-      await this.userService.deleteUser(userId);
+      const userId = req.user?.userId;
+      const toDeleteUserId = req.params.id;
+      await this.userService.deleteUser(toDeleteUserId, userId);
       res.status(204).send();
     } catch (error) {
       if (error instanceof Error && error.message === 'User not found') {
