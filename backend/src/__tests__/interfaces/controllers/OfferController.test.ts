@@ -175,7 +175,7 @@ describe('OfferController', () => {
             const updateData: OfferUpdatedDTO = {
                 userId: 'test-user-id',
                 publicationId: 'valid-publication-id',
-                status: 'ACCEPTED'
+                statusOffer: 'ACCEPTED'
             };
 
             mockRequest.params = { id: offerId };

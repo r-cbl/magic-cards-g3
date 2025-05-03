@@ -4,7 +4,7 @@ import { CreateOfferDTO, OfferFilterDTO, OfferResponseDTO, OfferUpdatedDTO } fro
 import { userRepository, publicationRepository, cardRepository, statisticsRepository} from "../../infrastructure/repositories/Container";
 import { Card } from "../../domain/entities/Card";
 import { UserService } from "./UserService";
-import { status } from "../../domain/entities/status";
+import { StatusOffer } from "../../domain/entities/StatusOffer";
 import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
 import { PaginatedResponseDTO, PaginationDTO } from "../dtos/PaginationDTO";
 import { UnauthorizedException } from '../../domain/entities/exceptions/exceptions';
@@ -93,7 +93,7 @@ export class OfferService {
         }
         publication.validateOwnership(user, "publication");
 
-        if(offerData.status === status.ACCEPTED) {
+        if(offerData.statusOffer === StatusOffer.ACCEPTED) {
             const [acceptedOffer, cards] = publication.acceptOffer(offer);
             await Promise.all(cards.map(card => cardRepository.update(card)));
             await publicationRepository.update(publication);
@@ -103,7 +103,7 @@ export class OfferService {
             return this.toOfferResponseDTO(acceptedOffer);
         }
 
-        if(offerData.status === status.REJECTED) {
+        if(offerData.statusOffer === StatusOffer.REJECTED) {
             const rejectedOffer = publication.rejectOffer(offer);
             await publicationRepository.update(publication);
             await statisticsRepository.increment(new Statistic(StatisticType.OFFERS_REJECTED, new Date(), 1));
@@ -128,7 +128,7 @@ export class OfferService {
             cardExchangeIds,
             createdAt: offer.getCreatedAt(),
             updatedAt: offer.getUpdatedAt(),
-            status: offer.getstatus(),
+            status: offer.getStatusOffer(),
             ownerId: ownerId
         };
     }

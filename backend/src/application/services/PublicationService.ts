@@ -152,7 +152,7 @@ export class PublicationService {
         offers: offers.map((offer) => ({
           offerId: offer.getId(),
           moneyOffer: offer.getMoneyOffer(),
-          status: offer.getstatus(),
+          statusOffer: offer.getStatusOffer(),
           cardExchangeIds: offer.getCardOffers()?.map((c) => c.getId()) ?? []
         })),
         createdAt: publication.getCreatedAt(),

@@ -1,5 +1,5 @@
 import { Card } from "./Card";
-import { status } from "./status";
+import { StatusOffer } from "./StatusOffer";
 import { User } from "./User";
 import { Ownable } from "./Ownable";
 import { Publication } from "./Publication";
@@ -8,7 +8,7 @@ export interface OfferProps {
     id?: string;
     offerOwner: User;
     cardOffers?: Card[];
-    status?: status;
+    statusOffer?: StatusOffer;
     moneyOffer?: number;
     closedAt?: Date;
     createdAt?: Date;
@@ -20,7 +20,7 @@ export class Offer extends Ownable {
     private readonly id: string;
     private offerOwner: User;
     private cardOffers?: Card[];
-    private status: status;
+    private statusOffer: StatusOffer;
     private moneyOffer?: number;
     private closedAt?: Date;
     private readonly createdAt: Date;
@@ -44,7 +44,7 @@ export class Offer extends Ownable {
         this.id = props.id || this.generateId();
         this.offerOwner = props.offerOwner;
         this.cardOffers = props.cardOffers;
-        this.status = props.status || status.PENDING;
+        this.statusOffer = props.statusOffer || StatusOffer.PENDING;
         this.moneyOffer = props.moneyOffer;
         this.closedAt = props.closedAt;
         this.createdAt = props.createdAt || new Date();
@@ -57,13 +57,13 @@ export class Offer extends Ownable {
     }
 
     public acceptOffer(publicationOwner: User): Card[] {
-        this.status = status.ACCEPTED;
+        this.statusOffer = StatusOffer.ACCEPTED;
         this.updatedAt = new Date();
         return this.changeOwnersOfferCards(publicationOwner);
     }
 
     public rejectOffer(): void {
-        this.status = status.REJECTED;
+        this.statusOffer = StatusOffer.REJECTED;
         this.updatedAt = new Date();
     }
 
@@ -95,8 +95,8 @@ export class Offer extends Ownable {
         return this.cardOffers;
     }
 
-    public getstatus(): status {
-        return this.status;
+    public getStatusOffer(): StatusOffer {
+        return this.statusOffer;
     }
 
     public getMoneyOffer(): number | undefined {

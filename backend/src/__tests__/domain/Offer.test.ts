@@ -3,7 +3,7 @@ import { User, UserProps } from '../../domain/entities/User';
 import { Card, CardProps } from '../../domain/entities/Card';
 import { CardBase, CardBaseProps } from '../../domain/entities/CardBase';
 import { Game } from '../../domain/entities/Game';
-import { status } from '../../domain/entities/status';
+import { StatusOffer } from '../../domain/entities/StatusOffer';
 import { Publication } from '../../domain/entities/Publication';
 
 describe('Offer Entity', () => {
@@ -193,7 +193,7 @@ describe('Offer Entity', () => {
       
       // Assert
       expect(offer).toBeDefined();
-      // Note: Since status is private, we can't directly test it
+      // Note: Since statusOffer is private, we can't directly test it
       // But we can verify the offer was created successfully
     });
     
@@ -202,7 +202,7 @@ describe('Offer Entity', () => {
       const offerProps: OfferProps = {
         offerOwner: ownerUser,
         moneyOffer: 100,
-        status: status.PENDING,
+        statusOffer: StatusOffer.PENDING,
         publication: testPublication
       };
       
@@ -211,7 +211,7 @@ describe('Offer Entity', () => {
       
       // Assert
       expect(offer).toBeDefined();
-      // Note: Since status is private, we can't directly test it
+      // Note: Since statusOffer is private, we can't directly test it
       // But we can verify the offer was created successfully
     });
   });

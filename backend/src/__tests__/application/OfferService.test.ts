@@ -8,7 +8,7 @@ import { Card } from "../../domain/entities/Card";
 import { CardBase } from "../../domain/entities/CardBase";
 import { Game } from "../../domain/entities/Game";
 import { Offer } from "../../domain/entities/Offer";
-import { status } from "../../domain/entities/status";
+import { StatusOffer } from "../../domain/entities/StatusOffer";
 import { StatusPublication } from "../../domain/entities/StatusPublication";
 import { UnauthorizedException } from "../../domain/entities/exceptions/exceptions";
 import { OfferFilterDTO } from "../../application/dtos/OfferDTO";
@@ -241,7 +241,7 @@ describe('OfferService', () => {
 
     it('should throw error when accepting offer for non-existent publication', async () => {
       const offerData: OfferUpdatedDTO = {
-        status: "accepted",
+        statusOffer: "accepted",
         userId: 'user-id',
         publicationId: 'publication-id'
       };
@@ -255,7 +255,7 @@ describe('OfferService', () => {
 
     it('should throw error when accepting offer for non-existent offer', async () => {
       const offerData: OfferUpdatedDTO = {
-        status: "accepted",
+        statusOffer: "accepted",
         userId: 'user-id',
         publicationId: 'publication-id'
       };
@@ -269,7 +269,7 @@ describe('OfferService', () => {
 
     it('should throw an error when accepting an offer for a publication that is not owned by the user', async () => {
       const offerData: OfferUpdatedDTO = {
-        status: "accepted",
+        statusOffer: "accepted",
         userId: 'user-id',
         publicationId: 'publication-id'
       };
@@ -282,7 +282,7 @@ describe('OfferService', () => {
         offerOwner: testUser1,
         cardOffers: [testCard],
         moneyOffer: 100,
-        status: status.DRAFT,
+        statusOffer: StatusOffer.DRAFT,
         publication: testPublication
       });
 
@@ -305,7 +305,7 @@ describe('OfferService', () => {
 
     it('should change the status of the offer to accepted', async () => {
       const offerData: OfferUpdatedDTO = {
-        status: "accepted",
+        statusOffer: "accepted",
         userId: 'user-id',
         publicationId: 'publication-id'
       };
@@ -315,7 +315,7 @@ describe('OfferService', () => {
         offerOwner: testUser1,
         cardOffers: [testCard],
         moneyOffer: 100,
-        status: status.PENDING,
+        statusOffer: StatusOffer.PENDING,
         publication: testPublication
       });
 
@@ -326,7 +326,7 @@ describe('OfferService', () => {
 
       const result = await offerService.updateOffer('offer-id',offerData);
       expect(result).toBeDefined();
-      expect(result.status).toBe(status.ACCEPTED);
+      expect(result.status).toBe(StatusOffer.ACCEPTED);
       expect(cardRepository.update).toHaveBeenCalled();
       expect(publicationRepository.update).toHaveBeenCalled();
     });
@@ -366,12 +366,12 @@ describe('OfferService', () => {
         offerOwner: offerOwner,
         cardOffers: [testCard2],
         moneyOffer: 100,
-        status: status.PENDING,
+        statusOffer: StatusOffer.PENDING,
         publication: testPublication
       });
 
       const offerData: OfferUpdatedDTO = {
-        status: "accepted",
+        statusOffer: "accepted",
         userId: publicationOwner.getId(),
         publicationId: publicationWithDifferentOwner.getId()
       };
@@ -388,7 +388,7 @@ describe('OfferService', () => {
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.status).toBe(status.ACCEPTED);
+      expect(result.status).toBe(StatusOffer.ACCEPTED);
       
       // Verify offered card ownership was transferred to publication owner
       const updatedOfferedCard = (cardRepository.update as jest.Mock).mock.calls[0][0];
@@ -411,7 +411,7 @@ describe('OfferService', () => {
     });
     it('should change the status of the offer to rejected', async () => {
       const offerData: OfferUpdatedDTO = {
-        status: "rejected",
+        statusOffer: "rejected",
         userId: 'user-id',
         publicationId: 'publication-id'
       };
@@ -419,7 +419,7 @@ describe('OfferService', () => {
         offerOwner: testUser1,
         cardOffers: [testCard],
         moneyOffer: 100,
-        status: status.PENDING,
+        statusOffer: StatusOffer.PENDING,
         publication: testPublication
       });
       (mockOfferRepository.findById as jest.Mock).mockResolvedValue(offer);
@@ -429,7 +429,7 @@ describe('OfferService', () => {
 
       const result = await offerService.updateOffer('offer-id',offerData);
       expect(result).toBeDefined();
-      expect(result.status).toBe(status.REJECTED);
+      expect(result.status).toBe(StatusOffer.REJECTED);
     });
     it('should not change card ownership when offer is rejected', async () => {
       // Arrange
@@ -467,12 +467,12 @@ describe('OfferService', () => {
         offerOwner: offerOwner,
         cardOffers: [testCard2],
         moneyOffer: 100,
-        status: status.PENDING,
+        statusOffer: StatusOffer.PENDING,
         publication: testPublication
       });
 
       const offerData: OfferUpdatedDTO = {
-        status: "rejected",
+        statusOffer: "rejected",
         userId: publicationOwner.getId(),
         publicationId: publicationWithDifferentOwner.getId()
       };
@@ -488,7 +488,7 @@ describe('OfferService', () => {
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.status).toBe(status.REJECTED);
+      expect(result.status).toBe(StatusOffer.REJECTED);
       
       // Verify publication card ownership was NOT changed
       expect(testCard1.getOwner()).toBe(publicationOwner);
@@ -509,7 +509,7 @@ describe('OfferService', () => {
   describe('getAllOffers', () => {
     it('should return all offers with filters', async () => {
       // Arrange
-      const filters: OfferFilterDTO = { ownerId: testUser1.getId(), publicationId: 'valid-pub-id', status: status.PENDING };
+      const filters: OfferFilterDTO = { ownerId: testUser1.getId(), publicationId: 'valid-pub-id', status: StatusOffer.PENDING };
       const mockOffers = [new Offer({ offerOwner: testUser1, moneyOffer: 100, publication: testPublication })];
       
       (mockOfferRepository.find as jest.Mock).mockResolvedValue(mockOffers);
