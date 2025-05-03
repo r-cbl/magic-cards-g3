@@ -48,13 +48,11 @@ export async function selectBaseCardConversation(
             reply_markup: keyboard,
           });
         } catch (err: any) {
-          // Ignore "message is not modified" error
           if (
             err instanceof Error &&
             "description" in err &&
             (err as any).description?.includes("message is not modified")
           ) {
-            // do nothing
           } else {
             throw err;
           }

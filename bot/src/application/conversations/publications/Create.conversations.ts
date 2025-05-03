@@ -17,7 +17,6 @@ export async function createPublicationConversation(
   const token = user.tokens.accessToken;
 
   const publicationsClient = new PublicationsClient();
-  const baseCardClient = new BaseCardsClient();
 
   try {
     // 1. Select a card to publish

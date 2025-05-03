@@ -26,7 +26,7 @@ export class BaseCardKeyboard {
     const items = resp.data || [];
   
     items.forEach((item, index) => {
-      const name = item.nameCard; // ✅ usamos directamente el nombre del juego
+      const name = item.nameCard;
       kb.text(name, `select|${index}`).row();
     });
   
