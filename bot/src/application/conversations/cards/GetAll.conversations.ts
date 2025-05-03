@@ -19,7 +19,7 @@ export async function getAllCardConversation(
         const cardsPaginator = new PaginationUtils<GetRequest, CardResponse>(
             cardsClient,
             "Cards: ",
-            card => `${card.cardBase.Name}`,
+            card => `🃏 ${card.cardBase.Name} - 🎮 ${card.game.Name}`,
             token,
             {ownerId},
             10,

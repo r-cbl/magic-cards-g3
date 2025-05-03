@@ -50,14 +50,16 @@ export async function createCardConversation(
     
 
     // 2) Ask for photo instead of URL
-    await ctx.reply("Now, take or send a photo of the card:");
+    // await ctx.reply("Now, take or send a photo of the card:");
 
-    // Wait for a photo message
-    const photoCtx = await conversation.waitFor("message:photo");
+    // // Wait for a photo message
+    // const photoCtx = await conversation.waitFor("message:photo");
 
-    const photos = photoCtx.message.photo!;
-    const bestPhoto = photos[photos.length - 1];
-    // const fileId = bestPhoto.file_id;
+    // const photos = photoCtx.message.photo!;
+    // const bestPhoto = photos[photos.length - 1];
+    // // const fileId = bestPhoto.file_id;
+    await ctx.reply("Now send the url image:");
+    const fileCtx = await conversation.waitFor("message:text");
 
     const fileUrl = "www";
     if(game.id === "0"){

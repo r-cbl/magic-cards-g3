@@ -20,7 +20,7 @@ export async function createPublicationConversation(
 
   try {
     // 1. Select a card to publish
-    const selected = await selectCardConversation(conversation, ctx, token, false);
+    const selected = await selectCardConversation(conversation, ctx, token,user.user.id, false);
     if (!selected || !("cardBase" in selected)) {
       await ctx.reply("❌ Could not select a valid card.");
       return;

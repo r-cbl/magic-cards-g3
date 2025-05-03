@@ -1,26 +1,27 @@
 import { InlineKeyboard } from "grammy";
-import { GamesClient } from "../../../client/games/games.client";
-import { GetRequest } from "../../../client/games/request/get.request";
-import { GameResponse } from "../../../client/games/response/game.response";
+import { GetRequest } from "../../../client/publications/request/get.request";
+import { PublicationsClient } from "../../../client/publications/publications.client";
+import { PublicationResponse } from "../../../client/publications/response/publication.response";
 
-export class GameKeyboard {
-  private gameClient: GamesClient;
+export class PublicationKeyboard {
+  private publicationsClient: PublicationsClient;
 
   constructor(private token: string, private limit: number = 10, private enableOther: boolean) {
-    this.gameClient = new GamesClient();
+    this.publicationsClient = new PublicationsClient();
   }
 
-  public async fetchPage(offset: number): Promise<PaginatedResponse<GameResponse>> {
+  public async fetchPage(offset: number,ownerId: string): Promise<PaginatedResponse<PublicationResponse>> {
     const request: GetRequest = {
       limit: this.limit,
       offset: offset,
+      ownerId: ownerId
     };
 
-    const response = await this.gameClient.getAll(request, this.token);
+    const response = await this.publicationsClient.getAll(request, this.token);
     return response;
   }
 
-  public buildKeyboard(resp: PaginatedResponse<GameResponse>): InlineKeyboard {
+  public buildKeyboard(resp: PaginatedResponse<PublicationResponse>): InlineKeyboard {
     const kb = new InlineKeyboard();
     const items = resp.data || [];
   

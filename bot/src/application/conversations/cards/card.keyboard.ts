@@ -10,10 +10,11 @@ export class CardKeyboard {
     this.cardsClient = new CardsClient();
   }
 
-  public async fetchPage(offset: number): Promise<PaginatedResponse<CardResponse>> {
+  public async fetchPage(offset: number,ownerId?: string): Promise<PaginatedResponse<CardResponse>> {
     const request: GetRequest = {
       limit: this.limit,
       offset: offset,
+      ownerId: ownerId
     };
 
     const response = await this.cardsClient.getAll(request, this.token);

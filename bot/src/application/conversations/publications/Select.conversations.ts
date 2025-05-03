@@ -1,52 +1,46 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { CardKeyboard } from "./card.keyboard";
-import { CardResponse } from "../../../client/cards/response/card.response";
+import { PublicationKeyboard } from "./publication.keyboard";
 import { handleError } from "../../../types/errors";
-import { InlineKeyboard } from "grammy";
+import { PublicationResponse } from "../../../client/publications/response/publication.response";
 
-export async function selectCardConversation(
+export async function selectPublicationConversation(
   conversation: Conversation<BotContext, BotContext>,
   ctx: BotContext,
   token: string,
   ownerId: string,
   enableOther: boolean
-): Promise<CardResponse | { id: string; name: string } | null> {
+): Promise<PublicationResponse | { id: string; name: string } | null> {
   try {
-    const cardKeyboard = new CardKeyboard(token, 10, enableOther);
+    const publicationKeyboard = new PublicationKeyboard(token, 10, enableOther);
     let id: string;
     let name: string;
     let offset = 0;
     let messageId: number | undefined;
 
-    // const initialResp = await cardKeyboard.fetchPage(offset,ownerId);
-    // if (!initialResp.data || initialResp.data.length === 0) {
-    //   await ctx.reply("🆕 You don't have any cards. Please create one to continue.");
-    //   const cancelKb = new InlineKeyboard().text("🔙 Go back", "cancel");
-    //   await ctx.reply("Do you want to go back?", { reply_markup: cancelKb });
-    //   await conversation.halt();
-    //   return null;
-    // }
-
     while (true) {
-      const resp = await cardKeyboard.fetchPage(offset,ownerId);
-      const keyboard = cardKeyboard.buildKeyboard(resp);
+      const resp = await publicationKeyboard.fetchPage(offset, ownerId);
 
+      if (!resp.data || resp.data.length === 0) {
+        await ctx.reply("❌ You don't have any publications to select.");
+        return null;
+      }
+      
+      const keyboard = publicationKeyboard.buildKeyboard(resp);
+      
       if (!messageId) {
-        const msg = await ctx.reply("📚 Select a card:", { reply_markup: keyboard });
-        messageId = msg.message_id;
+        const sent = await ctx.reply("📚 Select a publication:", { reply_markup: keyboard });
+        messageId = sent.message_id;
       } else {
         try {
-          await ctx.api.editMessageReplyMarkup(ctx.chat!.id, messageId, {
-            reply_markup: keyboard,
-          });
+          await ctx.api.editMessageReplyMarkup(ctx.chat!.id, messageId, { reply_markup: keyboard });
         } catch (err: any) {
           if (
             err instanceof Error &&
             "description" in err &&
             (err as any).description?.includes("message is not modified")
           ) {
-            // Ignore harmless error
+            // ignore harmless error
           } else {
             throw err;
           }
@@ -71,8 +65,8 @@ export async function selectCardConversation(
         continue;
       }
 
-      if (data === "other" && enableOther) {
-        await ctx.reply("🆕 Enter the name of the new card:");
+      if (enableOther && data === "other") {
+        await ctx.reply("🆕 Enter the name of the new publication:");
         const nameCtx = await conversation.waitFor("message:text");
         name = nameCtx.message.text;
         id = "0";
