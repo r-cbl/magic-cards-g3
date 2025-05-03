@@ -19,29 +19,34 @@ export default function PublicationsPage() {
   const { publications, isLoading, error } = useAppSelector((state) => state.publications)
   const { currentUser } = useAppSelector((state) => state.user)
   const games = useAppSelector((state) => state.cards.games)
+
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedGame, setSelectedGame] = useState<string>("")
+  const [page, setPage] = useState(0)
+  const limit = 9
 
   useEffect(() => {
-    dispatch(fetchPublications())
-  }, [dispatch])
+    dispatch(
+      fetchPublications({
+        data: {
+          ...(searchTerm && { search: searchTerm }),
+          ...(selectedGame && selectedGame !== "all" && { gamesIds: [selectedGame] }),
+        },
+        limit,
+        offset: page * limit,
+      })
+    )
+  }, [dispatch, page, searchTerm, selectedGame])
 
-  const filteredPublications = publications.filter((pub) => {
-    let matchesSearch = true
-    let matchesGame = true
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+    setPage(0)
+  }
 
-    if (searchTerm) {
-      matchesSearch =
-        pub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        pub.cardBase.Name.toLowerCase().includes(searchTerm.toLowerCase())
-    }
-
-    if (selectedGame && selectedGame !== "all") {
-      matchesGame = pub.game.Id === selectedGame
-    }
-
-    return matchesSearch && matchesGame
-  })
+  const handleGameChange = (value: string) => {
+    setSelectedGame(value)
+    setPage(0)
+  }
 
   return (
     <div className="space-y-6">
@@ -65,10 +70,10 @@ export default function PublicationsPage() {
             placeholder="Search publications..."
             className="pl-8"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
-        <Select value={selectedGame} onValueChange={setSelectedGame}>
+        <Select value={selectedGame} onValueChange={handleGameChange}>
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="All Games" />
           </SelectTrigger>
@@ -83,14 +88,14 @@ export default function PublicationsPage() {
         </Select>
       </div>
 
-      {isLoading ? (
+      {isLoading && publications.length === 0 ? (
         <div className="flex justify-center items-center h-64">
           <p>Loading publications...</p>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPublications.map((publication) => (
+            {publications.map((publication) => (
               <Card key={publication.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="aspect-video relative bg-muted">
                   <Link href={`/publications/${publication.id}`}>
@@ -139,7 +144,13 @@ export default function PublicationsPage() {
             ))}
           </div>
 
-          {filteredPublications.length === 0 && (
+          {publications.length > 0 && (
+            <div className="flex justify-center mt-6">
+              <Button onClick={() => setPage((prev) => prev + 1)}>Load More</Button>
+            </div>
+          )}
+
+          {publications.length === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No publications found. Try adjusting your filters.</p>
               {currentUser && (

@@ -48,7 +48,7 @@ export default function CardsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold">Pokemon Cards</h1>
+        <h1 className="text-3xl font-bold">Cards</h1>
         {currentUser && (
           <Button onClick={() => router.push("/cards/create")} className="bg-yellow-500 hover:bg-yellow-600 text-black">
             <Plus className="mr-2 h-4 w-4" />

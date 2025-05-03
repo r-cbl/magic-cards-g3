@@ -2,6 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { UserResponseDTO, UpdateUserDTO, CreateUserDTO } from "@/types/user"
 import { userService } from "@/services/user-service"
 import Promise from "bluebird"
+import { TokenResponse } from "@/types/token"
 
 interface UserState {
   currentUser: UserResponseDTO | null
@@ -108,8 +109,9 @@ export const loginUser =
   (dispatch: any) => {
     dispatch(loginStart())
     Promise.resolve(userService.login(email, password))
-      .then((response: { user: UserResponseDTO; token: string }) => {
-        localStorage.setItem("token", response.token)
+      .then((response: { user: UserResponseDTO; tokens: TokenResponse }) => {
+        localStorage.setItem("user", JSON.stringify(response.user))
+        localStorage.setItem("tokens", JSON.stringify(response.tokens))
         dispatch(loginSuccess(response.user))
       })
       .catch((error: unknown) => {
@@ -123,8 +125,9 @@ export const registerUser =
   (dispatch: any) => {
     dispatch(loginStart())
     Promise.resolve(userService.signup(userData))
-      .then((response: { user: UserResponseDTO; token: string }) => {
-        localStorage.setItem("token", response.token)
+      .then((response: { user: UserResponseDTO; tokens: TokenResponse }) => {
+        localStorage.setItem("user", JSON.stringify(response.user))
+        localStorage.setItem("tokens", JSON.stringify(response.tokens))
         dispatch(loginSuccess(response.user))
       })
       .catch((error: unknown) => {

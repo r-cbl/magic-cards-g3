@@ -72,7 +72,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Create an account</CardTitle>
-          <CardDescription>Join PokéTrade to start trading Pokemon cards</CardDescription>
+          <CardDescription>Join DeckTrade to start trading cards</CardDescription>
         </CardHeader>
         <CardContent>
           {error && (

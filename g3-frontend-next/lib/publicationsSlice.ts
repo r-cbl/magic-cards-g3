@@ -1,23 +1,33 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { PublicationResponseDTO } from "@/types/publication"
+import type { PaginatedResponseDTO, PaginationDTO } from "@/types/pagination"
 import { publicationService } from "@/services/publication-service"
 import Promise from "bluebird"
 
-
 interface PublicationsState {
   publications: PublicationResponseDTO[]
-  userPublications: PublicationResponseDTO[]
   selectedPublication: PublicationResponseDTO | null
   isLoading: boolean
   error: string | null
+  pagination: {
+    total: number
+    offset: number
+    limit: number
+    hasMore: boolean
+  }
 }
 
 const initialState: PublicationsState = {
   publications: [],
-  userPublications: [],
   selectedPublication: null,
   isLoading: false,
   error: null,
+  pagination: {
+    total: 0,
+    offset: 0,
+    limit: 10,
+    hasMore: false,
+  },
 }
 
 export const publicationsSlice = createSlice({
@@ -28,23 +38,21 @@ export const publicationsSlice = createSlice({
       state.isLoading = true
       state.error = null
     },
-    fetchPublicationsSuccess: (state, action: PayloadAction<PublicationResponseDTO[]>) => {
-      state.publications = action.payload
+    fetchPublicationsSuccess: (
+      state,
+      action: PayloadAction<{ data: PublicationResponseDTO[]; pagination: Omit<PaginatedResponseDTO<any>, "data">; append: boolean }>
+    ) => {
+      const { data, pagination, append } = action.payload
+      state.publications = append ? [...state.publications, ...data] : data
+      state.pagination = {
+        total: pagination.total,
+        offset: pagination.offset,
+        limit: pagination.limit,
+        hasMore: pagination.hasMore,
+      }
       state.isLoading = false
     },
     fetchPublicationsFailure: (state, action: PayloadAction<string>) => {
-      state.isLoading = false
-      state.error = action.payload
-    },
-    fetchUserPublicationsStart: (state) => {
-      state.isLoading = true
-      state.error = null
-    },
-    fetchUserPublicationsSuccess: (state, action: PayloadAction<PublicationResponseDTO[]>) => {
-      state.userPublications = action.payload
-      state.isLoading = false
-    },
-    fetchUserPublicationsFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false
       state.error = action.payload
     },
@@ -60,19 +68,6 @@ export const publicationsSlice = createSlice({
       state.isLoading = false
       state.error = action.payload
     },
-    createPublicationStart: (state) => {
-      state.isLoading = true
-      state.error = null
-    },
-    createPublicationSuccess: (state, action: PayloadAction<PublicationResponseDTO>) => {
-      state.publications.push(action.payload)
-      state.userPublications.push(action.payload)
-      state.isLoading = false
-    },
-    createPublicationFailure: (state, action: PayloadAction<string>) => {
-      state.isLoading = false
-      state.error = action.payload
-    },
   },
 })
 
@@ -80,55 +75,49 @@ export const {
   fetchPublicationsStart,
   fetchPublicationsSuccess,
   fetchPublicationsFailure,
-  fetchUserPublicationsStart,
-  fetchUserPublicationsSuccess,
-  fetchUserPublicationsFailure,
   fetchPublicationByIdStart,
   fetchPublicationByIdSuccess,
   fetchPublicationByIdFailure,
-  createPublicationStart,
-  createPublicationSuccess,
-  createPublicationFailure,
 } = publicationsSlice.actions
 
 export default publicationsSlice.reducer
 
-export const fetchPublications = () => (dispatch: any) => {
-  dispatch(fetchPublicationsStart());
-  Promise.resolve(publicationService.getAllPublications())
-    .then((publications: PublicationResponseDTO[]) => dispatch(fetchPublicationsSuccess(publications)))
-    .catch((error: unknown) => {
-      const message = error instanceof Error ? error.message : "Failed to load publications";
-      dispatch(fetchPublicationsFailure(message));
-    });
-};
+// Thunk para obtener publicaciones con paginación y filtros
+export const fetchPublications = (
+  filters: PaginationDTO<any> = { data: {} },
+  append = false
+) => async (dispatch: any) => {
+  dispatch(fetchPublicationsStart())
 
-export const fetchUserPublications = (userId: string) => (dispatch: any) => {
-  dispatch(fetchUserPublicationsStart());
-  Promise.resolve(publicationService.getUserPublications(userId))
-    .then((publications: PublicationResponseDTO[]) => dispatch(fetchUserPublicationsSuccess(publications)))
-    .catch((error: unknown) => {
-      const message = error instanceof Error ? error.message : "Failed to load your publications";
-      dispatch(fetchUserPublicationsFailure(message));
-    });
-};
+  try {
+    const response = await Promise.resolve(publicationService.getAllPublications(filters))
+    dispatch(
+      fetchPublicationsSuccess({
+        data: response.data,
+        pagination: {
+          total: response.total,
+          offset: response.offset,
+          limit: response.limit,
+          hasMore: response.hasMore,
+        },
+        append,
+      })
+    )
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to load publications"
+    dispatch(fetchPublicationsFailure(message))
+  }
+}
 
-export const fetchPublicationById = (id: string) => (dispatch: any) => {
-  dispatch(fetchPublicationByIdStart());
-  Promise.resolve(publicationService.getPublicationById(id))
-    .then((publication: PublicationResponseDTO) => dispatch(fetchPublicationByIdSuccess(publication)))
-    .catch((error: unknown) => {
-      const message = error instanceof Error ? error.message : "Failed to load publication";
-      dispatch(fetchPublicationByIdFailure(message));
-    });
-};
+// Thunk para obtener una publicación individual
+export const fetchPublicationById = (id: string) => async (dispatch: any) => {
+  dispatch(fetchPublicationByIdStart())
 
-export const createPublication = (data: any) => (dispatch: any) => {
-  dispatch(createPublicationStart());
-  Promise.resolve(publicationService.createPublication(data))
-    .then((publication: PublicationResponseDTO) => dispatch(createPublicationSuccess(publication)))
-    .catch((error: unknown) => {
-      const message = error instanceof Error ? error.message : "Failed to create publication";
-      dispatch(createPublicationFailure(message));
-    });
-};
+  try {
+    const publication = await Promise.resolve(publicationService.getPublicationById(id))
+    dispatch(fetchPublicationByIdSuccess(publication))
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to load publication"
+    dispatch(fetchPublicationByIdFailure(message))
+  }
+}
