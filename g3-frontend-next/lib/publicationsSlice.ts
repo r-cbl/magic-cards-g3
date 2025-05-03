@@ -1,8 +1,9 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import type { PublicationResponseDTO } from "@/types/publication"
+import type { CreatePublicationDTO, PublicationResponseDTO } from "@/types/publication"
 import type { PaginatedResponseDTO, PaginationDTO } from "@/types/pagination"
 import { publicationService } from "@/services/publication-service"
 import Promise from "bluebird"
+import { create } from "domain"
 
 interface PublicationsState {
   publications: PublicationResponseDTO[]
@@ -34,6 +35,21 @@ export const publicationsSlice = createSlice({
   name: "publications",
   initialState,
   reducers: {
+    createPublicationStart: (state) => {
+      state.isLoading = true
+      state.error = null
+    },
+    createPublicationSuccess: (state, action: PayloadAction<PublicationResponseDTO>) => {
+      if (action.payload.id) {
+        state.publications.push(action.payload)
+      }
+      state.isLoading = false
+      state.error = null
+    },
+    createPublicationFailure: (state, action: PayloadAction<string>) => {
+      state.isLoading = false
+      state.error = action.payload
+    },
     fetchPublicationsStart: (state) => {
       state.isLoading = true
       state.error = null
@@ -72,6 +88,9 @@ export const publicationsSlice = createSlice({
 })
 
 export const {
+  createPublicationStart,
+  createPublicationSuccess,
+  createPublicationFailure,
   fetchPublicationsStart,
   fetchPublicationsSuccess,
   fetchPublicationsFailure,
@@ -121,3 +140,16 @@ export const fetchPublicationById = (id: string) => async (dispatch: any) => {
     dispatch(fetchPublicationByIdFailure(message))
   }
 }
+
+export const createPublication =
+  (data: CreatePublicationDTO) => async (dispatch: any) => {
+    dispatch(createPublicationStart())
+
+    try {
+      const createdPublication = await Promise.resolve(publicationService.createPublication(data))
+      dispatch(createPublicationSuccess(createdPublication))
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to create card"
+      dispatch(createPublicationFailure(message))
+    }
+  }

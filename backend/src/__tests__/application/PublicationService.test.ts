@@ -7,7 +7,7 @@ import { Game } from '../../domain/entities/Game';
 import { Publication } from '../../domain/entities/Publication';
 import { User } from '../../domain/entities/User';
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationUpdatedDTO } from '../../application/dtos/PublicationDTO';
-import { StatusOffer } from '../../domain/entities/StatusOffer';
+import { status } from '../../domain/entities/status';
 import { Offer } from '../../domain/entities/Offer';
 import { StatusPublication } from '../../domain/entities/StatusPublication';
 
@@ -156,7 +156,7 @@ describe('PublicationService', () => {
         offerOwner: otherUser,
         cardOffers: [offerCard1],
         moneyOffer: 50,
-        statusOffer: StatusOffer.PENDING,
+        status: status.PENDING,
         publication: publication
       });
       
@@ -164,7 +164,7 @@ describe('PublicationService', () => {
         offerOwner: otherUser,
         cardOffers: [offerCard2, offerCard3],
         moneyOffer: 75,
-        statusOffer: StatusOffer.PENDING,
+        status: status.PENDING,
         publication: publication
       });
       
@@ -187,7 +187,7 @@ describe('PublicationService', () => {
       );
       
       // Verify all offers are rejected
-      expect(result.offers.every(offer => offer.statusOffer === StatusOffer.REJECTED)).toBe(true);
+      expect(result.offers.every(offer => offer.status === status.REJECTED)).toBe(true);
       
       // Verify the cards ownership hasn't changed
       expect(offerCard1.getOwner()).toBe(otherUser);

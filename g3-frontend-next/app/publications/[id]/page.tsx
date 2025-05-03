@@ -17,27 +17,26 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import type { PublicationResponseDTO } from "@/types/publication"
 import type { CardResponseDTO } from "@/types/card"
 import { ArrowLeft, DollarSign, AlertCircle } from "lucide-react"
 import { CreateOfferDTO, OfferStatus } from "@/types/offer"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { fetchPublicationById } from "@/lib/publicationsSlice"
-import { createOffer } from "@/lib/offersSlice"
+import {createOffer} from "@/lib/offersSlice"
 
 export default function PublicationDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { selectedPublication: publication, isLoading } = useAppSelector((state) => state.publications)
   const { currentUser } = useAppSelector((state) => state.user)
-  const cardBases = useAppSelector((state) => state.cards.cardBases)
+  const cardBases = useAppSelector((state) => state.baseCards)
   const [isOwner, setIsOwner] = useState(false)
   const [userCards, setUserCards] = useState<CardResponseDTO[]>([])
   const [selectedCardExchanges, setSelectedCardExchanges] = useState<string[]>([])
   const [moneyOffer, setMoneyOffer] = useState<number>(0)
   const [offerDialogOpen, setOfferDialogOpen] = useState(false)
   const [isSubmittingOffer, setIsSubmittingOffer] = useState(false)
-
+  
   useEffect(() => {
     if (params.id === "create") {
       router.push("/publications/create")
@@ -45,7 +44,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
     }
     dispatch(fetchPublicationById(params.id))
     // Fetch user's cards if needed for offers
-  }, [dispatch, params.id, router])
+  }, [dispatch, params, router])
 
   const handleCardExchangeToggle = (cardId: string) => {
     setSelectedCardExchanges((prev) => {
@@ -66,6 +65,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
       cardExchangeIds: selectedCardExchanges,
       moneyOffer: moneyOffer > 0 ? moneyOffer : undefined,
     }
+
     Promise.resolve(dispatch(createOffer(offerData)))
       .then(() => {
         setOfferDialogOpen(false)
@@ -159,10 +159,10 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                     <span className="text-muted-foreground">Looking for:</span>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {publication.cardExchangeIds.map((cardId) => {
-                        const cardBase = cardBases.find((cb) => cb.id === cardId)
+                        const cardBase = cardBases.cardBases.find((cb) => cb.id === cardId)
                         return cardBase ? (
                           <Badge key={cardId} variant="secondary">
-                            {cardBase.name}
+                            {cardBase.nameCard}
                           </Badge>
                         ) : null
                       })}
@@ -183,7 +183,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                   {publication.offers.map((offer) => (
                     <div key={offer.id} className="border rounded-md p-3">
                       <div className="flex justify-between items-center mb-2">
-                        <Badge>{offer.statusOffer}</Badge>
+                        <Badge>{offer.status}</Badge>
                         {offer.moneyOffer && <span className="font-medium">${offer.moneyOffer}</span>}
                       </div>
                       {offer.cardExchangeIds.length > 0 && (
@@ -191,17 +191,17 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                           <span className="text-sm text-muted-foreground">Cards offered:</span>
                           <div className="mt-1 flex flex-wrap gap-1">
                             {offer.cardExchangeIds.map((cardId) => {
-                              const cardBase = cardBases.find((cb) => cb.id === cardId)
+                              const cardBase = cardBases.cardBases.find((cb) => cb.id === cardId)
                               return cardBase ? (
                                 <Badge key={cardId} variant="secondary" className="text-xs">
-                                  {cardBase.name}
+                                  {cardBase.nameCard}
                                 </Badge>
                               ) : null
                             })}
                           </div>
                         </div>
                       )}
-                      {offer.statusOffer === "PENDING" && (
+                      {offer.status === "PENDING" && (
                         <div className="flex gap-2 mt-3">
                           <Button size="sm" variant="outline" className="flex-1">
                             Accept

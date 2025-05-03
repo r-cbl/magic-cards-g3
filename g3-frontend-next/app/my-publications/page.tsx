@@ -119,8 +119,8 @@ export default function MyPublicationsPage() {
                                 className="border rounded-md p-2 flex justify-between items-center"
                               >
                                 <div className="flex items-center gap-1">
-                                  {getStatusIcon(offer.statusOffer)}
-                                  <span className="text-xs">{offer.statusOffer} by {offer.userName}</span>
+                                  {getStatusIcon(offer.status)}
+                                  <span className="text-xs">{offer.status} by {offer.userName}</span>
                                 </div>
                                 <div className="text-xs">
                                   {offer.moneyOffer ? (

@@ -12,22 +12,22 @@ export interface OfferResponseDTO {
   userName: string
   cardExchangeIds: string[]
   moneyOffer?: number
-  statusOffer: OfferStatus
+  status: string
   createdAt: Date
 }
 
 export enum OfferStatus {
-  PENDING = "PENDING",
-  ACCEPTED = "ACCEPTED",
-  REJECTED = "REJECTED",
-  CANCELED = "CANCELED",
+  DRAFT = 'draft',
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+  REJECTED = 'rejected'
 }
 
-export interface UpdateOfferDTO {
-  userId: string
-  cardExchangeIds?: string[]
-  moneyOffer?: number
-  statusOffer?: OfferStatus
+
+export interface OfferUpdatedDTO {
+  userId: string;
+  statusOffer: string;
+  publicationId: string;
 }
 
 export interface OfferFilterDTO {

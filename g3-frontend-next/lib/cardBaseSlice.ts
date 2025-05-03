@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import type { CardBaseResponseDTO } from "@/types/card"
+import type { CardBaseResponseDTO, CreateCardBaseDTO } from "@/types/card"
 import { cardBaseService } from "@/services/cardBase-service"
 import Promise from "bluebird"
 import type { PaginatedResponseDTO, PaginationDTO } from "@/types/pagination"
@@ -34,6 +34,21 @@ export const cardBaseSlice = createSlice({
   name: "cardBases",
   initialState,
   reducers: {
+    createCardBaseStart: (state) => {
+        state.isLoading = true
+        state.error = null
+      },
+    createCardBaseSuccess: (state, action: PayloadAction<CardBaseResponseDTO>) => {
+    if (action.payload.id) {
+        state.cardBases.push(action.payload)
+    }
+    state.isLoading = false
+    state.error = null
+    },
+    createCardBaseFailure: (state, action: PayloadAction<string>) => {
+    state.isLoading = false
+    state.error = action.payload
+    },
     fetchCardBasesStart: (state) => {
       state.isLoading = true
       state.error = null
@@ -72,6 +87,9 @@ export const cardBaseSlice = createSlice({
 })
 
 export const {
+  createCardBaseStart,
+  createCardBaseSuccess,
+  createCardBaseFailure,
   fetchCardBasesStart,
   fetchCardBasesSuccess,
   fetchCardBasesFailure,
@@ -81,6 +99,20 @@ export const {
 } = cardBaseSlice.actions
 
 export default cardBaseSlice.reducer
+
+export const createCardBase = (data: CreateCardBaseDTO) => async (dispatch: any) => {
+  dispatch(createCardBaseStart())
+
+  try {
+    const newCardBase = await cardBaseService.createCardBase(data)
+    dispatch(createCardBaseSuccess(newCardBase))
+    return newCardBase
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error al crear el juego"
+    dispatch(createCardBaseFailure(message))
+    throw error // opcional, útil si querés capturarlo desde el componente
+  }
+}
 
 // Thunks
 export const fetchCardBases = (filters: PaginationDTO<any> = { data: {} }, append = false) => async (dispatch: any) => {

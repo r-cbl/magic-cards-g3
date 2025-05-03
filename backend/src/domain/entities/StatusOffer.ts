@@ -1,4 +1,4 @@
-export enum StatusOffer {
+export enum status {
     DRAFT = 'draft',
     PENDING = 'pending',
     ACCEPTED = 'accepted',

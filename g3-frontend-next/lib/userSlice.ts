@@ -78,6 +78,9 @@ export const userSlice = createSlice({
       const { field, value } = action.payload
       state.profileForm[field as keyof typeof state.profileForm] = value
     },
+    restoreSession: (state, action: PayloadAction<UserResponseDTO>) => {
+      state.currentUser = action.payload
+    }
   },
 })
 
@@ -90,6 +93,7 @@ export const {
   updateUserProfileSuccess,
   updateUserProfileFailure,
   setProfileField,
+  restoreSession,
 } = userSlice.actions
 
 export const updateUserProfile =
@@ -103,6 +107,9 @@ export const updateUserProfile =
         dispatch(updateUserProfileFailure(message))
       })
   }
+
+
+  
 
 export const loginUser =
   ({ email, password }: { email: string; password: string }) =>

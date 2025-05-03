@@ -26,11 +26,6 @@ export default function HomePage() {
             <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
         </Button>
-        <Button asChild variant="outline" size="lg">
-          <Link href="/cards">
-            Explore Cards
-          </Link>
-        </Button>
       </div>
     </div>
   )

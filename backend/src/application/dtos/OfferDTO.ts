@@ -2,7 +2,7 @@ export interface CreateOfferDTO {
     publicationId: string;
     offerOwnerId: string;
     moneyOffer?: number;
-    statusOffer?: string;
+    status?: string;
     cardExchangeIds?: string[];
 }
 
@@ -31,7 +31,7 @@ export interface OfferFilterDTO {
 
 export interface OfferUpdatedDTO {
     userId: string;
-    statusOffer: string;
+    status: string;
     publicationId: string;
 }
 

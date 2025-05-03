@@ -43,6 +43,7 @@ export default function Navbar() {
             <span className="text-xl font-bold">DeckTrade</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 ml-6">
+          {isLoggedIn && (
             <Link
               href="/cards"
               className={cn(
@@ -52,6 +53,7 @@ export default function Navbar() {
             >
               Cards
             </Link>
+          )}
             <Link
               href="/publications"
               className={cn(

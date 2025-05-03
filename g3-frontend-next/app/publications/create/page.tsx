@@ -11,16 +11,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { fetchUserCardsStart, fetchUserCardsSuccess } from "@/lib/cardsSlice"
-import { createPublication } from "@/lib/publicationsSlice"
+import { createPublication, createPublicationFailure } from "@/lib/publicationsSlice"
 import type { CardResponseDTO } from "@/types/card"
 import type { CreatePublicationDTO } from "@/types/publication"
+import { fetchCards } from "@/lib/cardsSlice"
 
 export default function CreatePublicationPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const dispatch = useAppDispatch()
-  const { userCards, isLoading: isCardsLoading } = useAppSelector((state) => state.cards)
+  const { cards, isLoading: isCardsLoading } = useAppSelector((state) => state.cards)
   const { isLoading: isPublicationLoading, error } = useAppSelector((state) => state.publications)
   const { currentUser } = useAppSelector((state) => state.user)
 
@@ -48,15 +48,14 @@ export default function CreatePublicationPage() {
     if (cardId) {
       setSelectedCardId(cardId)
     }
-    if (userCards.length === 0) {
-      dispatch(fetchUserCardsStart())
-      // TODO: Replace with real API call to fetch user cards
+    if (cards.length === 0) {
+      dispatch(fetchCards())
     }
-  }, [router, searchParams, dispatch, currentUser, userCards.length])
+  }, [router, searchParams, dispatch, currentUser, cards.length])
 
   useEffect(() => {
-    if (selectedCardId && userCards.length > 0) {
-      const card = userCards.find((card) => card.id === selectedCardId)
+    if (selectedCardId && cards.length > 0) {
+      const card = cards.find((card) => card.id === selectedCardId)
       if (card) {
         setSelectedCard(card)
         if (!name) {
@@ -64,7 +63,7 @@ export default function CreatePublicationPage() {
         }
       }
     }
-  }, [selectedCardId, userCards, name])
+  }, [selectedCardId, cards, name])
 
   const handleCardExchangeToggle = (cardBaseId: string) => {
     setSelectedCardExchanges((prev) => {
@@ -98,7 +97,7 @@ export default function CreatePublicationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!currentUser) {
-      // dispatch(createPublicationFailure("You must be logged in to create a publication"))
+      dispatch(createPublicationFailure("You must be logged in to create a publication"))
       return
     }
     if (!validateForm()) {
@@ -154,8 +153,8 @@ export default function CreatePublicationPage() {
                   <SelectValue placeholder="Select a card" />
                 </SelectTrigger>
                 <SelectContent>
-                  {userCards.length > 0 ? (
-                    userCards.map((card) => (
+                  {cards.length > 0 ? (
+                    cards.map((card) => (
                       <SelectItem key={card.id} value={card.id}>
                         {card.cardBase.Name} ({card.game.Name})
                       </SelectItem>

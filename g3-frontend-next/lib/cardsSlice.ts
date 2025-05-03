@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import type { CardResponseDTO } from "@/types/card"
+import type { CardResponseDTO, CreateCardDTO } from "@/types/card"
 import type { PaginatedResponseDTO, PaginationDTO } from "@/types/pagination"
 import { cardService } from "@/services/card-service"
 import Promise from "bluebird"
@@ -41,10 +41,15 @@ export const cardSlice = createSlice({
     },
     createCardSuccess: (state, action: PayloadAction<CardResponseDTO>) => {
       if (action.payload.id) {
-        state.cards.push(action.payload)
+        state.cards.unshift(action.payload)
+        state.pagination.total += 1;
       }
       state.isLoading = false
       state.error = null
+    },
+    createCardFailure: (state, action: PayloadAction<string>) => {
+      state.isLoading = false
+      state.error = action.payload
     },
     fetchCardsStart: (state) => {
       state.isLoading = true
@@ -64,10 +69,7 @@ export const cardSlice = createSlice({
       }
       state.isLoading = false
     },
-    createCardFailure: (state, action: PayloadAction<string>) => {
-      state.isLoading = false
-      state.error = action.payload
-    },
+    
     fetchCardsFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false
       state.error = action.payload
@@ -136,4 +138,17 @@ export const fetchCardById = (id: string) => async (dispatch: any) => {
     dispatch(fetchCardByIdFailure(message))
   }
 }
+
+export const createCard =
+  (data: CreateCardDTO) => async (dispatch: any) => {
+    dispatch(createCardStart())
+
+    try {
+      const createdCard = await Promise.resolve(cardService.createCard(data))
+      dispatch(createCardSuccess(createdCard))
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to create card"
+      dispatch(createCardFailure(message))
+    }
+  }
 

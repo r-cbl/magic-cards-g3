@@ -10,12 +10,25 @@ import { ArrowLeft, Share2, Heart } from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { fetchCardById } from "@/lib/cardsSlice"
 
-export default function CardDetailPage({ params }: { params: { id: string } }) {
+export default function CardDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { selectedCard: card, isLoading } = useAppSelector((state) => state.cards)
   const [isOwner, setIsOwner] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [unwrappedParams, setUnwrappedParams] = useState<{ id: string } | null>(null)
+
+  useEffect(() => {
+    // Unwrap the params
+    params.then((unwrapped) => setUnwrappedParams(unwrapped))
+  }, [params])
+
+  useEffect(() => {
+    if (unwrappedParams) {
+      // Fetch card from API
+      dispatch(fetchCardById(unwrappedParams.id))
+    }
+  }, [dispatch, unwrappedParams])
 
   useEffect(() => {
     // Get user from localStorage
@@ -23,9 +36,7 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
     if (userData) {
       setUser(JSON.parse(userData))
     }
-    // Fetch card from API
-    dispatch(fetchCardById(params.id))
-  }, [dispatch, params.id])
+  }, [])
 
   useEffect(() => {
     if (user && card) {

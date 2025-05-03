@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import type { GameFilterDTO, GameResponseDTO } from "@/types/game"
+import type { CreateGameDTO, GameFilterDTO, GameResponseDTO } from "@/types/game"
 import { gameService } from "@/services/game-service"
 import Promise from "bluebird"
 import type { PaginatedResponseDTO, PaginationDTO } from "@/types/pagination"
@@ -34,6 +34,21 @@ export const gameSlice = createSlice({
   name: "games",
   initialState,
   reducers: {
+    createGameStart: (state) => {
+        state.isLoading = true
+        state.error = null
+      },
+    createGameSuccess: (state, action: PayloadAction<GameResponseDTO>) => {
+        if (action.payload.id) {
+            state.games.push(action.payload)
+        }
+        state.isLoading = false
+        state.error = null
+    },
+    createGameFailure: (state, action: PayloadAction<string>) => {
+    state.isLoading = false
+    state.error = action.payload
+    },
     fetchGamesStart: (state) => {
       state.isLoading = true
       state.error = null
@@ -72,17 +87,36 @@ export const gameSlice = createSlice({
 })
 
 export const {
-  fetchGamesStart,
-  fetchGamesSuccess,
-  fetchGamesFailure,
-  fetchGameByIdStart,
-  fetchGameByIdSuccess,
-  fetchGameByIdFailure,
+    createGameStart,
+    createGameSuccess,
+    createGameFailure,
+    fetchGamesStart,
+    fetchGamesSuccess,
+    fetchGamesFailure,
+    fetchGameByIdStart,
+    fetchGameByIdSuccess,
+    fetchGameByIdFailure,
 } = gameSlice.actions
 
 export default gameSlice.reducer
 
 // Thunks
+export const createGame = (data: CreateGameDTO) => async (dispatch: any) => {
+  dispatch(createGameStart())
+
+  try {
+    const newGame = await gameService.createGame(data)
+    dispatch(createGameSuccess(newGame))
+    return newGame
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error al crear el juego"
+    dispatch(createGameFailure(message))
+    throw error // opcional, útil si querés capturarlo desde el componente
+  }
+}
+
+
+
 export const fetchGames = (filters: PaginationDTO<GameFilterDTO> = { data: {} }, append = false) => async (dispatch: any) => {
   dispatch(fetchGamesStart())
 

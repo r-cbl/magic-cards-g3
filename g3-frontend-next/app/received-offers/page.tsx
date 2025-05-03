@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { fetchOffers } from "@/lib/offersSlice"
-import { OfferStatus } from "@/types/offer"
 import { DollarSign, Clock, CheckCircle, XCircle } from "lucide-react"
 
 export default function ReceivedOffersPage() {
@@ -24,24 +23,24 @@ export default function ReceivedOffersPage() {
       router.push("/login")
       return
     }
-    dispatch(fetchOffers())
+    dispatch(fetchOffers(currentUser.id))
   }, [dispatch, currentUser, router])
 
   const filteredOffers = receivedOffers.filter((offer) => {
     if (activeTab === "all") return true
-    if (activeTab === "pending") return offer.statusOffer === "PENDING"
-    if (activeTab === "accepted") return offer.statusOffer === "ACCEPTED"
-    if (activeTab === "rejected") return offer.statusOffer === "REJECTED"
+    if (activeTab === "pending") return offer.status === "pending"
+    if (activeTab === "accepted") return offer.status === "accepted"
+    if (activeTab === "rejected") return offer.status === "rejected"
     return true
   })
 
-  const getStatusIcon = (status: OfferStatus) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case "PENDING":
+      case "pending":
         return <Clock className="h-4 w-4 text-yellow-500" />
-      case "ACCEPTED":
+      case "accepted":
         return <CheckCircle className="h-4 w-4 text-green-500" />
-      case "REJECTED":
+      case "rejected":
         return <XCircle className="h-4 w-4 text-red-500" />
       default:
         return null
@@ -75,8 +74,8 @@ export default function ReceivedOffersPage() {
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg">Publication {offer.publicationId}</CardTitle>
                       <Badge className="flex items-center gap-1">
-                        {getStatusIcon(offer.statusOffer)}
-                        {offer.statusOffer}
+                        {getStatusIcon(offer.status)}
+                        {offer.status}
                       </Badge>
                     </div>
                   </CardHeader>

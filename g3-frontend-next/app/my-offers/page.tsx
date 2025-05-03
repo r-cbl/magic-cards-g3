@@ -15,7 +15,7 @@ import { DollarSign, Clock, CheckCircle, XCircle } from "lucide-react"
 export default function MyOffersPage() {
   const router = useRouter()
   const dispatch = useAppDispatch()
-  const { userOffers, receivedOffers, isLoading, error } = useAppSelector((state) => state.offers)
+  const { ownedOffers, receivedOffers, isLoading, error } = useAppSelector((state) => state.offers)
   const { currentUser } = useAppSelector((state) => state.user)
 
   const [mainTab, setMainTab] = useState("sent")
@@ -27,27 +27,26 @@ export default function MyOffersPage() {
       router.push("/login")
       return
     }
-    dispatch(fetchOffers())
-    dispatch(fetchOffers())
+    dispatch(fetchOffers(currentUser.id))
   }, [dispatch, currentUser, router])
 
-  const filteredSentOffers = userOffers.filter((offer) => {
+  const filteredSentOffers = ownedOffers.filter((offer) => {
     if (sentStatusTab === "all") return true
-    return offer.statusOffer.toLowerCase() === sentStatusTab.toLowerCase()
+    return offer.status.toLowerCase() === sentStatusTab.toLowerCase()
   })
 
   const filteredReceivedOffers = receivedOffers.filter((offer) => {
     if (receivedStatusTab === "all") return true
-    return offer.statusOffer.toLowerCase() === receivedStatusTab.toLowerCase()
+    return offer.status.toLowerCase() === receivedStatusTab.toLowerCase()
   })
 
   const getStatusIcon = (status: string) => {
-    switch (status.toUpperCase()) {
-      case "PENDING":
+    switch (status) {
+      case "pending":
         return <Clock className="h-4 w-4 text-yellow-500" />
-      case "ACCEPTED":
+      case "accepted":
         return <CheckCircle className="h-4 w-4 text-green-500" />
-      case "REJECTED":
+      case "rejected":
         return <XCircle className="h-4 w-4 text-red-500" />
       default:
         return null
@@ -90,8 +89,8 @@ export default function MyOffersPage() {
                         <div className="flex justify-between items-start">
                           <CardTitle className="text-lg">Publication {offer.publicationId}</CardTitle>
                           <Badge className="flex items-center gap-1">
-                            {getStatusIcon(offer.statusOffer)}
-                            {offer.statusOffer}
+                            {getStatusIcon(offer.status)}
+                            {offer.status}
                           </Badge>
                         </div>
                       </CardHeader>
@@ -107,7 +106,7 @@ export default function MyOffersPage() {
                             {offer.moneyOffer}
                           </div>
                         )}
-                        {offer.cardExchangeIds.length > 0 && (
+                        {offer.cardExchangeIds && offer.cardExchangeIds.length > 0 && (
                           <div className="mt-2">
                             <span className="text-xs text-muted-foreground">
                               Cards offered: {offer.cardExchangeIds.length}
@@ -170,8 +169,8 @@ export default function MyOffersPage() {
                         <div className="flex justify-between items-start">
                           <CardTitle className="text-lg">Publication {offer.publicationId}</CardTitle>
                           <Badge className="flex items-center gap-1">
-                            {getStatusIcon(offer.statusOffer)}
-                            {offer.statusOffer}
+                            {getStatusIcon(offer.status)}
+                            {offer.status}
                           </Badge>
                         </div>
                       </CardHeader>
@@ -189,7 +188,7 @@ export default function MyOffersPage() {
                               {offer.moneyOffer}
                             </div>
                           )}
-                          {offer.cardExchangeIds.length > 0 && (
+                          {offer.cardExchangeIds && offer.cardExchangeIds.length > 0 && (
                             <p className="text-xs">Cards offered: {offer.cardExchangeIds.length}</p>
                           )}
                         </div>
@@ -199,9 +198,9 @@ export default function MyOffersPage() {
                           variant="outline"
                           size="sm"
                           className="w-full"
-                          onClick={() => router.push(`/publications/${offer.publicationId}`)}
+                          onClick={() => router.push(`/offers/${offer.id}`)}
                         >
-                          View Publication
+                          View Offer
                         </Button>
                       </CardFooter>
                     </Card>

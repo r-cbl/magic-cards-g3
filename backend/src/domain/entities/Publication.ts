@@ -4,7 +4,7 @@ import { Offer } from "./Offer";
 import { CardBase } from "./CardBase";
 import { Ownable } from "./Ownable";
 import { StatusPublication } from "./StatusPublication";
-import { StatusOffer } from "./StatusOffer";
+import { status } from "./status";
 import { publicationRepository } from "../../infrastructure/repositories/Container";
 
 export interface PublicationProps {
@@ -64,7 +64,7 @@ export class Publication extends Ownable {
         const rejectedOffers: Offer[] = [];
 
         this.offersExisting
-            .filter(offer => offer.getStatusOffer() === StatusOffer.PENDING)
+            .filter(offer => offer.getstatus() === status.PENDING)
             .forEach(offer => {
                 offer.rejectOffer();
                 rejectedOffers.push(offer);
