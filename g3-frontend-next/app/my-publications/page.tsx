@@ -11,7 +11,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { fetchUserPublications } from "@/lib/publicationsSlice"
+import { fetchPublications } from "@/lib/publicationsSlice"
 import type { PublicationResponseDTO } from "@/types/publication"
 import type { OfferResponseDTO } from "@/types/offer"
 import type { RootState } from "@/lib/store"
@@ -20,23 +20,18 @@ import { DollarSign, Clock, CheckCircle, XCircle } from "lucide-react"
 export default function MyPublicationsPage() {
   const router = useRouter()
   const dispatch = useAppDispatch()
-  const { userPublications, isLoading, error } = useAppSelector(
+  const { publications, isLoading, error } = useAppSelector(
     (state: RootState) => state.publications
   )
   const { currentUser } = useAppSelector((state: RootState) => state.user)
   const [activeTab, setActiveTab] = useState("all")
 
   useEffect(() => {
-    // Check if user is logged in
-    if (!currentUser) {
-      router.push("/login")
-      return
-    }
 
-    dispatch(fetchUserPublications(currentUser.id))
+    dispatch(fetchPublications())
   }, [dispatch, currentUser, router])
 
-  const filteredPublications = userPublications.filter((pub: PublicationResponseDTO) => {
+  const filteredPublications = publications.filter((pub: PublicationResponseDTO) => {
     if (activeTab === "all") return true
     if (activeTab === "with-offers") return pub.offers.length > 0
     if (activeTab === "no-offers") return pub.offers.length === 0

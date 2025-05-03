@@ -29,3 +29,15 @@ export interface UpdateOfferDTO {
   moneyOffer?: number
   statusOffer?: OfferStatus
 }
+
+export interface OfferFilterDTO {
+  ownerId?: string;
+  publicationId?: string;
+  cardId?: string;
+  userId?: string;
+  status?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  limit?: number;
+  offset?: number;
+}

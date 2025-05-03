@@ -18,7 +18,7 @@ export default function PublicationsPage() {
   const dispatch = useAppDispatch()
   const { publications, isLoading, error } = useAppSelector((state) => state.publications)
   const { currentUser } = useAppSelector((state) => state.user)
-  const games = useAppSelector((state) => state.cards.games)
+  const games = useAppSelector((state) => state.game)
 
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedGame, setSelectedGame] = useState<string>("")
@@ -79,7 +79,7 @@ export default function PublicationsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Games</SelectItem>
-            {games.map((game) => (
+            {games.games.map((game) => (
               <SelectItem key={game.id} value={game.id}>
                 {game.name}
               </SelectItem>

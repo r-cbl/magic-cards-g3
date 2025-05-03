@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { fetchUserOffers, fetchReceivedOffers } from "@/lib/offersSlice"
+import { fetchOffers} from "@/lib/offersSlice"
 import { OfferStatus } from "@/types/offer"
 import { DollarSign, Clock, CheckCircle, XCircle } from "lucide-react"
 
@@ -27,8 +27,8 @@ export default function MyOffersPage() {
       router.push("/login")
       return
     }
-    dispatch(fetchUserOffers(currentUser.id))
-    dispatch(fetchReceivedOffers(currentUser.id))
+    dispatch(fetchOffers())
+    dispatch(fetchOffers())
   }, [dispatch, currentUser, router])
 
   const filteredSentOffers = userOffers.filter((offer) => {

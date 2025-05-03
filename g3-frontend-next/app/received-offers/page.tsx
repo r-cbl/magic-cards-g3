@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { fetchReceivedOffers } from "@/lib/offersSlice"
-import type { OfferStatus } from "@/types/offer"
+import { fetchOffers } from "@/lib/offersSlice"
+import { OfferStatus } from "@/types/offer"
 import { DollarSign, Clock, CheckCircle, XCircle } from "lucide-react"
 
 export default function ReceivedOffersPage() {
@@ -24,7 +24,7 @@ export default function ReceivedOffersPage() {
       router.push("/login")
       return
     }
-    dispatch(fetchReceivedOffers(currentUser.id))
+    dispatch(fetchOffers())
   }, [dispatch, currentUser, router])
 
   const filteredOffers = receivedOffers.filter((offer) => {
@@ -47,8 +47,6 @@ export default function ReceivedOffersPage() {
         return null
     }
   }
-
-  // handleAcceptOffer and handleRejectOffer would dispatch a thunk to update offer status
 
   return (
     <div className="space-y-6">
