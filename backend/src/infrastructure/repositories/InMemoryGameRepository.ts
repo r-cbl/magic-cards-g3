@@ -1,4 +1,5 @@
 import { PaginationDTO, PaginatedResponseDTO } from "@/application/dtos/PaginationDTO";
+import {GameFilterDTO} from "../../application/dtos/GameDTO";
 import { Game } from "../../domain/entities/Game";
 import { GameRepository } from "../../domain/repositories/GameRepository";
 
@@ -36,17 +37,17 @@ export class InMemoryGameRepository implements GameRepository {
         return [...this.games];
     }
 
-    async find(filters: String | undefined): Promise<Game[]>{
+    async find(filters: GameFilterDTO): Promise<Game[]>{
         return this.games.filter(game => {
             const gameName = game.getName().toLocaleLowerCase();
 
             return (
-                (!filters ||  gameName.includes(filters.toLocaleLowerCase()))
+                (!filters.name ||  gameName.includes(filters.name.toLocaleLowerCase()))
             );
         });
     }
 
-    async findPaginated(filters: PaginationDTO<String | undefined>): Promise<PaginatedResponseDTO<Game>> {
+    async findPaginated(filters: PaginationDTO<GameFilterDTO>): Promise<PaginatedResponseDTO<Game>> {
         const filter = await this.find(filters.data);
         const limit = filters.limit || 10;
         const offset = filters.offset || 0;
