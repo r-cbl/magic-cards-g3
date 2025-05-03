@@ -100,7 +100,7 @@ export default function PublicationsPage() {
                 <div className="aspect-video relative bg-muted">
                   <Link href={`/publications/${publication.id}`}>
                     <img
-                      src={publication.imageUrl}
+                      src={publication.card.urlImage}
                       alt={publication.name}
                       className="rounded-lg object-cover group-hover:opacity-50 transition-opacity"
                       height="200"

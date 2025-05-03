@@ -22,6 +22,7 @@ export const publicationService = {
     if (filters.limit !== undefined) queryParams.append("limit", filters.limit.toString())
     if (filters.offset !== undefined) queryParams.append("offset", filters.offset.toString())
 
+    queryParams.append("status", "Open")
     const queryString = queryParams.toString()
     const endpoint = queryString ? `/publications?${queryString}` : "/publications"
 

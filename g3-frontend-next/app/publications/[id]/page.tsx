@@ -113,7 +113,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
           <Card className="w-full max-w-[300px] overflow-hidden">
             <div className="aspect-[2/3] relative">
               <img
-                src={publication.imageUrl || "/placeholder.svg"}
+                src={publication.card.urlImage || "/placeholder.svg"}
                 alt={publication.cardBase.Name}
                 className="object-cover w-full h-full"
               />
