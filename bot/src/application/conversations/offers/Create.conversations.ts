@@ -6,8 +6,8 @@ import { selectGameConversation } from "../games/SelectGame.conversations";
 import { selectBaseCardConversation } from "../baseCards/SelectBaseCard.conversations";
 import { selectPublicationConversation } from "../publications/Select.conversations";
 import { selectCardConversation } from "../cards/SelectCard.conversations";
-import { OffersClient } from "../../../client/offers/offers.client";
 import { InlineKeyboard } from "grammy";
+import { offersClient } from "../../../client/client";
 
 export async function createOfferConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -16,7 +16,6 @@ export async function createOfferConversation(
   const userId = ctx.from!.id.toString();
   const user = session.get(userId)!;
   const token = user.tokens.accessToken;
-  const offersClient = new OffersClient();
 
   try {
     let selectedGameId: string[] = [];

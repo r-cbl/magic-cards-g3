@@ -3,8 +3,8 @@ import { BotContext } from "../../../types/botContext";
 import { handleError } from "../../../types/errors";
 import { GetRequest } from "../../../client/games/request/get.request";
 import { GameResponse } from "../../../client/games/response/game.response";
-import { GamesClient } from "../../../client/games/games.client";
 import { Keyboard } from "../utils/keyboard.utils";
+import { gamesClient } from "../../../client/client";
 
 export async function selectGameConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -15,13 +15,12 @@ export async function selectGameConversation(
   enableNone: boolean
 ): Promise<GameResponse | null> {
   try {
-    const gameClinet = new GamesClient();
     let id: string;
     let name: string;
     let offset = 0;
     let messageId: number | undefined;
     const keyboardGeneric = new Keyboard<GetRequest,GameResponse>(
-      gameClinet,
+      gamesClient,
       token,
       request,
       10,

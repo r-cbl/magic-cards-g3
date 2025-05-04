@@ -4,7 +4,7 @@ import { OfferResponse } from "../../../client/offers/response/offer.response";
 import { handleError } from "../../../types/errors";
 import { Keyboard } from "../utils/keyboard.utils";
 import { GetRequest } from "../../../client/offers/request/get.request";
-import { OffersClient } from "../../../client/offers/offers.client";
+import { offersClient } from "../../../client/client";
 
 export async function selectOfferConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -14,12 +14,11 @@ export async function selectOfferConversation(
   enableNone: boolean
 ): Promise<OfferResponse | null> {
   try {
-    const offerClient = new OffersClient();
     let offset = 0;
     let messageId: number | undefined;
 
     const keyboardGeneric = new Keyboard<GetRequest, OfferResponse>(
-      offerClient,
+      offersClient,
       token,
       request,
       10,

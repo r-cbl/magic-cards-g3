@@ -4,7 +4,7 @@ import { BotContext } from "../../../types/botContext";
 import { GetRequest } from "../../../client/publications/request/get.request";
 import { PublicationResponse } from "../../../client/publications/response/publication.response";
 import { PaginationUtils } from "../utils/pagination.utils";
-import { PublicationsClient } from "../../../client/publications/publications.client";
+import { publicationsClient } from "../../../client/client";
 
 export async function getAllPublicationsConversation(
     ctx: BotContext
@@ -13,7 +13,6 @@ export async function getAllPublicationsConversation(
     const user = session.get(userId)!;
     const ownerId = user.user.id;
     const token = user.tokens.accessToken;
-    const publicationsClient = new PublicationsClient();
     try{
         const publicationPaginator = new PaginationUtils<GetRequest, PublicationResponse>(
             publicationsClient,

@@ -4,7 +4,7 @@ import { handleError } from "../../../types/errors"; // asegúrate de tener esta
 import { BaseCardResponse } from "../../../client/baseCards/response/baseCard.response";
 import { Keyboard } from "../utils/keyboard.utils";
 import { GetRequest } from "../../../client/baseCards/request/get.request";
-import { BaseCardsClient } from "../../../client/baseCards/baseCard.client";
+import { baseCardsClient } from "../../../client/client";
 
 export async function selectBaseCardConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -15,13 +15,12 @@ export async function selectBaseCardConversation(
   enableNone: boolean
 ): Promise<BaseCardResponse | null> {
   try {
-    const baseCardClient = new BaseCardsClient();
     let id: string;
     let name: string;
     let offset = 0;
     let messageId: number | undefined;
     const keyboardGeneric = new Keyboard<GetRequest,BaseCardResponse>(
-      baseCardClient,
+      baseCardsClient,
       token,
       request,
       10,

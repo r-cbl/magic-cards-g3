@@ -1,13 +1,11 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { CardsClient } from "../../../client/cards/cards.client";
 import { session } from "../../../bot/middleware";
 import { CreateRequest as CreateRequestCards } from "../../../client/cards/request/create.request";
 import { selectGameConversation } from "../games/SelectGame.conversations";
 import { selectBaseCardConversation } from "../baseCards/SelectBaseCard.conversations";
 import { handleError } from "../../../types/errors";
-import { BaseCardsClient } from "../../../client/baseCards/baseCard.client";
-import { GamesClient } from "../../../client/games/games.client";
+import { baseCardsClient, cardsClient, gamesClient } from "../../../client/client";
 
 export async function createCardConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -16,9 +14,6 @@ export async function createCardConversation(
   const userId = ctx.from!.id.toString();
   const user = session.get(userId)!;
   const token = user.tokens.accessToken;
-  const cardsClient = new CardsClient();
-  const baseCardClient = new BaseCardsClient();
-  const gameClient = new GamesClient();
 
   try {
 
@@ -63,11 +58,11 @@ export async function createCardConversation(
 
     const fileUrl = "www";
     if(game.id === "0"){
-      const newGame = await gameClient.create({name: game.name},token)
+      const newGame = await gamesClient.create({name: game.name},token)
       game.id = newGame.id
     }
     if (baseCard.id === "0"){
-      const newBaseCard = await baseCardClient.create({nameCard:baseCard.nameCard, gameId:game.id},token);
+      const newBaseCard = await baseCardsClient.create({nameCard:baseCard.nameCard, gameId:game.id},token);
       baseCard.id = newBaseCard.id;
     }
     const request: CreateRequestCards = {

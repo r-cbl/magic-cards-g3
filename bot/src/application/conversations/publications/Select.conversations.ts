@@ -3,8 +3,8 @@ import { BotContext } from "../../../types/botContext";
 import { handleError } from "../../../types/errors";
 import { PublicationResponse } from "../../../client/publications/response/publication.response";
 import { Keyboard } from "../utils/keyboard.utils";
-import { PublicationsClient } from "../../../client/publications/publications.client";
 import { GetRequest } from "../../../client/publications/request/get.request";
+import { publicationsClient } from "../../../client/client";
 
 export async function selectPublicationConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -15,7 +15,6 @@ export async function selectPublicationConversation(
   enableNone: boolean
 ): Promise<PublicationResponse | null> {
   try {
-    const publicationsClient = new PublicationsClient();
     let id: string;
     let name: string;
     let offset = 0;

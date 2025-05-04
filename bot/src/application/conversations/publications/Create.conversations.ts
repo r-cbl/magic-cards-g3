@@ -1,11 +1,11 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { PublicationsClient } from "../../../client/publications/publications.client";
 import { session } from "../../../bot/middleware";
 import { handleError } from "../../../types/errors";
 import { selectBaseCardConversation } from "../baseCards/SelectBaseCard.conversations";
 import { InlineKeyboard } from "grammy";
 import { selectCardConversation } from "../cards/SelectCard.conversations";
+import { publicationsClient } from "../../../client/client";
 
 export async function createPublicationConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -15,7 +15,6 @@ export async function createPublicationConversation(
   const user = session.get(userId)!;
   const token = user.tokens.accessToken;
 
-  const publicationsClient = new PublicationsClient();
 
   try {
     // 1. Select a card to publish

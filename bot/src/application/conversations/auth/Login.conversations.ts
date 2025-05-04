@@ -1,14 +1,13 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { AuthClient } from "../../../client/auth/auth.client";
 import { session } from "../../../bot/middleware";
 import { handleError } from "../../../types/errors";
+import { authClient } from "../../../client/client";
 
 export async function loginConversation(
   conversation: Conversation<BotContext, BotContext>,
   ctx: BotContext
 ) {
-  const authClient = new AuthClient();
   const userId = ctx.from!.id.toString();
 
   try {

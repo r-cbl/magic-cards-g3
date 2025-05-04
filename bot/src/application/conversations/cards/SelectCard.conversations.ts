@@ -4,7 +4,7 @@ import { CardResponse } from "../../../client/cards/response/card.response";
 import { handleError } from "../../../types/errors";
 import { Keyboard } from "../utils/keyboard.utils";
 import { GetRequest } from "../../../client/cards/request/get.request";
-import { CardsClient } from "../../../client/cards/cards.client";
+import { cardsClient } from "../../../client/client";
 
 export async function selectCardConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -15,13 +15,12 @@ export async function selectCardConversation(
   enableNone: boolean
 ): Promise<CardResponse | null> {
   try {
-    const cardCient = new CardsClient();
     let id: string;
     let name: string;
     let offset = 0;
     let messageId: number | undefined;
     const keyboardGeneric = new Keyboard<GetRequest,CardResponse>(
-      cardCient,
+      cardsClient,
       token,
       request,
       10,
