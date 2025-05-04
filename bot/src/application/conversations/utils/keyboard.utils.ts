@@ -7,6 +7,7 @@ export class Keyboard< R extends { limit?: number; offset?: number },T extends {
     private baseRequest: Omit<R, "limit" | "offset">,
     private limit: number = 10,
     private enableOther: boolean = true,
+    private enableNone: boolean = false,
     private getLabel: (item: T) => string
   ) {}
 
@@ -21,11 +22,11 @@ export class Keyboard< R extends { limit?: number; offset?: number },T extends {
   }
 
   public buildKeyboard(resp: PaginatedResponse<T>): InlineKeyboard {
-    console.log(resp.data)
+    //console.log(resp.data)
     const kb = new InlineKeyboard();
     const items = resp.data ?? [];
   
-    if (items.length === 0 && !this.enableOther) {
+    if (items.length === 0 && !this.enableOther && !this.enableNone) {
       return kb;
     }
   
@@ -46,9 +47,12 @@ export class Keyboard< R extends { limit?: number; offset?: number },T extends {
         }
       }
     }
-  
     if (this.enableOther) {
       kb.row().text("➕ Other", "other");
+    }
+
+    if (this.enableNone) {
+      kb.row().text("🛑 None", "none");
     }
   
     return kb;

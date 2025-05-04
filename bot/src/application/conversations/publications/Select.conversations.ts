@@ -12,27 +12,28 @@ export async function selectPublicationConversation(
   token: string,
   request: GetRequest,
   enableOther: boolean,
-): Promise<PublicationResponse | { id: string; name: string } | null> {
-
+  enableNone: boolean
+): Promise<PublicationResponse | null> {
   try {
     const publicationsClient = new PublicationsClient();
     let id: string;
     let name: string;
     let offset = 0;
     let messageId: number | undefined;
-    const keyboardGeneric = new Keyboard<GetRequest,PublicationResponse>(
+
+    const keyboardGeneric = new Keyboard<GetRequest, PublicationResponse>(
       publicationsClient,
       token,
       request,
       10,
       enableOther,
-      (publication) => publication.cardBase.Name || "Unnamed card"
+      enableNone,
+      (publication) => publication.cardBase?.Name || "Unnamed card"
     );
 
     let resp = await keyboardGeneric.fetchPage(offset);
 
     while (true) {
-
       if (!resp.data || resp.data.length === 0) {
         await ctx.reply("❌ You don't have any publications to select.");
         return null;
@@ -52,6 +53,7 @@ export async function selectPublicationConversation(
             "description" in err &&
             (err as any).description?.includes("message is not modified")
           ) {
+            // do nothing
           } else {
             throw err;
           }
@@ -82,7 +84,11 @@ export async function selectPublicationConversation(
         const nameCtx = await conversation.waitFor("message:text");
         name = nameCtx.message.text;
         id = "0";
-        return { id, name };
+        return { id, name } as PublicationResponse;
+      }
+
+      if (enableNone && data === "none") {
+        return { id: "none", name: "none" } as PublicationResponse;
       }
     }
   } catch (error) {
@@ -91,4 +97,3 @@ export async function selectPublicationConversation(
     return null;
   }
 }
-

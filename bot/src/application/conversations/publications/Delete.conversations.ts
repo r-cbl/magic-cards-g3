@@ -24,9 +24,10 @@ export async function deletePublicationConversation(
       offset: 0
     };
 
-    const selected = await selectPublicationConversation(conversation, ctx, token, request, false);
+    const selected = await selectPublicationConversation(conversation, ctx, token, request, false,true);
 
-    if (!selected || !("id" in selected)) {
+    if (!selected || !("id" in selected) || selected.id === "none") {
+      await ctx.reply("❌ Cancel Operation.");
       return;
     }
 

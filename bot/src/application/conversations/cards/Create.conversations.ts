@@ -22,7 +22,7 @@ export async function createCardConversation(
 
   try {
 
-    let game = await selectGameConversation(conversation,ctx,token,{limit:10,offset:0},true)
+    let game = await selectGameConversation(conversation,ctx,token,{limit:10,offset:0},true,false)
     if (!game){
       conversation.halt()
       return;

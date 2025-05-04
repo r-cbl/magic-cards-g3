@@ -121,7 +121,7 @@ export abstract class BaseApiClient {
       const value = params[key];
   
       if (value === undefined || value === null) {
-        continue; // Ignorar valores nulos o undefined
+        continue;
       }
   
       if (Array.isArray(value)) {

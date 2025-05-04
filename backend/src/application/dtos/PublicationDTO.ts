@@ -41,6 +41,7 @@ export interface CreatePublicationDTO {
     gamesIds?: string[];
     cardBaseIds?: string[];
     ownerId?: string;
+    excludeId?: string;
     minValue?: number;
     maxValue?: number;
     limit?: number;

@@ -26,15 +26,13 @@ export async function selectBaseCardConversation(
       request,
       10,
       enableOther,
+      enableNone,
       (baseCard) => baseCard.nameCard || "Unnamed base card"
     );
     let resp = await keyboardGeneric.fetchPage(offset);
 
     while (true) {
       const keyboard = keyboardGeneric.buildKeyboard(resp);
-      if (enableNone) {
-        keyboard.row().text("🛑 None", "none");
-      }
 
       if (!messageId) {
         const msg = await ctx.reply("📚 Select a base card:", { reply_markup: keyboard });

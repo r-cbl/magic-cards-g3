@@ -19,7 +19,7 @@ export async function getAllPublicationsConversation(
             publicationsClient,
             "Publications: ",
                 publication => 
-                    `🃏 ${publication.cardBase.Name}` +
+                    `🃏 ${publication.cardBase!.Name}` +
                     (publication.valueMoney != null ? ` - 💰 Value: $${publication.valueMoney}` : "") +
                     (publication.cardExchangeIds?.length ? ` - 🔄 Exchanges: ${publication.cardExchangeIds.length}` : ""),
             token,

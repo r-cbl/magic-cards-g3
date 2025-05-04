@@ -6,6 +6,7 @@ export interface GetRequest {
     ownerId?: string;
     minValue?: number;
     maxValue?: number;
+    excludeId?: string;
     limit:number;
     offset:number;
   }

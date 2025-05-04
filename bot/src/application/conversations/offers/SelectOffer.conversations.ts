@@ -1,33 +1,32 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
+import { OfferResponse } from "../../../client/offers/response/offer.response";
 import { handleError } from "../../../types/errors";
-import { GetRequest } from "../../../client/games/request/get.request";
-import { GameResponse } from "../../../client/games/response/game.response";
-import { GamesClient } from "../../../client/games/games.client";
 import { Keyboard } from "../utils/keyboard.utils";
+import { GetRequest } from "../../../client/offers/request/get.request";
+import { OffersClient } from "../../../client/offers/offers.client";
 
-export async function selectGameConversation(
+export async function selectOfferConversation(
   conversation: Conversation<BotContext, BotContext>,
   ctx: BotContext,
   token: string,
   request: GetRequest,
-  enableOther: boolean,
   enableNone: boolean
-): Promise<GameResponse | null> {
+): Promise<OfferResponse | null> {
   try {
-    const gameClinet = new GamesClient();
-    let id: string;
-    let name: string;
+    const offerClient = new OffersClient();
     let offset = 0;
     let messageId: number | undefined;
-    const keyboardGeneric = new Keyboard<GetRequest,GameResponse>(
-      gameClinet,
+
+    const keyboardGeneric = new Keyboard<GetRequest, OfferResponse>(
+      offerClient,
       token,
       request,
       10,
-      enableOther,
+      false,
       enableNone,
-      (game) => game.name || "Unnamed game"
+      (offer) =>
+        `💰 $${offer.moneyOffer ?? 0} | 📅 ${new Date(offer.createdAt).toLocaleDateString()}`
     );
 
     let resp = await keyboardGeneric.fetchPage(offset);
@@ -36,17 +35,20 @@ export async function selectGameConversation(
       const keyboard = keyboardGeneric.buildKeyboard(resp);
 
       if (!messageId) {
-        const sent = await ctx.reply("📚 Select a game:", { reply_markup: keyboard });
-        messageId = sent.message_id;
+        const msg = await ctx.reply("📨 Select an offer:", { reply_markup: keyboard });
+        messageId = msg.message_id;
       } else {
         try {
-          await ctx.api.editMessageReplyMarkup(ctx.chat!.id, messageId, { reply_markup: keyboard });
+          await ctx.api.editMessageReplyMarkup(ctx.chat!.id, messageId, {
+            reply_markup: keyboard,
+          });
         } catch (err: any) {
           if (
             err instanceof Error &&
             "description" in err &&
             (err as any).description?.includes("message is not modified")
           ) {
+            // do nothing
           } else {
             throw err;
           }
@@ -63,9 +65,7 @@ export async function selectGameConversation(
       const data = ctx.callbackQuery?.data!;
       if (data.startsWith("select|")) {
         const index = Number(data.split("|")[1]);
-        id = resp.data[index].id;
-        name = resp.data[index].name;
-        return { id, name };
+        return resp.data[index];
       }
 
       if (data.startsWith("nav|")) {
@@ -73,15 +73,8 @@ export async function selectGameConversation(
         continue;
       }
 
-      if (data === "other") {
-        await ctx.reply("🆕 Enter the name of the new game:");
-        const nameCtx = await conversation.waitFor("message:text");
-        name = nameCtx.message.text;
-        id = "0";
-        return { id, name };
-      }
-      if (data === "none" && enableNone){
-        return {id: "none", name:"none"};
+      if (data === "none" && enableNone) {
+        return { id: "none", publicationId: "", status: "none", ownerId: "", createdAt: new Date(), updatedAt: new Date() };
       }
     }
   } catch (error) {

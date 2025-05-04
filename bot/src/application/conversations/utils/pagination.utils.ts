@@ -29,7 +29,7 @@ export class PaginationUtils<Req extends { limit?: number; offset?: number }, T>
     } as Req;
 
     const response = await this.apiClient.getAll(request, this.token);
-    console.log("fetchPage response:", response);
+    //console.log("fetchPage response:", response);
     return response;
   }
 

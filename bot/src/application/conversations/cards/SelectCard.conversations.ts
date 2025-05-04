@@ -11,7 +11,8 @@ export async function selectCardConversation(
   ctx: BotContext,
   token: string,
   request: GetRequest,
-  enableOther: boolean
+  enableOther: boolean,
+  enableNone: boolean
 ): Promise<CardResponse | null> {
   try {
     const cardCient = new CardsClient();
@@ -25,6 +26,7 @@ export async function selectCardConversation(
       request,
       10,
       enableOther,
+      enableNone,
       (card) => card.cardBase?.Name || "Unnamed card"
     );
     const resp = await keyboardGeneric.fetchPage(offset);
@@ -76,6 +78,10 @@ export async function selectCardConversation(
         name = nameCtx.message.text;
         id = "0";
         return {id: id, cardBase:{Name:name}};
+      }
+      if (data === "none" && enableNone){
+        return {id: "none", cardBase:{Name:"none"}};
+
       }
     }
   } catch (error) {
