@@ -1,33 +1,45 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { PublicationKeyboard } from "./publication.keyboard";
 import { handleError } from "../../../types/errors";
 import { PublicationResponse } from "../../../client/publications/response/publication.response";
+import { Keyboard } from "../utils/keyboard.utils";
+import { PublicationsClient } from "../../../client/publications/publications.client";
+import { GetRequest } from "../../../client/publications/request/get.request";
 
 export async function selectPublicationConversation(
   conversation: Conversation<BotContext, BotContext>,
   ctx: BotContext,
   token: string,
-  ownerId: string,
-  enableOther: boolean
+  request: GetRequest,
+  enableOther: boolean,
 ): Promise<PublicationResponse | { id: string; name: string } | null> {
+
   try {
-    const publicationKeyboard = new PublicationKeyboard(token, 10, enableOther);
+    const publicationsClient = new PublicationsClient();
     let id: string;
     let name: string;
     let offset = 0;
     let messageId: number | undefined;
+    const keyboardGeneric = new Keyboard<GetRequest,PublicationResponse>(
+      publicationsClient,
+      token,
+      request,
+      10,
+      enableOther,
+      (publication) => publication.cardBase.Name || "Unnamed card"
+    );
+
+    let resp = await keyboardGeneric.fetchPage(offset);
 
     while (true) {
-      const resp = await publicationKeyboard.fetchPage(offset, ownerId);
 
       if (!resp.data || resp.data.length === 0) {
         await ctx.reply("❌ You don't have any publications to select.");
         return null;
       }
-      
-      const keyboard = publicationKeyboard.buildKeyboard(resp);
-      
+
+      const keyboard = keyboardGeneric.buildKeyboard(resp);
+
       if (!messageId) {
         const sent = await ctx.reply("📚 Select a publication:", { reply_markup: keyboard });
         messageId = sent.message_id;
@@ -40,7 +52,6 @@ export async function selectPublicationConversation(
             "description" in err &&
             (err as any).description?.includes("message is not modified")
           ) {
-            // ignore harmless error
           } else {
             throw err;
           }
@@ -62,6 +73,7 @@ export async function selectPublicationConversation(
 
       if (data.startsWith("nav|")) {
         offset = Number(data.split("|")[1]);
+        resp = await keyboardGeneric.fetchPage(offset);
         continue;
       }
 
@@ -74,7 +86,9 @@ export async function selectPublicationConversation(
       }
     }
   } catch (error) {
+    console.error("🔥 [selectPublicationConversation] Error:", error);
     await handleError(ctx, error);
     return null;
   }
 }
+

@@ -2,7 +2,6 @@ import { handleError } from "../../../types/errors";
 import { session } from "../../../bot/middleware";
 import { CardsClient } from "../../../client/cards/cards.client";
 import { BotContext } from "../../../types/botContext";
-import { Conversation } from "@grammyjs/conversations";
 import { GetRequest } from "../../../client/cards/request/get.request";
 import { CardResponse } from "../../../client/cards/response/card.response";
 import { PaginationUtils } from "../utils/pagination.utils";
@@ -19,7 +18,7 @@ export async function getAllCardConversation(
         const cardsPaginator = new PaginationUtils<GetRequest, CardResponse>(
             cardsClient,
             "Cards: ",
-            card => `🃏 ${card.cardBase.Name} - 🎮 ${card.game.Name}`,
+            card => `🃏 ${card.cardBase!.Name} - 🎮 ${card.game!.Name}`,
             token,
             {ownerId},
             10,

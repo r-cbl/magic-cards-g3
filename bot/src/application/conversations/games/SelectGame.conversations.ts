@@ -1,23 +1,37 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { GameKeyboard } from "./game.keyboard";
 import { handleError } from "../../../types/errors";
+import { GetRequest } from "../../../client/games/request/get.request";
+import { GameResponse } from "../../../client/games/response/game.response";
+import { GamesClient } from "../../../client/games/games.client";
+import { Keyboard } from "../utils/keyboard.utils";
 
 export async function selectGameConversation(
   conversation: Conversation<BotContext, BotContext>,
   ctx: BotContext,
-  token: string
-): Promise<{ id: string; name: string } | null> {
+  token: string,
+  request: GetRequest,
+  enableOther: boolean
+): Promise<GameResponse | null> {
   try {
-    const gameKeyboard = new GameKeyboard(token, 10, true);
+    const gameClinet = new GamesClient();
     let id: string;
     let name: string;
     let offset = 0;
     let messageId: number | undefined;
+    const keyboardGeneric = new Keyboard<GetRequest,GameResponse>(
+      gameClinet,
+      token,
+      request,
+      10,
+      enableOther,
+      (game) => game.name || "Unnamed game"
+    );
+
+    let resp = await keyboardGeneric.fetchPage(offset);
 
     while (true) {
-      const resp = await gameKeyboard.fetchPage(offset);
-      const keyboard = gameKeyboard.buildKeyboard(resp);
+      const keyboard = keyboardGeneric.buildKeyboard(resp);
 
       if (!messageId) {
         const sent = await ctx.reply("📚 Select a game:", { reply_markup: keyboard });
@@ -31,7 +45,6 @@ export async function selectGameConversation(
             "description" in err &&
             (err as any).description?.includes("message is not modified")
           ) {
-            // ignore harmless error
           } else {
             throw err;
           }

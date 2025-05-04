@@ -1,12 +1,12 @@
 export interface BaseCardResponse {
     id: string;
-    game: {
+    game?: {
         id: string;
         name: string;
         createdAt: Date;
         updatedAt: Date;
     };
     nameCard: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
 }

@@ -1,36 +1,36 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { CardKeyboard } from "./card.keyboard";
 import { CardResponse } from "../../../client/cards/response/card.response";
 import { handleError } from "../../../types/errors";
-import { InlineKeyboard } from "grammy";
+import { Keyboard } from "../utils/keyboard.utils";
+import { GetRequest } from "../../../client/cards/request/get.request";
+import { CardsClient } from "../../../client/cards/cards.client";
 
 export async function selectCardConversation(
   conversation: Conversation<BotContext, BotContext>,
   ctx: BotContext,
   token: string,
-  ownerId: string,
+  request: GetRequest,
   enableOther: boolean
-): Promise<CardResponse | { id: string; name: string } | null> {
+): Promise<CardResponse | null> {
   try {
-    const cardKeyboard = new CardKeyboard(token, 10, enableOther);
+    const cardCient = new CardsClient();
     let id: string;
     let name: string;
     let offset = 0;
     let messageId: number | undefined;
-
-    // const initialResp = await cardKeyboard.fetchPage(offset,ownerId);
-    // if (!initialResp.data || initialResp.data.length === 0) {
-    //   await ctx.reply("🆕 You don't have any cards. Please create one to continue.");
-    //   const cancelKb = new InlineKeyboard().text("🔙 Go back", "cancel");
-    //   await ctx.reply("Do you want to go back?", { reply_markup: cancelKb });
-    //   await conversation.halt();
-    //   return null;
-    // }
+    const keyboardGeneric = new Keyboard<GetRequest,CardResponse>(
+      cardCient,
+      token,
+      request,
+      10,
+      enableOther,
+      (card) => card.cardBase?.Name || "Unnamed card"
+    );
+    const resp = await keyboardGeneric.fetchPage(offset);
 
     while (true) {
-      const resp = await cardKeyboard.fetchPage(offset,ownerId);
-      const keyboard = cardKeyboard.buildKeyboard(resp);
+      const keyboard = keyboardGeneric.buildKeyboard(resp);
 
       if (!messageId) {
         const msg = await ctx.reply("📚 Select a card:", { reply_markup: keyboard });
@@ -46,7 +46,6 @@ export async function selectCardConversation(
             "description" in err &&
             (err as any).description?.includes("message is not modified")
           ) {
-            // Ignore harmless error
           } else {
             throw err;
           }
@@ -76,7 +75,7 @@ export async function selectCardConversation(
         const nameCtx = await conversation.waitFor("message:text");
         name = nameCtx.message.text;
         id = "0";
-        return { id, name };
+        return {id: id, cardBase:{Name:name}};
       }
     }
   } catch (error) {

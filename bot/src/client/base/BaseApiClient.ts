@@ -72,7 +72,7 @@ export abstract class BaseApiClient {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    console.log("url: ", url,"Method: ", method);
+    console.log("url: ", url,"Method: ", method,"Date: ",Date.now());
     return this.fetchWithErrorHandling<T>(
       url,
       {
@@ -102,7 +102,7 @@ export abstract class BaseApiClient {
       const queryString = new URLSearchParams(this.buildQueryParams(queryParams)).toString();
       url += `?${queryString}`;
     }
-    console.log("url: ", url, "Method: ", method);
+    console.log("url: ", url,"Method: ", method,"Date: ",Date.now());
     return this.fetchWithErrorHandling<T>(
       url,
       {

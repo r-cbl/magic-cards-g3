@@ -22,12 +22,12 @@ export async function createCardConversation(
 
   try {
 
-    let game = await selectGameConversation(conversation,ctx,token)
+    let game = await selectGameConversation(conversation,ctx,token,{limit:10,offset:0},true)
     if (!game){
       conversation.halt()
       return;
     }
-    let baseCard = await selectBaseCardConversation(conversation, ctx, token,true,false, game.id);
+    let baseCard = await selectBaseCardConversation(conversation, ctx, token,{limit:10,offset:0,gameId:game.id},true,false);
     if (!baseCard){
       conversation.halt()
       return;
@@ -67,7 +67,7 @@ export async function createCardConversation(
       game.id = newGame.id
     }
     if (baseCard.id === "0"){
-      const newBaseCard = await baseCardClient.create({nameCard:baseCard.name, gameId:game.id},token);
+      const newBaseCard = await baseCardClient.create({nameCard:baseCard.nameCard, gameId:game.id},token);
       baseCard.id = newBaseCard.id;
     }
     const request: CreateRequestCards = {
