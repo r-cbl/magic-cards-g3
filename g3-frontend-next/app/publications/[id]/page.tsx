@@ -23,15 +23,16 @@ import { CreateOfferDTO, OfferStatus } from "@/types/offer"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { fetchPublicationById } from "@/lib/publicationsSlice"
 import {createOffer} from "@/lib/offersSlice"
+import { fetchCards } from "@/lib/cardsSlice"
 
 export default function PublicationDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const dispatch = useAppDispatch()
+  const { cards } = useAppSelector((state) => state.cards)
   const { selectedPublication: publication, isLoading } = useAppSelector((state) => state.publications)
   const { currentUser } = useAppSelector((state) => state.user)
   const cardBases = useAppSelector((state) => state.baseCards)
   const [isOwner, setIsOwner] = useState(false)
-  const [userCards, setUserCards] = useState<CardResponseDTO[]>([])
   const [selectedCardExchanges, setSelectedCardExchanges] = useState<string[]>([])
   const [moneyOffer, setMoneyOffer] = useState<number>(0)
   const [offerDialogOpen, setOfferDialogOpen] = useState(false)
@@ -43,7 +44,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
       return
     }
     dispatch(fetchPublicationById(params.id))
-    // Fetch user's cards if needed for offers
+    dispatch(fetchCards())
   }, [dispatch, params, router])
 
   const handleCardExchangeToggle = (cardId: string) => {
@@ -251,8 +252,8 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                     <div className="grid gap-2">
                       <Label>Cards to offer:</Label>
                       <div className="border rounded-md p-3 max-h-[200px] overflow-y-auto">
-                        {userCards.length > 0 ? (
-                          userCards.map((card) => (
+                        {cards.length > 0 ? (
+                          cards.map((card) => (
                             <div key={card.id} className="flex items-center space-x-2 py-1">
                               <Checkbox
                                 id={card.id}
