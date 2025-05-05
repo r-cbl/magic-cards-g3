@@ -35,8 +35,9 @@ export class InMemoryPublicationRepository implements PublicationRepository {
             const valueMoney = pub.getValueMoney() ?? 0;
             const gameId = pub.getCard().getCardBase().getGame().getId();
             const cardBaseId = pub.getCard().getCardBase().getId();
-
+            const status = pub.getStatusPublication();
             return (
+                (!filters.status || status === filters.status) &&
                 (!filters.initialDate || createdAt >= filters.initialDate) &&
                 (!filters.endDate || createdAt <= filters.endDate) &&
                 (!filters.gamesIds || filters.gamesIds.includes(gameId)) &&

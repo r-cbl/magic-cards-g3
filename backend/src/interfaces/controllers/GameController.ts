@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { GameService } from '../../application/services/GameService';
-import { CreateGameDTO, UpdateGameDTO } from '../../application/dtos/GameDTO';
+import { CreateGameDTO, UpdateGameDTO, GameFilterDTO} from '../../application/dtos/GameDTO';
 import { PaginationDTO } from '@/application/dtos/PaginationDTO';
 
 export class GameController {
@@ -51,8 +51,12 @@ export class GameController {
 
   public async getAllGamesPaginated(req: Request, res: Response): Promise<void> {
     try {
-      const filters: PaginationDTO<String> = {
-        data: req.query.game ? (req.query.game as string) : "",
+      const GameFilterDTO = {
+        name: req.query.game ? (req.query.game as string) : ""
+      }
+
+      const filters: PaginationDTO<GameFilterDTO> = {
+        data: GameFilterDTO,
         limit: req.query.limit ? Number(req.query.limit) : undefined,
         offset: req.query.offset ? Number(req.query.offset) : undefined,
     };

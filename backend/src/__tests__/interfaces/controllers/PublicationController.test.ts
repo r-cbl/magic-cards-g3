@@ -82,6 +82,7 @@ describe('PublicationController', () => {
                     ownerName: 'Test User'
                 },
                 offers: [],
+                status: "Open",
                 createdAt: new Date()
             };
 
@@ -157,6 +158,7 @@ describe('PublicationController', () => {
                         ownerName: 'Owner 1'
                     },
                     offers: [],
+                    status: "Open",
                     createdAt: new Date()
                 }
             ];
@@ -213,6 +215,7 @@ describe('PublicationController', () => {
                     ownerId: 'owner1',
                     ownerName: 'Test Owner'
                 },
+                status:"Open",
                 offers: [],
                 createdAt: new Date()
             };
@@ -277,6 +280,7 @@ describe('PublicationController', () => {
                     ownerName: 'Test Owner'
                 },
                 offers: [],
+                status: "Open",
                 createdAt: new Date()
             };
 

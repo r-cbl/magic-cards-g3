@@ -1,6 +1,6 @@
 import { Game } from '../../domain/entities/Game';
 import { GameRepository } from '../../domain/repositories/GameRepository';
-import { CreateGameDTO, UpdateGameDTO, GameResponseDTO } from '../dtos/GameDTO';
+import { CreateGameDTO, UpdateGameDTO, GameResponseDTO, GameFilterDTO } from '../dtos/GameDTO';
 import { PaginatedResponseDTO, PaginationDTO } from '../dtos/PaginationDTO';
 
 export class GameService {
@@ -30,14 +30,14 @@ export class GameService {
     return games.map(game => this.toGameResponseDTO(game));
   }
 
-  public async getAllGamesPaginated(filters: PaginationDTO<String>): Promise<PaginatedResponseDTO<GameResponseDTO>> {
-    const paginatedCards = await this.gameRepository.findPaginated(filters);
+  public async getAllGamesPaginated(filters: PaginationDTO<GameFilterDTO>): Promise<PaginatedResponseDTO<GameResponseDTO>> {
+    const paginatedGames = await this.gameRepository.findPaginated(filters);
     return {
-        data: paginatedCards.data.map(game => this.toGameResponseDTO(game)),
-        total: paginatedCards.total,
-        limit: paginatedCards.limit,
-        offset: paginatedCards.offset,
-        hasMore: paginatedCards.hasMore
+        data: paginatedGames.data.map(game => this.toGameResponseDTO(game)),
+        total: paginatedGames.total,
+        limit: paginatedGames.limit,
+        offset: paginatedGames.offset,
+        hasMore: paginatedGames.hasMore
     };
 }
 
