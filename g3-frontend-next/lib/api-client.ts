@@ -5,19 +5,19 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
   const url = `${API_BASE_URL}${endpoint}`
 
   // Default headers
-  const headers = {
+  let headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   }
 
   // Get token from localStorage if available (client-side only)
   if (typeof window !== "undefined") {
-    const user = localStorage.getItem("user")
-    if (user) {
+    const token = localStorage.getItem("tokens")
+    if (token) {
       try {
-        const userData = JSON.parse(user)
-        if (userData.token) {
-          headers["Authorization"] = `Bearer ${userData.token}`
+        const tokenData = JSON.parse(token)
+        if (tokenData.accessToken) {
+          headers["Authorization"] = `Bearer ${tokenData.accessToken}`
         }
       } catch (e) {
         console.error("Failed to parse user data from localStorage")

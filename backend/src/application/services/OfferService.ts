@@ -8,6 +8,7 @@ import { StatusOffer } from "../../domain/entities/StatusOffer";
 import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
 import { PaginatedResponseDTO, PaginationDTO } from "../dtos/PaginationDTO";
 import { UnauthorizedException } from '../../domain/entities/exceptions/exceptions';
+import { filter } from "compression";
 
 export class OfferService {
     userService : UserService = new UserService(userRepository);
@@ -60,6 +61,9 @@ export class OfferService {
     public async getAllOfferPaginated(filters: PaginationDTO<OfferFilterDTO>): Promise<PaginatedResponseDTO<OfferResponseDTO>> {
         if(filters.data.ownerId){
             await this.userService.getSimpleUser(filters.data.ownerId)
+        }
+        if(filters.data.userId){
+            await this.userService.getSimpleUser(filters.data.userId)
         }
         const paginatedOffers = await this.offerRepository.findPaginated(filters);
         return {

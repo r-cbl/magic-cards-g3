@@ -49,13 +49,18 @@ export class OfferController {
         }
     }
 
+
     public async getAllOffersPaginated(req: Request, res: Response): Promise<void> {
         try {
             const filters: PaginationDTO<OfferFilterDTO> = {
                 data: {
                     ownerId: req.query.ownerId ? (req.query.ownerId as string) : undefined,
                     publicationId: req.query.publicationId ? (req.query.publicationId as string) : undefined,
+                    cardId: req.query.cardId ? (req.query.cardId as string) : undefined,
+                    userId: req.query.userId ? (req.query.userId as string) : undefined,
                     status: req.query.status ? (req.query.status as string) : undefined,
+                    minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
+                    maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
                 },
                 limit: req.query.limit ? Number(req.query.limit) : undefined,
                 offset: req.query.offset ? Number(req.query.offset) : undefined,

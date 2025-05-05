@@ -11,42 +11,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { createCardStart, createCardSuccess, createCardFailure } from "@/lib/cardsSlice"
-import type { GameResponseDTO } from "@/types/game"
+import { createCardStart, createCardSuccess, createCardFailure, createCard } from "@/lib/cardsSlice"
+import { createGame} from "@/lib/gameSlice"
+import { CreateGameDTO } from "@/types/game"
 import type { CreateCardBaseDTO, CreateCardDTO, CardResponseDTO } from "@/types/card"
 import { Plus } from "lucide-react"
+import { cardService } from "@/services/card-service"
+import Promise from "bluebird";
+import { createCardBase } from "@/lib/cardBaseSlice"
 
-// Mock data
-const mockGames: GameResponseDTO[] = [
-  { id: "1", name: "Pokemon Red/Blue", createdAt: new Date(), updatedAt: new Date() },
-  { id: "2", name: "Pokemon Gold/Silver", createdAt: new Date(), updatedAt: new Date() },
-  { id: "3", name: "Pokemon Ruby/Sapphire", createdAt: new Date(), updatedAt: new Date() },
-]
-
-const mockCardBases = [
-  { id: "cb1", name: "Pikachu", gameId: "1" },
-  { id: "cb2", name: "Charizard", gameId: "1" },
-  { id: "cb3", name: "Bulbasaur", gameId: "1" },
-  { id: "cb4", name: "Squirtle", gameId: "1" },
-  { id: "cb5", name: "Mewtwo", gameId: "2" },
-  { id: "cb6", name: "Lugia", gameId: "2" },
-]
 
 export default function CreateCardPage() {
   const router = useRouter()
   const dispatch = useAppDispatch()
-  const { isLoading, error } = useAppSelector((state) => state.cards)
+  const { cards, isLoading, error } = useAppSelector((state) => state.cards)
   const { currentUser } = useAppSelector((state) => state.user)
 
   // State for games
-  const [games, setGames] = useState<GameResponseDTO[]>(mockGames)
+  const {games} = useAppSelector((state) => state.game)
   const [gameSelectionMode, setGameSelectionMode] = useState<"existing" | "new">("existing")
   const [selectedGameId, setSelectedGameId] = useState<string>("")
   const [newGameName, setNewGameName] = useState<string>("")
 
   // State for card bases
-  const [cardBases, setCardBases] = useState(mockCardBases)
-  const [filteredCardBases, setFilteredCardBases] = useState(mockCardBases)
+  const {cardBases} = useAppSelector((state) => state.baseCards)
+  const [filteredCardBases, setFilteredCardBases] = useState(cardBases)
   const [cardBaseSelectionMode, setCardBaseSelectionMode] = useState<"existing" | "new">("existing")
   const [selectedCardBaseId, setSelectedCardBaseId] = useState<string>("")
   const [newCardBaseName, setNewCardBaseName] = useState<string>("")
@@ -58,18 +47,16 @@ export default function CreateCardPage() {
     cardBase?: string
     statusCard?: string
     urlImage?: string
+    game?: string
   }>({})
 
   useEffect(() => {
-    // Check if user is logged in
     if (!currentUser) {
       router.push("/login")
       return
     }
-
-    // Filter card bases by selected game
     if (selectedGameId) {
-      setFilteredCardBases(cardBases.filter((cb) => cb.gameId === selectedGameId))
+      setFilteredCardBases(cardBases.filter((cb) => cb.game.id === selectedGameId))
     } else {
       setFilteredCardBases([])
     }
@@ -81,43 +68,27 @@ export default function CreateCardPage() {
       setFormErrors((prev) => ({ ...prev, game: "Game name is required" }))
       return
     }
-
-    dispatch(createCardStart())
-
+  
+    // No hace falta llamar a createGameStart si el thunk ya lo despacha internamente
     try {
-      // This would be replaced with actual API call to create a new game
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // Create a new game with a unique ID
-      const newGameId = `game-${Date.now()}`
-      const newGame: GameResponseDTO = {
-        id: newGameId,
+      const newGameData: CreateGameDTO = {
         name: newGameName,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       }
-
-      // Update games state
-      setGames((prevGames) => [...prevGames, newGame])
-
-      // Select the newly created game
-      setSelectedGameId(newGameId)
-
-      // Reset the new game name
+  
+      // Ejecutás el thunk y obtenés el juego recién creado
+      const newGame = await dispatch(createGame(newGameData))
+  
+      // Actualizás el estado local solo si lo necesitás para el comportamiento inmediato del form
+      setSelectedGameId(newGame.id)
       setNewGameName("")
-
-      // Switch back to existing game mode
       setGameSelectionMode("existing")
-
-      // Clear any form errors
       setFormErrors((prev) => ({ ...prev, game: undefined }))
-
-      dispatch(createCardSuccess({} as CardResponseDTO)) // Just to clear loading state
     } catch (err) {
+      // Ya se despachó el createGameFailure en el thunk, pero esto es por si querés manejar algo visual localmente
       dispatch(createCardFailure("Failed to create game. Please try again."))
     }
   }
+
 
   // Handle creating a new card base
   const handleCreateCardBase = async () => {
@@ -125,51 +96,26 @@ export default function CreateCardPage() {
       setFormErrors((prev) => ({ ...prev, cardBase: "Please select or create a game first" }))
       return
     }
-
+  
     if (!newCardBaseName.trim()) {
       setFormErrors((prev) => ({ ...prev, cardBase: "Card name is required" }))
       return
     }
-
-    dispatch(createCardStart())
-
+  
     try {
-      // This would be replaced with actual API call to create a new card base
       const cardBaseData: CreateCardBaseDTO = {
         gameId: selectedGameId,
         nameCard: newCardBaseName,
       }
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // Create a new card base with a unique ID
-      const newCardBaseId = `cb-${Date.now()}`
-      const newCardBase = {
-        id: newCardBaseId,
-        name: newCardBaseName,
-        gameId: selectedGameId,
-      }
-
-      // Update card bases state
-      setCardBases((prevCardBases) => [...prevCardBases, newCardBase])
-
-      // Update filtered card bases
-      setFilteredCardBases((prevFiltered) => [...prevFiltered, newCardBase])
-
-      // Set the selected card base
-      setSelectedCardBaseId(newCardBaseId)
-
-      // Reset the new card base name
+  
+      // Ejecutás el thunk y obtenés la card base recién creada
+      const newCardBase = await dispatch(createCardBase(cardBaseData))
+  
+      // Actualizás el estado local si lo necesitás para el formulario
+      setSelectedCardBaseId(newCardBase.id)
       setNewCardBaseName("")
-
-      // Switch back to existing card base mode
       setCardBaseSelectionMode("existing")
-
-      // Clear any form errors
       setFormErrors((prev) => ({ ...prev, cardBase: undefined }))
-
-      dispatch(createCardSuccess({} as CardResponseDTO)) // Just to clear loading state
     } catch (err) {
       dispatch(createCardFailure("Failed to create card base. Please try again."))
     }
@@ -180,6 +126,7 @@ export default function CreateCardPage() {
       cardBase?: string
       statusCard?: string
       urlImage?: string
+      game?: string
     } = {}
 
     // Check if we have a card base selected or created
@@ -202,6 +149,8 @@ export default function CreateCardPage() {
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
+
+
 
   // Handle form submission to create a new card
   const handleSubmit = async (e: React.FormEvent) => {
@@ -226,48 +175,20 @@ export default function CreateCardPage() {
         // Create the card base first
         await handleCreateCardBase()
         // Get the ID of the newly created card base
-        const newCardBase = cardBases.find((cb) => cb.name === newCardBaseName && cb.gameId === selectedGameId)
+        const newCardBase = cardBases.find((cb) => cb.nameCard === newCardBaseName && cb.game.id === selectedGameId)
         if (newCardBase) {
           cardBaseId = newCardBase.id
         }
       }
 
-      // This would be replaced with actual API call
+      // Use the service to create the card
       const cardData: CreateCardDTO = {
         cardBaseId: cardBaseId!,
         statusCard,
         urlImage,
         ownerId: currentUser.id,
       }
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Create a mock response
-      const selectedCardBase = cardBases.find((cb) => cb.id === cardBaseId)
-      const selectedGame = games.find((g) => g.id === selectedCardBase?.gameId)
-
-      const newCard: CardResponseDTO = {
-        id: `card-${Date.now()}`,
-        urlImage,
-        cardBase: {
-          Id: cardBaseId!,
-          Name: selectedCardBase?.name || newCardBaseName,
-        },
-        game: {
-          Id: selectedGame?.id || selectedGameId,
-          Name: selectedGame?.name || games.find((g) => g.id === selectedGameId)?.name || "",
-        },
-        owner: {
-          ownerId: currentUser.id,
-          ownerName: currentUser.name,
-        },
-        createdAt: new Date(),
-      }
-
-      dispatch(createCardSuccess(newCard))
-
-      // Redirect to cards page
+      dispatch(createCard(cardData))
       router.push("/cards")
     } catch (err) {
       dispatch(createCardFailure("Failed to create card. Please try again."))
@@ -362,7 +283,7 @@ export default function CreateCardPage() {
                         {filteredCardBases.length > 0 ? (
                           filteredCardBases.map((cardBase) => (
                             <SelectItem key={cardBase.id} value={cardBase.id}>
-                              {cardBase.name}
+                              {cardBase.nameCard}
                             </SelectItem>
                           ))
                         ) : (

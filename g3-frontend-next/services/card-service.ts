@@ -1,23 +1,29 @@
 import { api } from "@/lib/api-client"
-import type { CardResponseDTO, CreateCardDTO, CardFilterDTO, CreateCardBaseDTO } from "@/types/card"
-import type { GameResponseDTO, CreateGameDTO } from "@/types/game"
+import type {
+  CardFilterDTO,
+  CardResponseDTO,
+  CreateCardDTO,
+  CardUpdatedDTO,
+} from "@/types/card"
+import type {
+  PaginatedResponseDTO,
+  PaginationDTO
+} from "@/types/pagination"
 
 export const cardService = {
-  getAllCards: async (filters?: CardFilterDTO) => {
+  getAllCards: async (filters: PaginationDTO<CardFilterDTO> = { data: {} }) => {
     const queryParams = new URLSearchParams()
 
-    if (filters?.name) queryParams.append("name", filters.name)
-    if (filters?.game) queryParams.append("game", filters.game)
-    if (filters?.ownerId) queryParams.append("ownerId", filters.ownerId)
+    if (filters.data.name) queryParams.append("name", filters.data.name)
+    if (filters.data.game) queryParams.append("game", filters.data.game)
+    if (filters.data.ownerId) queryParams.append("ownerId", filters.data.ownerId)
+    if (filters.limit !== undefined) queryParams.append("limit", filters.limit.toString())
+    if (filters.offset !== undefined) queryParams.append("offset", filters.offset.toString())
 
     const queryString = queryParams.toString()
     const endpoint = queryString ? `/cards?${queryString}` : "/cards"
 
-    return api.get<CardResponseDTO[]>(endpoint)
-  },
-
-  getUserCards: async (userId: string) => {
-    return api.get<CardResponseDTO[]>(`/cards?ownerId=${userId}`)
+    return api.get<PaginatedResponseDTO<CardResponseDTO>>(endpoint)
   },
 
   getCardById: async (cardId: string) => {
@@ -28,21 +34,7 @@ export const cardService = {
     return api.post<CardResponseDTO>("/cards", cardData)
   },
 
-  // Game operations
-  getAllGames: async () => {
-    return api.get<GameResponseDTO[]>("/games")
-  },
-
-  createGame: async (gameData: CreateGameDTO) => {
-    return api.post<GameResponseDTO>("/games", gameData)
-  },
-
-  // Card base operations
-  createCardBase: async (cardBaseData: CreateCardBaseDTO) => {
-    return api.post<{ id: string; name: string; gameId: string }>("/card-bases", cardBaseData)
-  },
-
-  getCardBasesByGame: async (gameId: string) => {
-    return api.get<{ id: string; name: string; gameId: string }[]>(`/card-bases?gameId=${gameId}`)
+  updateCard: async (cardId: string, cardData: CardUpdatedDTO) => {
+    return api.put<CardResponseDTO>(`/cards/${cardId}`, cardData)
   },
 }

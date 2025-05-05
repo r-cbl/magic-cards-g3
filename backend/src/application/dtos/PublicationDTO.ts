@@ -32,11 +32,13 @@ export interface CreatePublicationDTO {
       statusOffer: string;
       cardExchangeIds: string[];
     }[];
+    status:string;
     createdAt: Date;
   }
 
   export interface PublicationFilterDTO {
     initialDate?: Date;
+    status?:string;
     endDate?: Date;
     gamesIds?: string[];
     cardBaseIds?: string[];

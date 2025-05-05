@@ -1,56 +1,61 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Search, Plus } from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { fetchUserCardsStart, fetchUserCardsSuccess, fetchUserCardsFailure } from "@/lib/cardsSlice"
-import type { GameResponseDTO } from "@/types/game"
-import { useState } from "react"
-
-// Mock data
-const mockGames: GameResponseDTO[] = [
-  { id: "1", name: "Pokemon Red/Blue", createdAt: new Date(), updatedAt: new Date() },
-  { id: "2", name: "Pokemon Gold/Silver", createdAt: new Date(), updatedAt: new Date() },
-  { id: "3", name: "Pokemon Ruby/Sapphire", createdAt: new Date(), updatedAt: new Date() },
-]
+import {
+  fetchCardsStart,
+  fetchCardsSuccess,
+  fetchCardsFailure,
+} from "@/lib/cardsSlice"
+import { fetchGames } from "@/lib/gameSlice"
 
 export default function MyCardsPage() {
   const router = useRouter()
   const dispatch = useAppDispatch()
-  const { userCards, isLoading } = useAppSelector((state) => state.cards)
+  const { cards, isLoading } = useAppSelector((state) => state.cards)
   const { currentUser } = useAppSelector((state) => state.user)
+  const { games } = useAppSelector((state) => state.game)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedGame, setSelectedGame] = useState<string>("")
 
   useEffect(() => {
-    // Check if user is logged in
     if (!currentUser) {
       router.push("/login")
       return
     }
 
-    dispatch(fetchUserCardsStart())
+    dispatch(fetchCardsStart())
+    dispatch(fetchGames()) // 👈 Carga los juegos desde el slice
 
-    // Simulate API call to fetch user's cards
+    // Esto parece redundante, podrías eliminar el setTimeout si no tiene sentido real.
     setTimeout(() => {
       try {
-        // Filter cards to only include those owned by the current user
-        const filteredCards =
-          userCards.length > 0 ? userCards : mockCards.filter((card) => card.owner.ownerId === currentUser.id)
-
-        dispatch(fetchUserCardsSuccess(filteredCards))
+        dispatch(fetchCardsStart()) // ¿doble llamada a fetchCardsStart?
       } catch (error) {
-        dispatch(fetchUserCardsFailure("Failed to load your cards"))
+        dispatch(fetchCardsFailure("Failed to load your cards"))
       }
     }, 500)
   }, [dispatch, currentUser, router])
 
-  const filteredCards = userCards.filter((card) => {
+  const filteredCards = cards.filter((card) => {
     let matchesSearch = true
     let matchesGame = true
 
@@ -65,49 +70,14 @@ export default function MyCardsPage() {
     return matchesSearch && matchesGame
   })
 
-  // Mock cards data - in a real app, this would come from the API
-  const mockCards = [
-    {
-      id: "1",
-      urlImage: "https://assets.pokemon.com/assets/cms2/img/cards/web/SV01/SV01_EN_63.png",
-      cardBase: {
-        Id: "cb1",
-        Name: "Pikachu",
-      },
-      game: {
-        Id: "1",
-        Name: "Pokemon Red/Blue",
-      },
-      owner: {
-        ownerId: "user-123", // This matches the test user ID
-        ownerName: "Test User",
-      },
-      createdAt: new Date(),
-    },
-    {
-      id: "3",
-      urlImage: "https://assets.pokemon.com/assets/cms2/img/cards/web/SV02/SV02_EN_1.png",
-      cardBase: {
-        Id: "cb3",
-        Name: "Bulbasaur",
-      },
-      game: {
-        Id: "1",
-        Name: "Pokemon Red/Blue",
-      },
-      owner: {
-        ownerId: "user-123", // This matches the test user ID
-        ownerName: "Test User",
-      },
-      createdAt: new Date(),
-    },
-  ]
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold">My Pokemon Cards</h1>
-        <Button onClick={() => router.push("/cards/create")} className="bg-yellow-500 hover:bg-yellow-600 text-black">
+        <h1 className="text-3xl font-bold">My Cards</h1>
+        <Button
+          onClick={() => router.push("/cards/create")}
+          className="bg-yellow-500 hover:bg-yellow-600 text-black"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add Card
         </Button>
@@ -129,7 +99,7 @@ export default function MyCardsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Games</SelectItem>
-            {mockGames.map((game) => (
+            {games.map((game) => (
               <SelectItem key={game.id} value={game.id}>
                 {game.name}
               </SelectItem>

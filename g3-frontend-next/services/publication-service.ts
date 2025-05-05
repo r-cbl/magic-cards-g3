@@ -1,20 +1,32 @@
 import { api } from "@/lib/api-client"
-import type { CreatePublicationDTO, PublicationResponseDTO, PublicationFilterDTO } from "@/types/publication"
+import type {
+  CreatePublicationDTO,
+  PublicationResponseDTO,
+  PublicationFilterDTO,
+} from "@/types/publication"
+
+import type{
+  PaginatedResponseDTO,
+  PaginationDTO
+} from "@/types/pagination"
 
 export const publicationService = {
-  getAllPublications: async (filters?: PublicationFilterDTO) => {
+  getAllPublications: async (filters: PaginationDTO<PublicationFilterDTO> = { data:{}}) => {
     const queryParams = new URLSearchParams()
 
-    if (filters?.ownerId) queryParams.append("ownerId", filters.ownerId)
-    if (filters?.gamesIds) filters.gamesIds.forEach((id) => queryParams.append("gameId", id))
-    if (filters?.cardBaseIds) filters.cardBaseIds.forEach((id) => queryParams.append("cardBaseId", id))
-    if (filters?.minValue !== undefined) queryParams.append("minValue", filters.minValue.toString())
-    if (filters?.maxValue !== undefined) queryParams.append("maxValue", filters.maxValue.toString())
+    if (filters.data.ownerId) queryParams.append("ownerId", filters.data.ownerId)
+    if (filters.data.gamesIds) filters.data.gamesIds.forEach((id) => queryParams.append("gameId", id))
+    if (filters.data.cardBaseIds) filters.data.cardBaseIds.forEach((id) => queryParams.append("cardBaseId", id))
+    if (filters.data.minValue !== undefined) queryParams.append("minValue", filters.data.minValue.toString())
+    if (filters.data.maxValue !== undefined) queryParams.append("maxValue", filters.data.maxValue.toString())
+    if (filters.limit !== undefined) queryParams.append("limit", filters.limit.toString())
+    if (filters.offset !== undefined) queryParams.append("offset", filters.offset.toString())
 
+    queryParams.append("status", "Open")
     const queryString = queryParams.toString()
     const endpoint = queryString ? `/publications?${queryString}` : "/publications"
 
-    return api.get<PublicationResponseDTO[]>(endpoint)
+    return api.get<PaginatedResponseDTO<PublicationResponseDTO>>(endpoint)
   },
 
   getUserPublications: async (userId: string) => {

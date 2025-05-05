@@ -1,5 +1,6 @@
 import { Game } from "../entities/Game";
 import { PaginatedResponseDTO, PaginationDTO } from "@/application/dtos/PaginationDTO";
+import {GameFilterDTO} from "../../application/dtos/GameDTO";
 
 export interface GameRepository {
     save(game: Game): Promise<Game>;
@@ -7,5 +8,5 @@ export interface GameRepository {
     delete(id: string): Promise<boolean>;
     findById(id: string): Promise<Game | undefined>;
     findAll(): Promise<Game[]>;
-    findPaginated(filters: PaginationDTO<String>): Promise<PaginatedResponseDTO<Game>>;
+    findPaginated(filters: PaginationDTO<GameFilterDTO>): Promise<PaginatedResponseDTO<Game>>;
 } 

@@ -155,6 +155,7 @@ export class PublicationService {
           statusOffer: offer.getStatusOffer(),
           cardExchangeIds: offer.getCardOffers()?.map((c) => c.getId()) ?? []
         })),
+        status: publication.getStatusPublication(),
         createdAt: publication.getCreatedAt(),
       };
     }

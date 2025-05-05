@@ -1,6 +1,6 @@
 import { Game } from '../../domain/entities/Game';
 import { GameRepository } from '../../domain/repositories/GameRepository';
-import { CreateGameDTO, UpdateGameDTO, GameResponseDTO } from '../dtos/GameDTO';
+import { CreateGameDTO, UpdateGameDTO, GameResponseDTO, GameFilterDTO } from '../dtos/GameDTO';
 import { PaginatedResponseDTO, PaginationDTO } from '../dtos/PaginationDTO';
 
 export class GameService {
@@ -30,7 +30,7 @@ export class GameService {
     return games.map(game => this.toGameResponseDTO(game));
   }
 
-  public async getAllGamesPaginated(filters: PaginationDTO<String>): Promise<PaginatedResponseDTO<GameResponseDTO>> {
+  public async getAllGamesPaginated(filters: PaginationDTO<GameFilterDTO>): Promise<PaginatedResponseDTO<GameResponseDTO>> {
     const paginatedGames = await this.gameRepository.findPaginated(filters);
     return {
         data: paginatedGames.data.map(game => this.toGameResponseDTO(game)),

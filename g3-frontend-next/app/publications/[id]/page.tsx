@@ -17,164 +17,34 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import type { PublicationResponseDTO } from "@/types/publication"
 import type { CardResponseDTO } from "@/types/card"
 import { ArrowLeft, DollarSign, AlertCircle } from "lucide-react"
 import { CreateOfferDTO, OfferStatus } from "@/types/offer"
-
-// Mock data
-const mockPublications: Record<string, PublicationResponseDTO> = {
-  "1": {
-    id: "1",
-    name: "Pikachu for trade",
-    cardId: "1",
-    valueMoney: 0,
-    cardExchangeIds: ["cb2", "cb3"],
-    cardBase: {
-      Id: "cb1",
-      Name: "Pikachu",
-    },
-    imageUrl: "https://assets.pokemon.com/assets/cms2/img/cards/web/SV01/SV01_EN_63.png",
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user1",
-      ownerName: "Ash Ketchum",
-    },
-    offers: [],
-    createdAt: new Date(),
-  },
-  "2": {
-    id: "2",
-    name: "Charizard for sale",
-    cardId: "2",
-    valueMoney: 50,
-    cardExchangeIds: [],
-    cardBase: {
-      Id: "cb2",
-      Name: "Charizard",
-    },
-    imageUrl: "https://assets.pokemon.com/assets/cms2/img/cards/web/SV03/SV03_EN_223.png",
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user2",
-      ownerName: "Gary Oak",
-    },
-    offers: [
-      {
-        id: "offer1",
-        moneyOffer: 45,
-        statusOffer: OfferStatus.PENDING,
-        publicationId: "2",
-        userId: "1",
-        userName: "raulito",
-        createdAt: new Date(),
-        cardExchangeIds: [],
-      },
-    ],
-    createdAt: new Date(),
-  },
-}
-
-const mockCards: CardResponseDTO[] = [
-  {
-    id: "1",
-    urlImage: "https://assets.pokemon.com/assets/cms2/img/cards/web/SV01/SV01_EN_63.png",
-    cardBase: {
-      Id: "cb1",
-      Name: "Pikachu",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user1",
-      ownerName: "Ash Ketchum",
-    },
-    createdAt: new Date(),
-  },
-  {
-    id: "2",
-    urlImage: "https://assets.pokemon.com/assets/cms2/img/cards/web/SV03/SV03_EN_223.png",
-    cardBase: {
-      Id: "cb2",
-      Name: "Charizard",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user2",
-      ownerName: "Gary Oak",
-    },
-    createdAt: new Date(),
-  },
-]
-
-const mockCardBases = [
-  { id: "cb1", name: "Pikachu", gameId: "1" },
-  { id: "cb2", name: "Charizard", gameId: "1" },
-  { id: "cb3", name: "Bulbasaur", gameId: "1" },
-  { id: "cb4", name: "Squirtle", gameId: "1" },
-  { id: "cb5", name: "Mewtwo", gameId: "2" },
-  { id: "cb6", name: "Lugia", gameId: "2" },
-]
+import { useAppDispatch, useAppSelector } from "@/lib/hooks"
+import { fetchPublicationById } from "@/lib/publicationsSlice"
+import {createOffer} from "@/lib/offersSlice"
 
 export default function PublicationDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-
-  const [publication, setPublication] = useState<PublicationResponseDTO | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const dispatch = useAppDispatch()
+  const { selectedPublication: publication, isLoading } = useAppSelector((state) => state.publications)
+  const { currentUser } = useAppSelector((state) => state.user)
+  const cardBases = useAppSelector((state) => state.baseCards)
   const [isOwner, setIsOwner] = useState(false)
-  const [user, setUser] = useState<any>(null)
   const [userCards, setUserCards] = useState<CardResponseDTO[]>([])
   const [selectedCardExchanges, setSelectedCardExchanges] = useState<string[]>([])
   const [moneyOffer, setMoneyOffer] = useState<number>(0)
   const [offerDialogOpen, setOfferDialogOpen] = useState(false)
   const [isSubmittingOffer, setIsSubmittingOffer] = useState(false)
-
-  // Add a check to prevent "create" from being treated as an ID.  This needs to be done before the useEffect hook.
-  if (params.id === "create") {
-    router.push("/publications/create")
-    return null
-  }
-
+  
   useEffect(() => {
-    // Get user from localStorage
-    const userData = localStorage.getItem("user")
-    if (userData) {
-      setUser(JSON.parse(userData))
+    if (params.id === "create") {
+      router.push("/publications/create")
+      return
     }
-
-    // Fetch publication data
-    setIsLoading(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      const publicationData = mockPublications[params.id]
-      if (publicationData) {
-        setPublication(publicationData)
-
-        // Check if user is owner
-        if (userData) {
-          const parsedUser = JSON.parse(userData)
-          setIsOwner(parsedUser.id === publicationData.owner.ownerId)
-        }
-      }
-      setIsLoading(false)
-    }, 500)
-
-    // Fetch user's cards for making offers
-    // This would be replaced with actual API call
-    setUserCards(mockCards)
-  }, [params.id])
+    dispatch(fetchPublicationById(params.id))
+    // Fetch user's cards if needed for offers
+  }, [dispatch, params, router])
 
   const handleCardExchangeToggle = (cardId: string) => {
     setSelectedCardExchanges((prev) => {
@@ -186,35 +56,26 @@ export default function PublicationDetailPage({ params }: { params: { id: string
     })
   }
 
-  const handleSubmitOffer = async () => {
-    if (!user || !publication) return
-
+  const handleSubmitOffer = () => {
+    if (!currentUser || !publication) return
     setIsSubmittingOffer(true)
-
-    try {
-      // This would be replaced with actual API call
-      const offerData: CreateOfferDTO = {
-        publicationId: publication.id,
-        userId: user.id,
-        cardExchangeIds: selectedCardExchanges,
-        moneyOffer: moneyOffer > 0 ? moneyOffer : undefined,
-      }
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Close dialog and reset form
-      setOfferDialogOpen(false)
-      setSelectedCardExchanges([])
-      setMoneyOffer(0)
-
-      // Redirect to my offers page
-      router.push("/my-offers")
-    } catch (err) {
-      console.error("Failed to submit offer", err)
-    } finally {
-      setIsSubmittingOffer(false)
+    const offerData: CreateOfferDTO = {
+      publicationId: publication.id,
+      userId: currentUser.id,
+      cardExchangeIds: selectedCardExchanges,
+      moneyOffer: moneyOffer > 0 ? moneyOffer : undefined,
     }
+
+    Promise.resolve(dispatch(createOffer(offerData)))
+      .then(() => {
+        setOfferDialogOpen(false)
+        setSelectedCardExchanges([])
+        setMoneyOffer(0)
+        router.push("/my-offers")
+      })
+      .finally(() => {
+        setIsSubmittingOffer(false)
+      })
   }
 
   if (isLoading) {
@@ -252,7 +113,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
           <Card className="w-full max-w-[300px] overflow-hidden">
             <div className="aspect-[2/3] relative">
               <img
-                src={publication.imageUrl || "/placeholder.svg"}
+                src={publication.card.urlImage || "/placeholder.svg"}
                 alt={publication.cardBase.Name}
                 className="object-cover w-full h-full"
               />
@@ -298,10 +159,10 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                     <span className="text-muted-foreground">Looking for:</span>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {publication.cardExchangeIds.map((cardId) => {
-                        const cardBase = mockCardBases.find((cb) => cb.id === cardId)
+                        const cardBase = cardBases.cardBases.find((cb) => cb.id === cardId)
                         return cardBase ? (
                           <Badge key={cardId} variant="secondary">
-                            {cardBase.name}
+                            {cardBase.nameCard}
                           </Badge>
                         ) : null
                       })}
@@ -322,7 +183,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                   {publication.offers.map((offer) => (
                     <div key={offer.id} className="border rounded-md p-3">
                       <div className="flex justify-between items-center mb-2">
-                        <Badge>{offer.statusOffer}</Badge>
+                        <Badge>{offer.status}</Badge>
                         {offer.moneyOffer && <span className="font-medium">${offer.moneyOffer}</span>}
                       </div>
                       {offer.cardExchangeIds.length > 0 && (
@@ -330,17 +191,17 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                           <span className="text-sm text-muted-foreground">Cards offered:</span>
                           <div className="mt-1 flex flex-wrap gap-1">
                             {offer.cardExchangeIds.map((cardId) => {
-                              const cardBase = mockCardBases.find((cb) => cb.id === cardId)
+                              const cardBase = cardBases.cardBases.find((cb) => cb.id === cardId)
                               return cardBase ? (
                                 <Badge key={cardId} variant="secondary" className="text-xs">
-                                  {cardBase.name}
+                                  {cardBase.nameCard}
                                 </Badge>
                               ) : null
                             })}
                           </div>
                         </div>
                       )}
-                      {offer.statusOffer === "PENDING" && (
+                      {offer.status === "PENDING" && (
                         <div className="flex gap-2 mt-3">
                           <Button size="sm" variant="outline" className="flex-1">
                             Accept
@@ -358,7 +219,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
           )}
 
           <div className="flex flex-wrap gap-3">
-            {!isOwner && user && (
+            {!isOwner && currentUser && (
               <Dialog open={offerDialogOpen} onOpenChange={setOfferDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black">Make an Offer</Button>

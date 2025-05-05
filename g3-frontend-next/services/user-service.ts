@@ -1,13 +1,14 @@
 import { api } from "@/lib/api-client"
+import { TokenResponse } from "@/types/token"
 import type { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from "@/types/user"
 
 export const userService = {
   login: async (email: string, password: string) => {
-    return api.post<{ user: UserResponseDTO; token: string }>("/auth/login", { email, password })
+    return api.post<{ user: UserResponseDTO; tokens: TokenResponse }>("/auth/login", { email, password })
   },
 
   signup: async (userData: CreateUserDTO) => {
-    return api.post<{ user: UserResponseDTO; token: string }>("/auth/signup", userData)
+    return api.post<{ user: UserResponseDTO; tokens: TokenResponse }>("/auth/register", userData)
   },
 
   getCurrentUser: async () => {

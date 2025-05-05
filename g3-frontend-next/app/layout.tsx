@@ -11,8 +11,8 @@ const inter = Inter({
 })
 
 export const metadata = {
-  title: "PokéTrade - Pokemon Card Trading Platform",
-  description: "Exchange your Pokemon cards with other collectors",
+  title: "DeckTrade - Card Trading Platform",
+  description: "Exchange your cards with other collectors",
 }
 
 export default function RootLayout({

@@ -1,121 +1,74 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import type { PublicationResponseDTO } from "@/types/publication"
-
-// Mock data
-const mockPublications: PublicationResponseDTO[] = [
-  {
-    id: "1",
-    name: "Pikachu for trade",
-    cardId: "1",
-    valueMoney: 0,
-    cardExchangeIds: ["cb2", "cb3"],
-    cardBase: {
-      Id: "cb1",
-      Name: "Pikachu",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user1",
-      ownerName: "Ash Ketchum",
-    },
-    offers: [],
-    createdAt: new Date(),
-  },
-  {
-    id: "2",
-    name: "Charizard for sale",
-    cardId: "2",
-    valueMoney: 50,
-    cardExchangeIds: [],
-    cardBase: {
-      Id: "cb2",
-      Name: "Charizard",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user2",
-      ownerName: "Gary Oak",
-    },
-    offers: [
-      {
-        offerId: "offer1",
-        moneyOffer: 45,
-        statusOffer: "PENDING",
-        cardExchangeIds: [],
-      },
-    ],
-    createdAt: new Date(),
-  },
-  {
-    id: "3",
-    name: "Mewtwo - looking for Lugia",
-    cardId: "5",
-    valueMoney: 0,
-    cardExchangeIds: ["cb6"],
-    cardBase: {
-      Id: "cb5",
-      Name: "Mewtwo",
-    },
-    game: {
-      Id: "2",
-      Name: "Pokemon Gold/Silver",
-    },
-    owner: {
-      ownerId: "user4",
-      ownerName: "Professor Oak",
-    },
-    offers: [],
-    createdAt: new Date(),
-  },
-]
+import type { CreatePublicationDTO, PublicationResponseDTO } from "@/types/publication"
+import type { PaginatedResponseDTO, PaginationDTO } from "@/types/pagination"
+import { publicationService } from "@/services/publication-service"
+import Promise from "bluebird"
+import { create } from "domain"
 
 interface PublicationsState {
   publications: PublicationResponseDTO[]
-  userPublications: PublicationResponseDTO[]
   selectedPublication: PublicationResponseDTO | null
   isLoading: boolean
   error: string | null
+  pagination: {
+    total: number
+    offset: number
+    limit: number
+    hasMore: boolean
+  }
 }
 
 const initialState: PublicationsState = {
-  publications: mockPublications,
-  userPublications: [],
+  publications: [],
   selectedPublication: null,
   isLoading: false,
   error: null,
+  pagination: {
+    total: 0,
+    offset: 0,
+    limit: 10,
+    hasMore: false,
+  },
 }
 
 export const publicationsSlice = createSlice({
   name: "publications",
   initialState,
   reducers: {
+    createPublicationStart: (state) => {
+      state.isLoading = true
+      state.error = null
+    },
+    createPublicationSuccess: (state, action: PayloadAction<PublicationResponseDTO>) => {
+      if (action.payload.id) {
+        state.publications.push(action.payload)
+      }
+      state.isLoading = false
+      state.error = null
+    },
+    createPublicationFailure: (state, action: PayloadAction<string>) => {
+      state.isLoading = false
+      state.error = action.payload
+    },
     fetchPublicationsStart: (state) => {
       state.isLoading = true
       state.error = null
     },
-    fetchPublicationsSuccess: (state, action: PayloadAction<PublicationResponseDTO[]>) => {
-      state.publications = action.payload
+    fetchPublicationsSuccess: (
+      state,
+      action: PayloadAction<{ data: PublicationResponseDTO[]; pagination: Omit<PaginatedResponseDTO<any>, "data">; append: boolean }>
+    ) => {
+      const { data, pagination, append } = action.payload
+      state.publications = append ? [...state.publications, ...data] : data
+      state.pagination = {
+        total: pagination.total,
+        offset: pagination.offset,
+        limit: pagination.limit,
+        hasMore: pagination.hasMore,
+      }
       state.isLoading = false
     },
     fetchPublicationsFailure: (state, action: PayloadAction<string>) => {
-      state.isLoading = false
-      state.error = action.payload
-    },
-    fetchUserPublicationsStart: (state) => {
-      state.isLoading = true
-      state.error = null
-    },
-    fetchUserPublicationsSuccess: (state, action: PayloadAction<PublicationResponseDTO[]>) => {
-      state.userPublications = action.payload
-      state.isLoading = false
-    },
-    fetchUserPublicationsFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false
       state.error = action.payload
     },
@@ -131,35 +84,72 @@ export const publicationsSlice = createSlice({
       state.isLoading = false
       state.error = action.payload
     },
-    createPublicationStart: (state) => {
-      state.isLoading = true
-      state.error = null
-    },
-    createPublicationSuccess: (state, action: PayloadAction<PublicationResponseDTO>) => {
-      state.publications.push(action.payload)
-      state.userPublications.push(action.payload)
-      state.isLoading = false
-    },
-    createPublicationFailure: (state, action: PayloadAction<string>) => {
-      state.isLoading = false
-      state.error = action.payload
-    },
   },
 })
 
 export const {
-  fetchPublicationsStart,
-  fetchPublicationsSuccess,
-  fetchPublicationsFailure,
-  fetchUserPublicationsStart,
-  fetchUserPublicationsSuccess,
-  fetchUserPublicationsFailure,
-  fetchPublicationByIdStart,
-  fetchPublicationByIdSuccess,
-  fetchPublicationByIdFailure,
   createPublicationStart,
   createPublicationSuccess,
   createPublicationFailure,
+  fetchPublicationsStart,
+  fetchPublicationsSuccess,
+  fetchPublicationsFailure,
+  fetchPublicationByIdStart,
+  fetchPublicationByIdSuccess,
+  fetchPublicationByIdFailure,
 } = publicationsSlice.actions
 
 export default publicationsSlice.reducer
+
+// Thunk para obtener publicaciones con paginación y filtros
+export const fetchPublications = (
+  filters: PaginationDTO<any> = { data: {} },
+  append = false
+) => async (dispatch: any) => {
+  dispatch(fetchPublicationsStart())
+
+  try {
+    const response = await Promise.resolve(publicationService.getAllPublications(filters))
+    dispatch(
+      fetchPublicationsSuccess({
+        data: response.data,
+        pagination: {
+          total: response.total,
+          offset: response.offset,
+          limit: response.limit,
+          hasMore: response.hasMore,
+        },
+        append,
+      })
+    )
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to load publications"
+    dispatch(fetchPublicationsFailure(message))
+  }
+}
+
+// Thunk para obtener una publicación individual
+export const fetchPublicationById = (id: string) => async (dispatch: any) => {
+  dispatch(fetchPublicationByIdStart())
+
+  try {
+    const publication = await Promise.resolve(publicationService.getPublicationById(id))
+    dispatch(fetchPublicationByIdSuccess(publication))
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to load publication"
+    dispatch(fetchPublicationByIdFailure(message))
+  }
+}
+
+export const createPublication =
+  (data: CreatePublicationDTO) => async (dispatch: any) => {
+    dispatch(createPublicationStart())
+
+    try {
+      const createdPublication = await Promise.resolve(publicationService.createPublication(data))
+      dispatch(createPublicationSuccess(createdPublication))
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to create card"
+      dispatch(createPublicationFailure(message))
+    }
+  }

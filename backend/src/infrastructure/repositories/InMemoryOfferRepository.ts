@@ -39,7 +39,8 @@ export class InMemoryOfferRepository implements OfferRepository {
             const matchesOwnerId = filters.ownerId ? offer.getOwner().getId() === filters.ownerId : true;
             const matchesPublicationId = filters.publicationId ? offer.getPublication().getId() === filters.publicationId : true;
             const matchesStatus = filters.status ? offer.getStatusOffer() === filters.status : true;
-            return matchesOwnerId && matchesPublicationId && matchesStatus;
+            const matchesUserId = filters.userId ? offer.getPublication().getOwner().getId() === filters.userId : true;
+            return matchesOwnerId && matchesPublicationId && matchesStatus && matchesUserId;
         });
     }
 

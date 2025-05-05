@@ -35,14 +35,15 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-2">
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/5/53/Pok%C3%A9_Ball_icon.svg"
-              alt="PokéTrade Logo"
+              alt="DeckTrade Logo"
               width={32}
               height={32}
               className="rounded-full"
             />
-            <span className="text-xl font-bold">PokéTrade</span>
+            <span className="text-xl font-bold">DeckTrade</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 ml-6">
+          {isLoggedIn && (
             <Link
               href="/cards"
               className={cn(
@@ -52,6 +53,7 @@ export default function Navbar() {
             >
               Cards
             </Link>
+          )}
             <Link
               href="/publications"
               className={cn(

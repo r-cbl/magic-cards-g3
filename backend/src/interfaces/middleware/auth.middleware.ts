@@ -24,6 +24,8 @@ export class AuthMiddleware {
     try {
       const authHeader = req.headers.authorization;
       
+      console.log('Authorization Header:', authHeader); 
+
       if (!authHeader) {
         res.status(401).json({ error: 'Authorization header is missing' });
         return;

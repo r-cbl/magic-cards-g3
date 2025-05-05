@@ -50,9 +50,10 @@ export class CardController {
 
     public async getAllCardsPaginated(req: Request, res: Response): Promise<void> {
         try {
+            const userId = req.user?.userId;
             const filters: PaginationDTO<CardFilterDTO> = {
                 data: {
-                    ownerId: req.query.ownerId ? (req.query.ownerId as string) : undefined,
+                    ownerId: userId,
                     name: req.query.name ? (req.query.name as string) : undefined,
                     game: req.query.game ? (req.query.game as string) : undefined,
                 },

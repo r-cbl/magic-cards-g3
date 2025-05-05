@@ -7,51 +7,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import type { CardResponseDTO } from "@/types/card"
 import { ArrowLeft, Share2, Heart } from "lucide-react"
+import { useAppDispatch, useAppSelector } from "@/lib/hooks"
+import { fetchCardById } from "@/lib/cardsSlice"
 
-// Mock data
-const mockCards: Record<string, CardResponseDTO> = {
-  "1": {
-    id: "1",
-    urlImage: "https://assets.pokemon.com/assets/cms2/img/cards/web/SV01/SV01_EN_63.png",
-    cardBase: {
-      Id: "cb1",
-      Name: "Pikachu",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user1",
-      ownerName: "Ash Ketchum",
-    },
-    createdAt: new Date(),
-  },
-  "2": {
-    id: "2",
-    urlImage: "https://assets.pokemon.com/assets/cms2/img/cards/web/SV03/SV03_EN_223.png",
-    cardBase: {
-      Id: "cb2",
-      Name: "Charizard",
-    },
-    game: {
-      Id: "1",
-      Name: "Pokemon Red/Blue",
-    },
-    owner: {
-      ownerId: "user2",
-      ownerName: "Gary Oak",
-    },
-    createdAt: new Date(),
-  },
-}
-
-export default function CardDetailPage({ params }: { params: { id: string } }) {
+export default function CardDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
-  const [card, setCard] = useState<CardResponseDTO | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const dispatch = useAppDispatch()
+  const { selectedCard: card, isLoading } = useAppSelector((state) => state.cards)
   const [isOwner, setIsOwner] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [unwrappedParams, setUnwrappedParams] = useState<{ id: string } | null>(null)
+
+  useEffect(() => {
+    // Unwrap the params
+    params.then((unwrapped) => setUnwrappedParams(unwrapped))
+  }, [params])
+
+  useEffect(() => {
+    if (unwrappedParams) {
+      // Fetch card from API
+      dispatch(fetchCardById(unwrappedParams.id))
+    }
+  }, [dispatch, unwrappedParams])
 
   useEffect(() => {
     // Get user from localStorage
@@ -59,25 +36,13 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
     if (userData) {
       setUser(JSON.parse(userData))
     }
+  }, [])
 
-    // Fetch card data
-    setIsLoading(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      const cardData = mockCards[params.id]
-      if (cardData) {
-        setCard(cardData)
-
-        // Check if user is owner
-        if (userData) {
-          const parsedUser = JSON.parse(userData)
-          setIsOwner(parsedUser.id === cardData.owner.ownerId)
-        }
-      }
-      setIsLoading(false)
-    }, 500)
-  }, [params.id])
+  useEffect(() => {
+    if (user && card) {
+      setIsOwner(user.id === card.owner.ownerId)
+    }
+  }, [user, card])
 
   const handleCreatePublication = () => {
     router.push(`/publications/create?cardId=${card?.id}`)

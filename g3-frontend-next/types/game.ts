@@ -12,3 +12,7 @@ export interface GameResponseDTO {
   createdAt: Date
   updatedAt: Date
 }
+
+export interface GameFilterDTO{
+  name?:string;
+}

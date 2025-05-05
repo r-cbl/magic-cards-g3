@@ -7,27 +7,31 @@ export interface CreatePublicationDTO {
   valueMoney?: number
 }
 
+
 export interface PublicationResponseDTO {
-  imageUrl: string | undefined
-  id: string
-  name: string
-  cardId: string
-  valueMoney: number
-  cardExchangeIds: string[]
+  id: string;
+  name: string;
+  card: {
+    cardId: string;
+    urlImage: string;
+  };
+  valueMoney: number;
+  cardExchangeIds: string[];
   cardBase: {
-    Id: string
-    Name: string
-  }
+    Id: string;
+    Name: string;
+  };
   game: {
-    Id: string
-    Name: string
-  }
+    Id: string;
+    Name: string;
+  };
   owner: {
-    ownerId: string
-    ownerName: string
-  }
-  offers: OfferResponseDTO[]
-  createdAt: Date
+    ownerId: string;
+    ownerName: string;
+  };
+  offers: OfferResponseDTO[];
+  status:string;
+  createdAt: Date;
 }
 
 export interface PublicationFilterDTO {

@@ -14,21 +14,16 @@ export default function HomePage() {
       </div>
 
       <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl mb-4 bg-gradient-to-r from-yellow-400 via-red-500 to-blue-500 text-transparent bg-clip-text">
-        Welcome to PokéTrade
+        Welcome to DeckTrade
       </h1>
       <p className="max-w-xl text-lg text-muted-foreground mb-8">
-        The ultimate platform for Pokémon card collectors. Discover rare cards, connect with fellow trainers, and trade your way to the top!
+        The ultimate platform for card collectors. Discover rare cards, connect with fellow trainers, and trade your way to the top!
       </p>
       <div className="flex flex-col sm:flex-row gap-4">
         <Button asChild size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-black">
           <Link href="/publications">
             Browse Publications
             <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
-        </Button>
-        <Button asChild variant="outline" size="lg">
-          <Link href="/cards">
-            Explore Cards
           </Link>
         </Button>
       </div>

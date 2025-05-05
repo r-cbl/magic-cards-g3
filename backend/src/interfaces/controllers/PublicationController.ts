@@ -31,6 +31,7 @@ export class PublicationController {
         try {
             const filters: PublicationFilterDTO = {
                 gamesIds: req.query.gamesIds ? (req.query.gamesIds as string).split(',') : undefined,
+                status: req.query.status ? (req.query.status as string) : undefined,
                 cardBaseIds: req.query.cardBaseIds ? (req.query.cardBaseIds as string).split(',') : undefined,              
                 ownerId: (req.query.ownerId as string) || undefined,
                 initialDate: req.query.initialDate ? new Date(req.query.initialDate as string) : undefined,

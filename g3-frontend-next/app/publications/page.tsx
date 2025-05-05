@@ -8,141 +8,45 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import {
-  fetchPublicationsStart,
-  fetchPublicationsSuccess,
-  fetchPublicationsFailure,
-} from "@/lib/publicationsSlice"
-import type { PublicationResponseDTO } from "@/types/publication"
-import type { GameResponseDTO } from "@/types/game"
+import { fetchPublications } from "@/lib/publicationsSlice"
 import { Search, DollarSign, Plus } from "lucide-react"
 import Link from "next/link"
 import { OfferStatus } from "@/types/offer"
-
-// Mock data
-const mockGames: GameResponseDTO[] = [
-  { id: "1", name: "Pokemon Red/Blue", createdAt: new Date(), updatedAt: new Date() },
-  { id: "2", name: "Pokemon Gold/Silver", createdAt: new Date(), updatedAt: new Date() },
-  { id: "3", name: "Pokemon Ruby/Sapphire", createdAt: new Date(), updatedAt: new Date() },
-]
 
 export default function PublicationsPage() {
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { publications, isLoading, error } = useAppSelector((state) => state.publications)
   const { currentUser } = useAppSelector((state) => state.user)
+  const games = useAppSelector((state) => state.game)
+
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedGame, setSelectedGame] = useState<string>("")
+  const [page, setPage] = useState(0)
+  const limit = 9
 
   useEffect(() => {
-    dispatch(fetchPublicationsStart())
+    dispatch(
+      fetchPublications({
+        data: {
+          ...(searchTerm && { search: searchTerm }),
+          ...(selectedGame && selectedGame !== "all" && { gamesIds: [selectedGame] }),
+        },
+        limit,
+        offset: page * limit,
+      })
+    )
+  }, [dispatch, page, searchTerm, selectedGame])
 
-    // Simulate API call
-    setTimeout(() => {
-      try {
-        // In a real app, this would be an API call
-        const mockPublications: PublicationResponseDTO[] = [
-          {
-            id: "1",
-            name: "Pikachu for trade",
-            cardId: "1",
-            valueMoney: 0,
-            cardExchangeIds: ["cb2", "cb3"],
-            cardBase: {
-              Id: "cb1",
-              Name: "Pikachu",
-            },
-            imageUrl: "https://assets.pokemon.com/assets/cms2/img/cards/web/SM10/SM10_EN_194.png",
-            game: {
-              Id: "1",
-              Name: "Pokemon Red/Blue",
-            },
-            owner: {
-              ownerId: "user1",
-              ownerName: "Ash Ketchum",
-            },
-            offers: [],
-            createdAt: new Date(),
-          },
-          {
-            id: "2",
-            name: "Charizard for sale",
-            cardId: "2",
-            valueMoney: 50,
-            cardExchangeIds: [],
-            cardBase: {
-              Id: "cb2",
-              Name: "Charizard",
-            },
-            imageUrl: "https://assets.pokemon.com/assets/cms2/img/cards/web/SM10/SM10_EN_194.png",
-            game: {
-              Id: "1",
-              Name: "Pokemon Red/Blue",
-            },
-            owner: {
-              ownerId: "user2",
-              ownerName: "Gary Oak",
-            },
-            offers: [
-              {
-                id: "offer6",
-                publicationId: "3",
-                userId: "user-101",
-                userName: "Brock",
-                cardExchangeIds: ["4"],
-                moneyOffer: 15,
-                statusOffer: OfferStatus.ACCEPTED,
-                createdAt: new Date(Date.now() - 172800000),
-              },
-            ],
-            createdAt: new Date(),
-          },
-          {
-            id: "3",
-            name: "Mewtwo - looking for Lugia",
-            cardId: "5",
-            valueMoney: 0,
-            cardExchangeIds: ["cb6"],
-            cardBase: {
-              Id: "cb5",
-              Name: "Mewtwo",
-            },
-            imageUrl: "https://assets.pokemon.com/assets/cms2/img/cards/web/SM11/SM11_EN_71.png",
-            game: {
-              Id: "2",
-              Name: "Pokemon Gold/Silver",
-            },
-            owner: {
-              ownerId: "user4",
-              ownerName: "Professor Oak",
-            },
-            offers: [],
-            createdAt: new Date(),
-          },
-        ]
-        dispatch(fetchPublicationsSuccess(mockPublications))
-      } catch (error) {
-        dispatch(fetchPublicationsFailure("Failed to load publications"))
-      }
-    }, 500)
-  }, [dispatch])
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+    setPage(0)
+  }
 
-  const filteredPublications = publications.filter((pub) => {
-    let matchesSearch = true
-    let matchesGame = true
-
-    if (searchTerm) {
-      matchesSearch =
-        pub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        pub.cardBase.Name.toLowerCase().includes(searchTerm.toLowerCase())
-    }
-
-    if (selectedGame && selectedGame !== "all") {
-      matchesGame = pub.game.Id === selectedGame
-    }
-
-    return matchesSearch && matchesGame
-  })
+  const handleGameChange = (value: string) => {
+    setSelectedGame(value)
+    setPage(0)
+  }
 
   return (
     <div className="space-y-6">
@@ -166,16 +70,16 @@ export default function PublicationsPage() {
             placeholder="Search publications..."
             className="pl-8"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
-        <Select value={selectedGame} onValueChange={setSelectedGame}>
+        <Select value={selectedGame} onValueChange={handleGameChange}>
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="All Games" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Games</SelectItem>
-            {mockGames.map((game) => (
+            {games.games.map((game) => (
               <SelectItem key={game.id} value={game.id}>
                 {game.name}
               </SelectItem>
@@ -184,19 +88,19 @@ export default function PublicationsPage() {
         </Select>
       </div>
 
-      {isLoading ? (
+      {isLoading && publications.length === 0 ? (
         <div className="flex justify-center items-center h-64">
           <p>Loading publications...</p>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPublications.map((publication) => (
+            {publications.map((publication) => (
               <Card key={publication.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="aspect-video relative bg-muted">
                   <Link href={`/publications/${publication.id}`}>
                     <img
-                      src={publication.imageUrl}
+                      src={publication.card.urlImage}
                       alt={publication.name}
                       className="rounded-lg object-cover group-hover:opacity-50 transition-opacity"
                       height="200"
@@ -240,7 +144,13 @@ export default function PublicationsPage() {
             ))}
           </div>
 
-          {filteredPublications.length === 0 && (
+          {publications.length > 0 && (
+            <div className="flex justify-center mt-6">
+              <Button onClick={() => setPage((prev) => prev + 1)}>Load More</Button>
+            </div>
+          )}
+
+          {publications.length === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No publications found. Try adjusting your filters.</p>
               {currentUser && (

@@ -18,6 +18,11 @@ export interface CardBaseResponseDTO {
   updatedAt: Date
 }
 
+export interface CardBaseFilterDTO {
+  gameId?: string;
+  nameCard?: string;
+}
+
 export interface CreateCardDTO {
   cardBaseId: string
   statusCard: number

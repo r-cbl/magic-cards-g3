@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { use, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,40 +8,40 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Plus } from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { fetchCardsStart, fetchCardsSuccess, fetchCardsFailure } from "@/lib/cardsSlice"
-import type { GameResponseDTO } from "@/types/game"
 import { useState } from "react"
+import { fetchCards } from "@/lib/cardsSlice"
+import { fetchGames } from "@/lib/gameSlice"
+import { fetchCardBases } from "@/lib/cardBaseSlice"
 
-// Mock data
-const mockGames: GameResponseDTO[] = [
-  { id: "1", name: "Pokemon Red/Blue", createdAt: new Date(), updatedAt: new Date() },
-  { id: "2", name: "Pokemon Gold/Silver", createdAt: new Date(), updatedAt: new Date() },
-  { id: "3", name: "Pokemon Ruby/Sapphire", createdAt: new Date(), updatedAt: new Date() },
-]
 
 export default function CardsPage() {
+  const dispatch = useAppDispatch(); 
   const router = useRouter()
-  const dispatch = useAppDispatch()
-  const { cards, isLoading } = useAppSelector((state) => state.cards)
+  const {games} = useAppSelector((state) => state.game)
+  const { cards, isLoading, pagination } = useAppSelector((state) => state.cards)
   const { currentUser } = useAppSelector((state) => state.user)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedGame, setSelectedGame] = useState<string>("")
+  const [offset, setOffset] = useState(0);
+  const limit  = 12; 
 
   useEffect(() => {
-    dispatch(fetchCardsStart())
+    if (!currentUser) {
+      router.push("/login")
+      return
+    }
+    dispatch(fetchGames());
+    dispatch(fetchCardBases());
+  }, [dispatch]);
 
-    // Simulate API call
-    setTimeout(() => {
-      try {
-        // In a real app, this would be an API call
-        dispatch(fetchCardsSuccess(cards))
-      } catch (error) {
-        dispatch(fetchCardsFailure("Failed to load cards"))
-      }
-    }, 500)
-  }, [dispatch])
+  useEffect(() => {
+    if (cards.length === 0) {
+      dispatch(fetchCards({ data: {}, offset: 0, limit }, false));
+      setOffset(limit); // Avanza el offset para la próxima carga
+    }
+  }, [dispatch, cards.length]);
 
-  const filteredCards = cards.filter((card) => {
+  const filteredCards = cards.filter((card: any) => {
     let matchesSearch = true
     let matchesGame = true
 
@@ -56,10 +56,15 @@ export default function CardsPage() {
     return matchesSearch && matchesGame
   })
 
+  const handleLoadMore = () => {
+    dispatch(fetchCards({ data: {}, offset, limit }, true));
+    setOffset(offset + limit);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold">Pokemon Cards</h1>
+        <h1 className="text-3xl font-bold">Cards</h1>
         {currentUser && (
           <Button onClick={() => router.push("/cards/create")} className="bg-yellow-500 hover:bg-yellow-600 text-black">
             <Plus className="mr-2 h-4 w-4" />
@@ -84,7 +89,7 @@ export default function CardsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Games</SelectItem>
-            {mockGames.map((game) => (
+            {games.map((game) => (
               <SelectItem key={game.id} value={game.id}>
                 {game.name}
               </SelectItem>
@@ -114,7 +119,7 @@ export default function CardsPage() {
                 </CardHeader>
                 <CardContent className="p-4 pt-0 pb-2">
                   <p className="text-sm text-muted-foreground">{card.game.Name}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Owner: {card.owner.ownerName}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Owner: {card.owner.ownerId}</p>
                 </CardContent>
                 <CardFooter className="p-4 pt-2">
                   <Button
@@ -137,6 +142,14 @@ export default function CardsPage() {
           )}
         </>
       )}
+      {pagination?.hasMore && (
+        <div className="flex justify-center mt-6">
+          <Button onClick={handleLoadMore} disabled={isLoading}>
+            {isLoading ? "Loading..." : "Cargar más"}
+          </Button>
+        </div>
+      )}
+
     </div>
   )
 }
