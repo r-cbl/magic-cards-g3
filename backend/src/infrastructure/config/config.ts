@@ -14,7 +14,7 @@ const config = {
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'your-default-secret-key-for-dev-only',
-    expiresIn: process.env.JWT_EXPIRES_IN || '1h',
+    expiresIn: process.env.JWT_EXPIRES_IN || '3600',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },
   logging: {

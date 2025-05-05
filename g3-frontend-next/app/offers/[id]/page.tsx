@@ -9,6 +9,7 @@ import type { OfferResponseDTO } from "@/types/offer"
 import { ArrowLeft } from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { acceptOffer, fetchOfferById, rejectOffer } from "@/lib/offersSlice"
+import { fetchCardById } from "@/lib/cardsSlice"
 
 export default function OfferDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()

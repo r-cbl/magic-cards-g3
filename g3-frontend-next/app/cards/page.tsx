@@ -12,6 +12,7 @@ import { useState } from "react"
 import { fetchCards } from "@/lib/cardsSlice"
 import { fetchGames } from "@/lib/gameSlice"
 import { fetchCardBases } from "@/lib/cardBaseSlice"
+import RequireAuth from '@/components/ui/requireauth';
 
 
 export default function CardsPage() {
@@ -26,10 +27,6 @@ export default function CardsPage() {
   const limit  = 12; 
 
   useEffect(() => {
-    if (!currentUser) {
-      router.push("/login")
-      return
-    }
     dispatch(fetchGames());
     dispatch(fetchCardBases());
   }, [dispatch]);
@@ -62,6 +59,7 @@ export default function CardsPage() {
   };
 
   return (
+    <RequireAuth>
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-3xl font-bold">Cards</h1>
@@ -151,5 +149,6 @@ export default function CardsPage() {
       )}
 
     </div>
+    </RequireAuth>
   )
 }

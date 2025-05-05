@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -26,13 +25,11 @@ export default function CreatePublicationPage() {
 
   // Form state
   const [name, setName] = useState("")
-  const [selectedCardId, setSelectedCardId] = useState("")
   const [valueMoney, setValueMoney] = useState(0)
   const [wantExchange, setWantExchange] = useState(false)
   const [selectedCardExchanges, setSelectedCardExchanges] = useState<string[]>([])
   const [formErrors, setFormErrors] = useState<{
     name?: string
-    cardId?: string
     valueMoney?: string
   }>({})
 
@@ -40,22 +37,9 @@ export default function CreatePublicationPage() {
   const [selectedCard, setSelectedCard] = useState<CardResponseDTO | null>(null)
 
   useEffect(() => {
-    if (!currentUser) {
-      router.push("/login")
-      return
-    }
     const cardId = searchParams.get("cardId")
     if (cardId) {
-      setSelectedCardId(cardId)
-    }
-    if (cards.length === 0) {
-      dispatch(fetchCards())
-    }
-  }, [router, searchParams, dispatch, currentUser, cards.length])
-
-  useEffect(() => {
-    if (selectedCardId && cards.length > 0) {
-      const card = cards.find((card) => card.id === selectedCardId)
+      const card = cards.find((card) => card.id === cardId)
       if (card) {
         setSelectedCard(card)
         if (!name) {
@@ -63,7 +47,10 @@ export default function CreatePublicationPage() {
         }
       }
     }
-  }, [selectedCardId, cards, name])
+    if (cards.length === 0) {
+      dispatch(fetchCards())
+    }
+  }, [router, searchParams, dispatch, currentUser, cards.length])
 
   const handleCardExchangeToggle = (cardBaseId: string) => {
     setSelectedCardExchanges((prev) => {
@@ -78,14 +65,13 @@ export default function CreatePublicationPage() {
   const validateForm = () => {
     const errors: {
       name?: string
-      cardId?: string
       valueMoney?: string
     } = {}
     if (!name || name.trim().length < 2) {
       errors.name = "Publication title must be at least 2 characters"
     }
-    if (!selectedCardId) {
-      errors.cardId = "Please select a card to offer"
+    if (!selectedCard) {
+      errors.name = "Please select a card to offer"
     }
     if (valueMoney < 0) {
       errors.valueMoney = "Price cannot be negative"
@@ -103,14 +89,19 @@ export default function CreatePublicationPage() {
     if (!validateForm()) {
       return
     }
-    const publicationData: CreatePublicationDTO = {
-      cardId: selectedCardId,
-      ownerId: currentUser.id,
-      cardExchangeIds: wantExchange ? selectedCardExchanges : [],
-      valueMoney: valueMoney > 0 ? valueMoney : undefined,
+    if (selectedCard)
+    {
+      const publicationData: CreatePublicationDTO = {
+        cardId: selectedCard.id,
+        ownerId: currentUser.id,
+        cardExchangeIds: wantExchange ? selectedCardExchanges : [],
+        valueMoney: valueMoney > 0 ? valueMoney : undefined,
+      }
+      dispatch(createPublication(publicationData))
+      router.push("/publications")
     }
-    dispatch(createPublication(publicationData))
-    router.push("/publications")
+    else throw new Error("Select a card first.")
+    
   }
 
   const isLoading = isCardsLoading || isPublicationLoading
@@ -148,7 +139,12 @@ export default function CreatePublicationPage() {
               <label htmlFor="cardId" className="text-sm font-medium">
                 Card to Offer
               </label>
-              <Select value={selectedCardId} onValueChange={setSelectedCardId}>
+              <Select value={selectedCard?.id || ""} onValueChange={(value) => {
+                const card = cards.find((card) => card.id === value)
+                if (card) {
+                  setSelectedCard(card)
+                }
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a card" />
                 </SelectTrigger>
@@ -166,7 +162,7 @@ export default function CreatePublicationPage() {
                   )}
                 </SelectContent>
               </Select>
-              {formErrors.cardId && <p className="text-sm text-red-500">{formErrors.cardId}</p>}
+              {formErrors.name && <p className="text-sm text-red-500">{formErrors.name}</p>}
             </div>
 
             {selectedCard && (

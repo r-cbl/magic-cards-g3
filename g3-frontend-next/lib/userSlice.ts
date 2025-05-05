@@ -44,6 +44,12 @@ export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    sessionExpired: (state) => {
+      localStorage.removeItem("user")
+      localStorage.removeItem("tokens")
+      state.currentUser = null
+      state.error = "Error en el inicio de sesión. Por favor volver a intentar."
+    },
     loginStart: (state) => {
       state.isLoading = true
       state.error = null
@@ -54,6 +60,7 @@ export const userSlice = createSlice({
       state.isLoading = false
     },
     loginFailure: (state, action: PayloadAction<string>) => {
+      localStorage.clear()
       state.isLoading = false
       state.error = action.payload
     },
@@ -85,6 +92,7 @@ export const userSlice = createSlice({
 })
 
 export const {
+  sessionExpired,
   loginStart,
   loginSuccess,
   loginFailure,
