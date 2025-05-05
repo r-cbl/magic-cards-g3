@@ -81,6 +81,7 @@ export async function createOfferConversation(
         ctx,
         token,
         {
+          status: "Open",
           excludeId: user.user.id,
           gamesIds: selectedGameId,
           cardBaseIds: selectedCardId,

@@ -1,4 +1,5 @@
 export interface GetRequest {
+    status?: string;
     initialDate?: Date;
     endDate?: Date;
     gamesIds?: string[];

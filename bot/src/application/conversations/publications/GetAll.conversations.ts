@@ -5,6 +5,7 @@ import { GetRequest } from "../../../client/publications/request/get.request";
 import { PublicationResponse } from "../../../client/publications/response/publication.response";
 import { PaginationUtils } from "../utils/pagination.utils";
 import { publicationsClient } from "../../../client/client";
+import { open } from "fs";
 
 export async function getAllPublicationsConversation(
     ctx: BotContext
@@ -22,7 +23,7 @@ export async function getAllPublicationsConversation(
                     (publication.valueMoney != null ? ` - 💰 Value: $${publication.valueMoney}` : "") +
                     (publication.cardExchangeIds?.length ? ` - 🔄 Exchanges: ${publication.cardExchangeIds.length}` : ""),
             token,
-            {ownerId},
+            {ownerId, status:"Open"},
             10,
             false
         );
