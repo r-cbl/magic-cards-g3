@@ -3,16 +3,16 @@ version: '3.8'
 services:
   app:
     build:
-      context: ./backend  
+      context: ./backend
       dockerfile: Dockerfile
     container_name: magic-cards-app
     ports:
       - "3001:3001"
     environment:
-      - NODE_ENV=production
-      - PORT=3001
-      - JWT_SECRET=your_jwt_secret_key
-      - JWT_EXPIRES_IN=1h
+      NODE_ENV: production
+      PORT: 3001
+      JWT_SECRET: your_jwt_secret_key
+      JWT_EXPIRES_IN: 1h
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/healthz"]
@@ -25,18 +25,32 @@ services:
 
   bot:
     build:
-      context: ./bot  
+      context: ./bot
       dockerfile: Dockerfile
     container_name: magic-cards-bot
-    restart: unless-stopped
-    env_file:
-      - /bot/.env
     environment:
-      - RUNNING_IN_DOCKER=true
+      RUNNING_IN_DOCKER: true
+    env_file:
+      - ./bot/.env
     volumes:
       - ./logs:/usr/src/app/logs
+    restart: unless-stopped
     depends_on:
       - app
+    networks:
+      - app-network
+
+  web:
+    build:
+      context: ./g3-frontend-next
+      dockerfile: Dockerfile
+    container_name: magic-cards-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001/api}
+    restart: unless-stopped
     networks:
       - app-network
 
