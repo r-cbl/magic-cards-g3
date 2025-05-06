@@ -5,7 +5,6 @@ npm-debug.log*
 
 # Dependencies - ignore in all subfolders
 **/node_modules/
-**/package-lock.json
 
 # Build output
 **/dist/

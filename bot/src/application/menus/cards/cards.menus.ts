@@ -8,6 +8,6 @@ export const cardsMenu = new Menu<BotContext>("cards-menu")
     await ctx.conversation.enter("createCardConversation");
   }))
   .row()
-  .text("📋 View your cards", withAuth(getAllCardConversation))
+  .text("📋 My cards", withAuth(getAllCardConversation))
   .row()
   .back("🔙 Back");

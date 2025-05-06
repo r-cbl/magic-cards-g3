@@ -3,6 +3,7 @@ import { BotContext } from "../../../types/botContext";
 import { session } from "../../../bot/middleware";
 import { handleError } from "../../../types/errors";
 import { authClient } from "../../../client/client";
+import { isValidEmailFormat, isValidPasswordFormat } from "../utils/validate.utils";
 
 export async function registerConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -14,14 +15,28 @@ export async function registerConversation(
     await ctx.reply("🧑‍💻 What is your name?");
     const name = await conversation.form.text();
 
-    await ctx.reply("📧 What is your email?");
-    const email = await conversation.form.text();
+    let email: string;
+    do {
+      await ctx.reply("📧 What is your email?");
+      email = await conversation.form.text();
 
-    await ctx.reply("🔐 Choose a password:");
-    const password = await conversation.form.text();
+      if (!isValidEmailFormat(email)) {
+        await ctx.reply("❌ Invalid email format. Please enter a valid email address.");
+      }
+    } while (!isValidEmailFormat(email));
+
+    let password: string;
+    do {
+      await ctx.reply("🔐 Choose a password:");
+      password = await conversation.form.text();
+
+      if (!isValidPasswordFormat(password)) {
+        await ctx.reply("❌ Password must be at least 6 characters long.");
+      }
+    } while (!isValidPasswordFormat(password));
 
     const result = await authClient.register({ name, email, password });
-    session.save(userId!, result);
+    session.save(userId, result);
 
     await ctx.reply("✅ You have successfully registered!");
   } catch (error) {
