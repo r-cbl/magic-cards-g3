@@ -24,6 +24,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { fetchPublicationById } from "@/lib/publicationsSlice"
 import {createOffer} from "@/lib/offersSlice"
 import { fetchCards } from "@/lib/cardsSlice"
+import _ from "lodash"
 
 export default function PublicationDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -147,7 +148,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Posted on:</span>
-                  <span>{new Date(publication.createdAt)..toISOString().slice(0, 10)}</span>
+                  <span>{new Date(publication.createdAt).toISOString().slice(0, 10)}</span>
                 </div>
                 {publication.valueMoney > 0 && (
                   <div className="flex justify-between">
@@ -155,11 +156,11 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                     <span className="font-medium">${publication.valueMoney}</span>
                   </div>
                 )}
-                {publication.cardExchangeIds.length > 0 && (
+                { _.size(publication.cardExchangeIds) > 0 && (
                   <div>
                     <span className="text-muted-foreground">Looking for:</span>
                     <div className="mt-1 flex flex-wrap gap-1">
-                      {publication.cardExchangeIds.map((cardId) => {
+                      {_.map(publication.cardExchangeIds, (cardId) => {
                         const cardBase = cardBases.cardBases.find((cb) => cb.id === cardId)
                         return cardBase ? (
                           <Badge key={cardId} variant="secondary">
@@ -174,24 +175,24 @@ export default function PublicationDetailPage({ params }: { params: { id: string
             </CardContent>
           </Card>
 
-          {publication.offers.length > 0 && isOwner && (
+          { _.size(publication.offers) > 0 && isOwner && (
             <Card className="mb-6">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Offers ({publication.offers.length})</CardTitle>
+                <CardTitle className="text-lg">Offers ({_.size(publication.offers)})</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {publication.offers.map((offer) => (
+                  { _.map(publication.offers, ((offer) => (
                     <div key={offer.id} className="border rounded-md p-3">
                       <div className="flex justify-between items-center mb-2">
                         <Badge>{offer.status}</Badge>
                         {offer.moneyOffer && <span className="font-medium">${offer.moneyOffer}</span>}
                       </div>
-                      {offer.cardExchangeIds.length > 0 && (
+                      { _.size(offer.cardExchangeIds) > 0 && (
                         <div>
                           <span className="text-sm text-muted-foreground">Cards offered:</span>
                           <div className="mt-1 flex flex-wrap gap-1">
-                            {offer.cardExchangeIds.map((cardId) => {
+                            {_.map(offer.cardExchangeIds, (cardId) => {
                               const cardBase = cardBases.cardBases.find((cb) => cb.id === cardId)
                               return cardBase ? (
                                 <Badge key={cardId} variant="secondary" className="text-xs">
@@ -213,7 +214,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                         </div>
                       )}
                     </div>
-                  ))}
+                  )))}
                 </div>
               </CardContent>
             </Card>
@@ -252,8 +253,8 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                     <div className="grid gap-2">
                       <Label>Cards to offer:</Label>
                       <div className="border rounded-md p-3 max-h-[200px] overflow-y-auto">
-                        {cards.length > 0 ? (
-                          cards.map((card) => (
+                        { _.size(cards) > 0 ? (
+                          _.map(cards, (card: any) => (
                             <div key={card.id} className="flex items-center space-x-2 py-1">
                               <Checkbox
                                 id={card.id}
@@ -280,7 +281,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                   <DialogFooter>
                     <Button
                       onClick={handleSubmitOffer}
-                      disabled={isSubmittingOffer || (moneyOffer === 0 && selectedCardExchanges.length === 0)}
+                      disabled={isSubmittingOffer || (moneyOffer === 0 && _.size(selectedCardExchanges) === 0)}
                       className="bg-yellow-500 hover:bg-yellow-600 text-black"
                     >
                       {isSubmittingOffer ? "Submitting..." : "Submit Offer"}

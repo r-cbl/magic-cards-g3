@@ -37,7 +37,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
 
     // Manejar errores HTTP (por ejemplo, 401 o 403)
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorData = await response.json();
 
       // Si el error es de autenticación (401 o 403), borrar la sesión
       if (response.status === 401 || response.status === 403) {
@@ -46,11 +46,9 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
           localStorage.removeItem("tokens");
         }
 
-        // Redirigir al usuario a la página de login
-        window.location.href = "/login"; // O usa router.push("/login") si usas Next.js Router
       }
 
-      throw new Error(errorData.message || `API error: ${response.status}`);
+      throw new Error(errorData.message);
     }
 
     // Parsear la respuesta JSON

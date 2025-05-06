@@ -26,6 +26,7 @@ import {
   fetchCardsFailure,
 } from "@/lib/cardsSlice"
 import { fetchGames } from "@/lib/gameSlice"
+import _ from "lodash"
 
 export default function MyCardsPage() {
   const router = useRouter()
@@ -55,7 +56,7 @@ export default function MyCardsPage() {
     }, 500)
   }, [dispatch, currentUser, router])
 
-  const filteredCards = cards.filter((card) => {
+  const filteredCards = _.filter(cards, (card) => {
     let matchesSearch = true
     let matchesGame = true
 
@@ -99,7 +100,7 @@ export default function MyCardsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Games</SelectItem>
-            {games.map((game) => (
+            {_.map(games, (game) => (
               <SelectItem key={game.id} value={game.id}>
                 {game.name}
               </SelectItem>
@@ -115,7 +116,7 @@ export default function MyCardsPage() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredCards.map((card) => (
+            {_.map(filteredCards, (card) => (
               <Card key={card.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="aspect-[2/3] relative">
                   <img
@@ -151,7 +152,7 @@ export default function MyCardsPage() {
             ))}
           </div>
 
-          {filteredCards.length === 0 && (
+          {_.size(filteredCards) === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">You don't have any cards yet.</p>
               <Button

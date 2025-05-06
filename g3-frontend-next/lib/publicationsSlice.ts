@@ -147,6 +147,7 @@ export const createPublication =
 
     try {
       const createdPublication = await Promise.resolve(publicationService.createPublication(data))
+      console.log(createdPublication);
       dispatch(createPublicationSuccess(createdPublication))
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to create card"

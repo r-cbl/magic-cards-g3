@@ -16,9 +16,8 @@ import { createGame} from "@/lib/gameSlice"
 import { CreateGameDTO } from "@/types/game"
 import type { CreateCardBaseDTO, CreateCardDTO, CardResponseDTO } from "@/types/card"
 import { Plus } from "lucide-react"
-import { cardService } from "@/services/card-service"
-import Promise from "bluebird";
 import { createCardBase } from "@/lib/cardBaseSlice"
+import _ from "lodash"
 
 
 export default function CreateCardPage() {
@@ -56,11 +55,11 @@ export default function CreateCardPage() {
       return
     }
     if (selectedGameId) {
-      setFilteredCardBases(cardBases.filter((cb) => cb.game.id === selectedGameId))
+      setFilteredCardBases(_.filter(cardBases, (cb) => cb.game.id === selectedGameId))
     } else {
       setFilteredCardBases([])
     }
-  }, [selectedGameId, router, currentUser, cardBases])
+  }, [currentUser, cardBases])
 
   // Handle creating a new game
   const handleCreateGame = async () => {
@@ -108,12 +107,10 @@ export default function CreateCardPage() {
         nameCard: newCardBaseName,
       }
   
-      // Ejecutás el thunk y obtenés la card base recién creada
       const newCardBase = await dispatch(createCardBase(cardBaseData))
   
-      // Actualizás el estado local si lo necesitás para el formulario
       setSelectedCardBaseId(newCardBase.id)
-      setNewCardBaseName("")
+      setNewCardBaseName(newCardBase.nameCard)
       setCardBaseSelectionMode("existing")
       setFormErrors((prev) => ({ ...prev, cardBase: undefined }))
     } catch (err) {
@@ -229,7 +226,7 @@ export default function CreateCardPage() {
                       <SelectValue placeholder="Select a game" />
                     </SelectTrigger>
                     <SelectContent>
-                      {games.map((game) => (
+                      {_.map(games, (game) => (
                         <SelectItem key={game.id} value={game.id}>
                           {game.name}
                         </SelectItem>
@@ -280,7 +277,7 @@ export default function CreateCardPage() {
                         <SelectValue placeholder="Select a card" />
                       </SelectTrigger>
                       <SelectContent>
-                        {filteredCardBases.length > 0 ? (
+                        { _.size(filteredCardBases) > 0 ? (
                           filteredCardBases.map((cardBase) => (
                             <SelectItem key={cardBase.id} value={cardBase.id}>
                               {cardBase.nameCard}

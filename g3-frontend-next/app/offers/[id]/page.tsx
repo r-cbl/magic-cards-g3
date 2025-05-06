@@ -10,6 +10,7 @@ import { ArrowLeft } from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { acceptOffer, fetchOfferById, rejectOffer } from "@/lib/offersSlice"
 import { fetchCardById } from "@/lib/cardsSlice"
+import _ from "lodash"
 
 export default function OfferDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -76,11 +77,11 @@ export default function OfferDetailPage({ params }: { params: Promise<{ id: stri
               <span className="font-medium">{offer.userName}</span>
             </div>
 
-            {offer.cardExchangeIds && offer.cardExchangeIds.length > 0 && (
+            {_.size(offer.cardExchangeIds) > 0 && (
               <div>
                 <span className="text-muted-foreground">Card Exchange IDs:</span>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {offer.cardExchangeIds.map((cid) => (
+                  {_.map(offer.cardExchangeIds, (cid) => (
                     <Badge key={cid} variant="outline">
                       {cid}
                     </Badge>

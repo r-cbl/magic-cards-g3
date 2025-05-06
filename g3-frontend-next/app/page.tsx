@@ -1,7 +1,3 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
-
 export default function HomePage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] px-4 text-center">
@@ -19,14 +15,6 @@ export default function HomePage() {
       <p className="max-w-xl text-lg text-muted-foreground mb-8">
         The ultimate platform for card collectors. Discover rare cards, connect with fellow trainers, and trade your way to the top!
       </p>
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Button asChild size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-black">
-          <Link href="/publications">
-            Browse Publications
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
-        </Button>
-      </div>
     </div>
   )
 }

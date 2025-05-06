@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { fetchOffers} from "@/lib/offersSlice"
 import { OfferStatus } from "@/types/offer"
 import { DollarSign, Clock, CheckCircle, XCircle } from "lucide-react"
+import _ from "lodash"
 
 export default function MyOffersPage() {
   const router = useRouter()
@@ -30,12 +31,12 @@ export default function MyOffersPage() {
     dispatch(fetchOffers(currentUser.id))
   }, [dispatch, currentUser, router])
 
-  const filteredSentOffers = ownedOffers.filter((offer) => {
+  const filteredSentOffers = _.filter(ownedOffers, (offer: any) => {
     if (sentStatusTab === "all") return true
     return offer.status.toLowerCase() === sentStatusTab.toLowerCase()
   })
 
-  const filteredReceivedOffers = receivedOffers.filter((offer) => {
+  const filteredReceivedOffers = _.filter(receivedOffers, (offer: any) => {
     if (receivedStatusTab === "all") return true
     return offer.status.toLowerCase() === receivedStatusTab.toLowerCase()
   })
@@ -63,7 +64,6 @@ export default function MyOffersPage() {
           <TabsTrigger value="sent">Sent Offers</TabsTrigger>
           <TabsTrigger value="received">Received Offers</TabsTrigger>
         </TabsList>
-        {/* SENT OFFERS TAB */}
         <TabsContent value="sent" className="space-y-6">
           <Tabs defaultValue="all" value={sentStatusTab} onValueChange={setSentStatusTab}>
             <TabsList className="grid w-full grid-cols-4">
@@ -81,9 +81,9 @@ export default function MyOffersPage() {
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
-              ) : filteredSentOffers.length > 0 ? (
+              ) : _.size(filteredSentOffers) > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredSentOffers.map((offer) => (
+                  {_.map(filteredSentOffers, (offer: any) => (
                     <Card key={offer.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                       <CardHeader className="p-4 pb-2">
                         <div className="flex justify-between items-start">
@@ -106,10 +106,10 @@ export default function MyOffersPage() {
                             {offer.moneyOffer}
                           </div>
                         )}
-                        {offer.cardExchangeIds && offer.cardExchangeIds.length > 0 && (
+                        {offer.cardExchangeIds && _.size(offer.cardExchangeIds) > 0 && (
                           <div className="mt-2">
                             <span className="text-xs text-muted-foreground">
-                              Cards offered: {offer.cardExchangeIds.length}
+                              Cards offered: {_.size(offer.cardExchangeIds)}
                             </span>
                           </div>
                         )}
@@ -161,9 +161,9 @@ export default function MyOffersPage() {
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
-              ) : filteredReceivedOffers.length > 0 ? (
+              ) : _.size(filteredReceivedOffers) > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredReceivedOffers.map((offer) => (
+                  {_.map(filteredReceivedOffers, (offer: any) => (
                     <Card key={offer.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                       <CardHeader className="p-4 pb-2">
                         <div className="flex justify-between items-start">
@@ -188,8 +188,8 @@ export default function MyOffersPage() {
                               {offer.moneyOffer}
                             </div>
                           )}
-                          {offer.cardExchangeIds && offer.cardExchangeIds.length > 0 && (
-                            <p className="text-xs">Cards offered: {offer.cardExchangeIds.length}</p>
+                          {offer.cardExchangeIds && _.size(offer.cardExchangeIds) > 0 && (
+                            <p className="text-xs">Cards offered: {_.size(offer.cardExchangeIds)}</p>
                           )}
                         </div>
                       </CardContent>

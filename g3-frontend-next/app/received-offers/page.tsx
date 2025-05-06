@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { fetchOffers } from "@/lib/offersSlice"
 import { DollarSign, Clock, CheckCircle, XCircle } from "lucide-react"
+import _ from "lodash";
 
 export default function ReceivedOffersPage() {
   const router = useRouter()
@@ -66,9 +67,9 @@ export default function ReceivedOffersPage() {
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-          ) : filteredOffers.length > 0 ? (
+          ) : _.size(filteredOffers) > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredOffers.map((offer) => (
+              {_.map(filteredOffers, (offer: any) => (
                 <Card key={offer.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <CardHeader className="p-4 pb-2">
                     <div className="flex justify-between items-start">
@@ -83,7 +84,7 @@ export default function ReceivedOffersPage() {
                     <p className="text-sm mb-1">Publication ID: {offer.publicationId}</p>
                     <p className="text-xs text-muted-foreground">From: {offer.userName}</p>
                     <p className="text-xs text-muted-foreground">
-                      Offered: {new Date(offer.createdAt)..toISOString().slice(0, 10)}
+                      Offered: {new Date(offer.createdAt).toISOString().slice(0, 10)}
                     </p>
                     <div className="mt-3 p-2 border rounded-md">
                       <h4 className="text-xs font-medium mb-1">Offer Details:</h4>
@@ -93,8 +94,8 @@ export default function ReceivedOffersPage() {
                           {offer.moneyOffer}
                         </div>
                       )}
-                      {offer.cardExchangeIds.length > 0 && (
-                        <p className="text-xs">Cards offered: {offer.cardExchangeIds.length}</p>
+                      {_.size(offer.cardExchangeIds) > 0 && (
+                        <p className="text-xs">Cards offered: {_.size(offer.cardExchangeIds)}</p>
                       )}
                     </div>
                   </CardContent>

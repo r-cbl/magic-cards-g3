@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -12,6 +12,7 @@ import { fetchPublications } from "@/lib/publicationsSlice"
 import { Search, DollarSign, Plus } from "lucide-react"
 import Link from "next/link"
 import { OfferStatus } from "@/types/offer"
+import _ from "lodash"
 
 export default function PublicationsPage() {
   const router = useRouter()
@@ -22,6 +23,7 @@ export default function PublicationsPage() {
 
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedGame, setSelectedGame] = useState<string>("")
+  const [hasFetched, setHasFetched] = useState(false)
   const [page, setPage] = useState(0)
   const limit = 9
 
@@ -35,8 +37,8 @@ export default function PublicationsPage() {
         limit,
         offset: page * limit,
       })
-    )
-  }, [dispatch, page, searchTerm, selectedGame])
+    ).then(() => setHasFetched(true));
+  }, [dispatch, page, searchTerm, selectedGame]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
@@ -79,7 +81,7 @@ export default function PublicationsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Games</SelectItem>
-            {games.games.map((game) => (
+            {_.map(games.games, (game) => (
               <SelectItem key={game.id} value={game.id}>
                 {game.name}
               </SelectItem>
@@ -88,14 +90,15 @@ export default function PublicationsPage() {
         </Select>
       </div>
 
-      {isLoading && publications.length === 0 ? (
+      {!hasFetched ? (
         <div className="flex justify-center items-center h-64">
           <p>Loading publications...</p>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {publications.map((publication) => (
+            {_.size(publications) > 0 && 
+              _.map(publications, (publication) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Card key={publication.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="aspect-video relative bg-muted">
                   <Link href={`/publications/${publication.id}`}>
@@ -126,8 +129,8 @@ export default function PublicationsPage() {
                   <p className="text-xs text-muted-foreground">
                     Posted: {new Date(publication.createdAt).toISOString().slice(0, 10)}
                   </p>
-                  {publication.offers.length > 0 && (
-                    <p className="text-xs font-medium mt-2">{publication.offers.length} offer(s)</p>
+                  {_.size(publication.offers) > 0 && (
+                    <p className="text-xs font-medium mt-2">{_.size(publication.offers)} offer(s)</p>
                   )}
                 </CardContent>
                 <CardFooter className="p-4 pt-2">
@@ -141,16 +144,13 @@ export default function PublicationsPage() {
                   </Button>
                 </CardFooter>
               </Card>
-            ))}
-          </div>
-
-          {publications.length > 0 && (
-            <div className="flex justify-center mt-6">
-              <Button onClick={() => setPage((prev) => prev + 1)}>Load More</Button>
+              <div className="flex justify-center mt-6">
+                <Button onClick={() => setPage((prev) => prev + 1)}>Load More</Button>
+              </div>
             </div>
-          )}
+            ))}
 
-          {publications.length === 0 && (
+          {_.size(publications) === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No publications found. Try adjusting your filters.</p>
               {currentUser && (

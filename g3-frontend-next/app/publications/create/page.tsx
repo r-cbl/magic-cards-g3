@@ -14,6 +14,7 @@ import { createPublication, createPublicationFailure } from "@/lib/publicationsS
 import type { CardResponseDTO } from "@/types/card"
 import type { CreatePublicationDTO } from "@/types/publication"
 import { fetchCards } from "@/lib/cardsSlice"
+import _ from "lodash"
 
 export default function CreatePublicationPage() {
   const router = useRouter()
@@ -47,10 +48,10 @@ export default function CreatePublicationPage() {
         }
       }
     }
-    if (cards.length === 0) {
+    if (_.size(cards) === 0) {
       dispatch(fetchCards())
     }
-  }, [router, searchParams, dispatch, currentUser, cards.length])
+  }, [searchParams, dispatch, currentUser, cards ])
 
   const handleCardExchangeToggle = (cardBaseId: string) => {
     setSelectedCardExchanges((prev) => {
@@ -140,7 +141,7 @@ export default function CreatePublicationPage() {
                 Card to Offer
               </label>
               <Select value={selectedCard?.id || ""} onValueChange={(value) => {
-                const card = cards.find((card) => card.id === value)
+                const card = _.find(cards, ((card) => card.id === value))
                 if (card) {
                   setSelectedCard(card)
                 }
@@ -149,12 +150,12 @@ export default function CreatePublicationPage() {
                   <SelectValue placeholder="Select a card" />
                 </SelectTrigger>
                 <SelectContent>
-                  {cards.length > 0 ? (
-                    cards.map((card) => (
+                  { _.size(cards) > 0 ? (
+                    _.map(cards, ((card) => (
                       <SelectItem key={card.id} value={card.id}>
                         {card.cardBase.Name} ({card.game.Name})
                       </SelectItem>
-                    ))
+                    )))
                   ) : (
                     <SelectItem value="no-cards" disabled>
                       You don't have any cards yet

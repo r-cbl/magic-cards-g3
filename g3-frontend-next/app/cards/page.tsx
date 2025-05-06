@@ -13,6 +13,7 @@ import { fetchCards } from "@/lib/cardsSlice"
 import { fetchGames } from "@/lib/gameSlice"
 import { fetchCardBases } from "@/lib/cardBaseSlice"
 import RequireAuth from '@/components/ui/requireauth';
+import _ from "lodash"
 
 
 export default function CardsPage() {
@@ -32,13 +33,13 @@ export default function CardsPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (cards.length === 0) {
+    if (_.size(cards) === 0) {
       dispatch(fetchCards({ data: {}, offset: 0, limit }, false));
       setOffset(limit); // Avanza el offset para la próxima carga
     }
-  }, [dispatch, cards.length]);
+  }, [dispatch, _.size(cards)]);
 
-  const filteredCards = cards.filter((card: any) => {
+  const filteredCards = _.filter(cards, (card: any) => {
     let matchesSearch = true
     let matchesGame = true
 
@@ -87,7 +88,7 @@ export default function CardsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Games</SelectItem>
-            {games.map((game) => (
+            {_.map(games, (game) => (
               <SelectItem key={game.id} value={game.id}>
                 {game.name}
               </SelectItem>
@@ -103,7 +104,7 @@ export default function CardsPage() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredCards.map((card) => (
+            {_.map(filteredCards, (card) => (
               <Card key={card.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="aspect-[2/3] relative">
                   <img
@@ -133,7 +134,7 @@ export default function CardsPage() {
             ))}
           </div>
 
-          {filteredCards.length === 0 && (
+          {_.size(filteredCards) === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No cards found. Try adjusting your filters.</p>
             </div>

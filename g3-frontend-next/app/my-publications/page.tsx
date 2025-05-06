@@ -16,6 +16,7 @@ import type { PublicationResponseDTO } from "@/types/publication"
 import type { OfferResponseDTO } from "@/types/offer"
 import type { RootState } from "@/lib/store"
 import { DollarSign, Clock, CheckCircle, XCircle } from "lucide-react"
+import _ from "lodash"
 
 export default function MyPublicationsPage() {
   const router = useRouter()
@@ -31,10 +32,10 @@ export default function MyPublicationsPage() {
     dispatch(fetchPublications())
   }, [dispatch, currentUser, router])
 
-  const filteredPublications = publications.filter((pub: PublicationResponseDTO) => {
+  const filteredPublications = _.filter(publications, (pub: PublicationResponseDTO) => {
     if (activeTab === "all") return true
-    if (activeTab === "with-offers") return pub.offers.length > 0
-    if (activeTab === "no-offers") return pub.offers.length === 0
+    if (activeTab === "with-offers") return _.size(pub.offers) > 0
+    if (activeTab === "no-offers") return _.size(pub.offers) === 0
     return true
   })
 
@@ -78,9 +79,9 @@ export default function MyPublicationsPage() {
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-          ) : filteredPublications.length > 0 ? (
+          ) : _.size(filteredPublications) > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredPublications.map((publication: PublicationResponseDTO) => (
+              {_.map(filteredPublications, (publication: PublicationResponseDTO) => (
                 <Card key={publication.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <CardHeader className="p-4 pb-2">
                     <div className="flex justify-between items-start">
@@ -102,11 +103,11 @@ export default function MyPublicationsPage() {
                       Posted: {new Date(publication.createdAt).toISOString().slice(0, 10)}
                     </p>
 
-                    {publication.offers.length > 0 && (
+                    {_.size(publication.offers) > 0 && (
                       <div className="mt-4">
                         <h4 className="text-sm font-medium mb-2">Offers:</h4>
                         <div className="space-y-2">
-                          {publication.offers.map((offer: OfferResponseDTO) => {
+                          {_.map(publication.offers, (offer: OfferResponseDTO) => {
                             const offeredCardNames = offer.cardExchangeIds
                               .map((id) => {
                                 return `Card ID: ${id}`

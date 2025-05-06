@@ -64,7 +64,7 @@ export default function LoginPage() {
         <CardContent>
           {error && (
             <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>Login failed. Please check your username and password, then try again.</AlertDescription>
             </Alert>
           )}
           <form onSubmit={handleSubmit} className="space-y-4">
