@@ -1,13 +1,11 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { CardsClient } from "../../../client/cards/cards.client";
 import { session } from "../../../bot/middleware";
 import { CreateRequest as CreateRequestCards } from "../../../client/cards/request/create.request";
 import { selectGameConversation } from "../games/SelectGame.conversations";
 import { selectBaseCardConversation } from "../baseCards/SelectBaseCard.conversations";
 import { handleError } from "../../../types/errors";
-import { BaseCardsClient } from "../../../client/baseCards/baseCard.client";
-import { GamesClient } from "../../../client/games/games.client";
+import { baseCardsClient, cardsClient, gamesClient } from "../../../client/client";
 
 export async function createCardConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -16,18 +14,15 @@ export async function createCardConversation(
   const userId = ctx.from!.id.toString();
   const user = session.get(userId)!;
   const token = user.tokens.accessToken;
-  const cardsClient = new CardsClient();
-  const baseCardClient = new BaseCardsClient();
-  const gameClient = new GamesClient();
 
   try {
 
-    let game = await selectGameConversation(conversation,ctx,token)
+    let game = await selectGameConversation(conversation,ctx,token,{limit:10,offset:0},true,false)
     if (!game){
       conversation.halt()
       return;
     }
-    let baseCard = await selectBaseCardConversation(conversation, ctx, token,true,false, game.id);
+    let baseCard = await selectBaseCardConversation(conversation, ctx, token,{limit:10,offset:0,gameId:game.id},true,false);
     if (!baseCard){
       conversation.halt()
       return;
@@ -50,22 +45,24 @@ export async function createCardConversation(
     
 
     // 2) Ask for photo instead of URL
-    await ctx.reply("Now, take or send a photo of the card:");
+    // await ctx.reply("Now, take or send a photo of the card:");
 
-    // Wait for a photo message
-    const photoCtx = await conversation.waitFor("message:photo");
+    // // Wait for a photo message
+    // const photoCtx = await conversation.waitFor("message:photo");
 
-    const photos = photoCtx.message.photo!;
-    const bestPhoto = photos[photos.length - 1];
-    // const fileId = bestPhoto.file_id;
+    // const photos = photoCtx.message.photo!;
+    // const bestPhoto = photos[photos.length - 1];
+    // // const fileId = bestPhoto.file_id;
+    await ctx.reply("Now send the url image:");
+    const fileCtx = await conversation.waitFor("message:text");
 
     const fileUrl = "www";
     if(game.id === "0"){
-      const newGame = await gameClient.create({name: game.name},token)
+      const newGame = await gamesClient.create({name: game.name},token)
       game.id = newGame.id
     }
     if (baseCard.id === "0"){
-      const newBaseCard = await baseCardClient.create({nameCard:baseCard.name, gameId:game.id},token);
+      const newBaseCard = await baseCardsClient.create({nameCard:baseCard.nameCard, gameId:game.id},token);
       baseCard.id = newBaseCard.id;
     }
     const request: CreateRequestCards = {

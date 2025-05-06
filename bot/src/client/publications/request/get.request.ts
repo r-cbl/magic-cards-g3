@@ -1,4 +1,5 @@
 export interface GetRequest {
+    status?: string;
     initialDate?: Date;
     endDate?: Date;
     gamesIds?: string[];
@@ -6,4 +7,7 @@ export interface GetRequest {
     ownerId?: string;
     minValue?: number;
     maxValue?: number;
+    excludeId?: string;
+    limit:number;
+    offset:number;
   }

@@ -1,12 +1,11 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { PublicationsClient } from "../../../client/publications/publications.client";
-import { BaseCardsClient } from "../../../client/baseCards/baseCard.client";
 import { session } from "../../../bot/middleware";
 import { handleError } from "../../../types/errors";
 import { selectBaseCardConversation } from "../baseCards/SelectBaseCard.conversations";
 import { InlineKeyboard } from "grammy";
 import { selectCardConversation } from "../cards/SelectCard.conversations";
+import { publicationsClient } from "../../../client/client";
 
 export async function createPublicationConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -16,17 +15,18 @@ export async function createPublicationConversation(
   const user = session.get(userId)!;
   const token = user.tokens.accessToken;
 
-  const publicationsClient = new PublicationsClient();
-  const baseCardClient = new BaseCardsClient();
 
   try {
     // 1. Select a card to publish
-    const selected = await selectCardConversation(conversation, ctx, token, false);
+    const selected = await selectCardConversation(conversation, ctx, token,{ownerId: user.user.id, limit:10,offset:10}, false,true);
     if (!selected || !("cardBase" in selected)) {
       await ctx.reply("❌ Could not select a valid card.");
       return;
     }
-    const selectedCard = selected;
+    if (selected.id === "none") {
+      await ctx.reply("❌ Cancel Operation.");
+      return;
+    }
 
     let valueMoney = 0;
 
@@ -69,6 +69,7 @@ export async function createPublicationConversation(
             conversation,
             ctx,
             token,
+            {limit:10,offset:0},
             false,  
             true,   
           );
@@ -85,7 +86,7 @@ export async function createPublicationConversation(
           }
 
           baseCardIds.push(baseCard.id);
-          baseCardNames.push(baseCard.name);
+          baseCardNames.push(baseCard.nameCard);
 
           const decisionKeyboard = new InlineKeyboard()
             .text("➕ Yes, add another", "yes")
@@ -108,7 +109,7 @@ export async function createPublicationConversation(
 
       // 4. Confirmation
       await ctx.reply(
-        `✅ Publication summary:\n\n📦 Card: ${selectedCard.cardBase.Name}` +
+        `✅ Publication summary:\n\n📦 Card: ${selected.cardBase!.Name}` +
         `\n💰 Money: $${valueMoney}` +
         `\n🃏 Accepted base cards: ${
           baseCardIds.length === 0 ? "None" : baseCardNames.join(", ")
@@ -131,7 +132,7 @@ export async function createPublicationConversation(
       // 5. Create the publication
       await publicationsClient.create(
         {
-          cardId: selectedCard.id,
+          cardId: selected.id,
           valueMoney,
           cardExchangeIds: baseCardIds,
         },

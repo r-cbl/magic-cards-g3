@@ -12,24 +12,37 @@ export abstract class BaseApiClient {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
-      
+  
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
-
-
+  
       const response = await fetch(url, options);
-      const data = await response.json();
-
+      const text = await response.text();
+  
+      let data: any = null;
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch (parseError) {
+          throw new ApiError(
+            'Invalid JSON in response',
+            response.status,
+            userErrorMessage,
+            parseError
+          );
+        }
+      }
+  
       if (!response.ok) {
         throw new ApiError(
-          `API request failed: ${(data as { message?: string }).message || 'Unknown error'}`,
+          `API request failed: ${(data as { message?: string })?.message || 'Unknown error'}`,
           response.status,
           userErrorMessage,
           data
         );
       }
-
+  
       return data as T;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -43,9 +56,10 @@ export abstract class BaseApiClient {
       );
     }
   }
+  
 
   protected async requestWithBody<T>(
-    method: "POST" | "PUT" | "DELETE",
+    method: "POST" | "PUT",
     url: string,
     userErrorMessage: string,
     body?: unknown,
@@ -58,7 +72,7 @@ export abstract class BaseApiClient {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    console.log("url: ", url,"Method: ", method);
+    console.log("url: ", url,"Method: ", method,"Date: ",Date.now());
     return this.fetchWithErrorHandling<T>(
       url,
       {
@@ -71,7 +85,8 @@ export abstract class BaseApiClient {
   }
   
 
-  protected async get<T>(
+  protected async requestWithOutBody<T>(
+    method: "GET" | "DELETE",
     url: string,
     userErrorMessage: string,
     token?: string,
@@ -87,11 +102,11 @@ export abstract class BaseApiClient {
       const queryString = new URLSearchParams(this.buildQueryParams(queryParams)).toString();
       url += `?${queryString}`;
     }
-    console.log("url: ", url,"Method: GET",);
+    console.log("url: ", url,"Method: ", method,"Date: ",Date.now());
     return this.fetchWithErrorHandling<T>(
       url,
       {
-        method: 'GET',
+        method: method,
         headers,
       },
       userErrorMessage
@@ -106,7 +121,7 @@ export abstract class BaseApiClient {
       const value = params[key];
   
       if (value === undefined || value === null) {
-        continue; // Ignorar valores nulos o undefined
+        continue;
       }
   
       if (Array.isArray(value)) {

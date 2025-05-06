@@ -17,7 +17,7 @@ export class GamesClient {
 
     getAll(request: GetRequest, token: string): Promise<PaginatedResponse<GameResponse>> {
         let response = this.getAllClient.execute(request, token)
-        console.log(JSON.stringify(response));            // en una única línea
+        // console.log(JSON.stringify(response));            // en una única línea
         return response;
       }
     // getById(request: string, token: string): Promise<CardResponse> {

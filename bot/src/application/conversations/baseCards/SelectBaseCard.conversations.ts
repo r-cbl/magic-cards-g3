@@ -1,43 +1,37 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../../types/botContext";
-import { BaseCardKeyboard } from "./baseCard.keyboard";
-import { InlineKeyboard } from "grammy";
 import { handleError } from "../../../types/errors"; // asegúrate de tener esta importación
+import { BaseCardResponse } from "../../../client/baseCards/response/baseCard.response";
+import { Keyboard } from "../utils/keyboard.utils";
+import { GetRequest } from "../../../client/baseCards/request/get.request";
+import { baseCardsClient } from "../../../client/client";
 
 export async function selectBaseCardConversation(
   conversation: Conversation<BotContext, BotContext>,
   ctx: BotContext,
   token: string,
+  request: GetRequest,
   enableOther: boolean,
-  enableNone: boolean,
-  gameId?: string
-): Promise<{ id: string; name: string } | null> {
+  enableNone: boolean
+): Promise<BaseCardResponse | null> {
   try {
-    const baseCardKeyboard = new BaseCardKeyboard(token, 10, enableOther);
     let id: string;
     let name: string;
     let offset = 0;
     let messageId: number | undefined;
-
-    const initialResp = await baseCardKeyboard.fetchPage(offset, gameId);
-
-    if (!initialResp.data.length && !enableOther) {
-      await ctx.reply("⚠️ No base cards available.");
-      const cancelKb = new InlineKeyboard().text("🔙 Go back", "cancel");
-      await ctx.reply("Do you want to go back?", { reply_markup: cancelKb });
-
-      const cancelCtx = await conversation.waitFor("callback_query");
-      await cancelCtx.answerCallbackQuery();
-      return null;
-    }
+    const keyboardGeneric = new Keyboard<GetRequest,BaseCardResponse>(
+      baseCardsClient,
+      token,
+      request,
+      10,
+      enableOther,
+      enableNone,
+      (baseCard) => baseCard.nameCard || "Unnamed base card"
+    );
+    let resp = await keyboardGeneric.fetchPage(offset);
 
     while (true) {
-      const resp = await baseCardKeyboard.fetchPage(offset, gameId);
-      const keyboard = baseCardKeyboard.buildKeyboard(resp);
-
-      if (enableNone) {
-        keyboard.row().text("🛑 None", "none");
-      }
+      const keyboard = keyboardGeneric.buildKeyboard(resp);
 
       if (!messageId) {
         const msg = await ctx.reply("📚 Select a base card:", { reply_markup: keyboard });
@@ -48,13 +42,11 @@ export async function selectBaseCardConversation(
             reply_markup: keyboard,
           });
         } catch (err: any) {
-          // Ignore "message is not modified" error
           if (
             err instanceof Error &&
             "description" in err &&
             (err as any).description?.includes("message is not modified")
           ) {
-            // do nothing
           } else {
             throw err;
           }
@@ -73,7 +65,7 @@ export async function selectBaseCardConversation(
         const index = Number(data.split("|")[1]);
         id = resp.data[index].id;
         name = resp.data[index].nameCard;
-        return { id, name };
+        return { id, nameCard: name };
       }
 
       if (data.startsWith("nav|")) {
@@ -86,7 +78,7 @@ export async function selectBaseCardConversation(
       }
 
       if (data === "none" && enableNone) {
-        return { id: "none", name: "None" };
+        return { id: "none", nameCard: "None" };
       }
 
       if (enableOther && data === "other") {
@@ -94,7 +86,7 @@ export async function selectBaseCardConversation(
         const nameCtx = await conversation.waitFor("message:text");
         name = nameCtx.message.text;
         id = "0";
-        return { id, name };
+        return { id, nameCard: name };
       }
     }
   } catch (error) {

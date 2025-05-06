@@ -1,26 +1,26 @@
 export interface PublicationResponse {
     id: string;
     name: string;
-    cardId: string;
-    valueMoney: number;
-    cardExchangeIds: string[];
-    cardBase: {
+    cardId?: string;
+    valueMoney?: number;
+    cardExchangeIds?: string[];
+    cardBase?: {
       Id: string;
       Name: string;
     };
-    game: {
+    game?: {
       Id: string;
       Name: string;
     };
-    owner: {
+    owner?: {
       ownerId: string;
       ownerName: string;
     };
-    offers: {
+    offers?: {
       offerId: string;
       moneyOffer?: number;
       status: string;
       cardExchangeIds: string[];
     }[];
-    createdAt: Date;
+    createdAt?: Date;
   }

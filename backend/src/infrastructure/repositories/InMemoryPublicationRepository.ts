@@ -44,7 +44,8 @@ export class InMemoryPublicationRepository implements PublicationRepository {
                 (!filters.cardBaseIds || filters.cardBaseIds.includes(cardBaseId)) &&
                 (!filters.minValue || valueMoney >= filters.minValue) &&
                 (!filters.maxValue || valueMoney <= filters.maxValue) &&
-                (!filters.ownerId || ownerId === filters.ownerId)
+                (!filters.ownerId || ownerId === filters.ownerId) &&
+                (!filters.excludeId || ownerId !== filters.excludeId)
             );
         });
     }
