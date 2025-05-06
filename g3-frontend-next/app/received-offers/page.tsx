@@ -83,7 +83,7 @@ export default function ReceivedOffersPage() {
                     <p className="text-sm mb-1">Publication ID: {offer.publicationId}</p>
                     <p className="text-xs text-muted-foreground">From: {offer.userName}</p>
                     <p className="text-xs text-muted-foreground">
-                      Offered: {new Date(offer.createdAt).toLocaleDateString()}
+                      Offered: {new Date(offer.createdAt)..toISOString().slice(0, 10)}
                     </p>
                     <div className="mt-3 p-2 border rounded-md">
                       <h4 className="text-xs font-medium mb-1">Offer Details:</h4>

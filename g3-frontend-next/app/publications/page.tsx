@@ -124,7 +124,7 @@ export default function PublicationsPage() {
                   </div>
                   <p className="text-xs text-muted-foreground">Owner: {publication.owner.ownerName}</p>
                   <p className="text-xs text-muted-foreground">
-                    Posted: {new Date(publication.createdAt).toLocaleDateString()}
+                    Posted: {new Date(publication.createdAt).toISOString().slice(0, 10)}
                   </p>
                   {publication.offers.length > 0 && (
                     <p className="text-xs font-medium mt-2">{publication.offers.length} offer(s)</p>

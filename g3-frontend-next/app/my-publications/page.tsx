@@ -99,7 +99,7 @@ export default function MyPublicationsPage() {
                       <Badge variant="outline">{publication.cardBase.Name}</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Posted: {new Date(publication.createdAt).toLocaleDateString()}
+                      Posted: {new Date(publication.createdAt).toISOString().slice(0, 10)}
                     </p>
 
                     {publication.offers.length > 0 && (

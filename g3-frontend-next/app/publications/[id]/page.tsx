@@ -147,7 +147,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Posted on:</span>
-                  <span>{new Date(publication.createdAt).toLocaleDateString()}</span>
+                  <span>{new Date(publication.createdAt)..toISOString().slice(0, 10)}</span>
                 </div>
                 {publication.valueMoney > 0 && (
                   <div className="flex justify-between">

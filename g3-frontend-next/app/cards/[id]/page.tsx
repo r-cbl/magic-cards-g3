@@ -107,7 +107,7 @@ export default function CardDetailPage({ params }: { params: Promise<{ id: strin
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Added on:</span>
-                  <span>{new Date(card.createdAt).toLocaleDateString()}</span>
+                  <span>{new Date(card.createdAt).toISOString().slice(0, 10)}</span>
                 </div>
               </div>
             </CardContent>
