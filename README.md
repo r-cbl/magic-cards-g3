@@ -154,6 +154,10 @@ frontend/
 
 Se agregó un canal alternativo de interacción mediante un bot de Telegram.
 
+### Tecnologías utilizadas
+
+- [grammY](https://grammy.dev/): Framework para bots de Telegram.
+- TypeScript + Node.js
 
 ### 📁 Estructura del bot
 
