@@ -6,7 +6,7 @@ export class CreateBaseCardClient extends BaseApiClient {
   async execute(request: CreateRequest, token: string): Promise<BaseCardResponse> {
     return this.requestWithBody<BaseCardResponse>(
       "POST",
-      "http://localhost:3001/api/card-bases",
+      "/card-bases",
       "",
       request,
       token,

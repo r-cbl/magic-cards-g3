@@ -5,7 +5,7 @@ export class CurrentUserClient extends BaseApiClient{
   async execute(token: string): Promise<CurrentUserResponse> {
   return this.requestWithOutBody<CurrentUserResponse>(
     "GET",
-    "http://localhost:3001/api/auth/me",
+    "/auth/me",
     "Unauthorized",
     token
     );

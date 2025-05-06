@@ -6,7 +6,7 @@ export class GetAllBaseCardsClient extends BaseApiClient {
   async execute(request: GetRequest, token: string): Promise<PaginatedResponse<BaseCardResponse>> {
     return this.requestWithOutBody<PaginatedResponse<BaseCardResponse>>(
       "GET",
-      "http://localhost:3001/api/card-bases",
+      "/card-bases",
       "",
       token,
       request

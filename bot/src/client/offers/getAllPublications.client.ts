@@ -6,7 +6,7 @@ export class GetAllOffersClient extends BaseApiClient {
   async execute(request: GetRequest, token: string): Promise<PaginatedResponse<OfferResponse>> {
     return this.requestWithOutBody<PaginatedResponse<OfferResponse>>(
       "GET",
-      "http://localhost:3001/api/offers/",
+      "/offers",
       "",
       token,
       request,

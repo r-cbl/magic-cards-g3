@@ -6,7 +6,7 @@ export class RegisterClient extends BaseApiClient{
   async execute(request: RegisterRequest): Promise<AuthSession> {
     return this.requestWithBody<AuthSession>(
       "POST",
-      "http://localhost:3001/api/auth/register",
+      "/auth/register",
       "Invalid email or password. Please try again.",
       request,
     );

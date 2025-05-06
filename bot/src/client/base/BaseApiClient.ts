@@ -1,5 +1,6 @@
 import { ApiError } from "../../types/errors";
 import { GetRequest } from "../publications/request/get.request";
+import { API_BASE_URL } from "./config";
 
 export abstract class BaseApiClient {
   protected async fetchWithErrorHandling<T>(
@@ -72,9 +73,10 @@ export abstract class BaseApiClient {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    console.log("url: ", url,"Method: ", method,"Date: ",Date.now());
+    const fullUrl = `${API_BASE_URL}${url}`;
+    console.log(fullUrl)
     return this.fetchWithErrorHandling<T>(
-      url,
+      fullUrl,
       {
         method,
         headers,
@@ -102,9 +104,9 @@ export abstract class BaseApiClient {
       const queryString = new URLSearchParams(this.buildQueryParams(queryParams)).toString();
       url += `?${queryString}`;
     }
-    console.log("url: ", url,"Method: ", method,"Date: ",Date.now());
+    const fullUrl = `${API_BASE_URL}${url}`;
     return this.fetchWithErrorHandling<T>(
-      url,
+      fullUrl,
       {
         method: method,
         headers,

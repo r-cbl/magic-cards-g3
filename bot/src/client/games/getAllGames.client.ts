@@ -6,7 +6,7 @@ export class GetAllGamesClient extends BaseApiClient {
   async execute(request: GetRequest, token: string): Promise<PaginatedResponse<GameResponse>> {
     return this.requestWithOutBody<PaginatedResponse<GameResponse>>(
       "GET",
-      "http://localhost:3001/api/games/",
+      "/games/",
       "",
       token,
     );

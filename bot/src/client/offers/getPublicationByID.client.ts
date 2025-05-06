@@ -5,7 +5,7 @@ export class GetByIdOfferClient extends BaseApiClient {
   async execute(offerId: string, token: string): Promise<OfferResponse> {
     return this.requestWithOutBody<OfferResponse>(
       "GET",
-      `http://localhost:3001/api/offers/${offerId}`,
+      `/offers/${offerId}`,
       "Error fetching publication by ID.",
       token,
     );

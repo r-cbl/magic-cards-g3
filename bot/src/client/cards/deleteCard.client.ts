@@ -5,7 +5,7 @@ export class DeleteCardClient extends BaseApiClient {
   async execute(cardId: string, token: string): Promise<void> {
     this.requestWithOutBody<CardResponse>(
         "DELETE",
-        `http://localhost:3001/api/cards/${cardId}`,
+        `/cards/${cardId}`,
         "Error fetching card by ID.",
         token,
     );

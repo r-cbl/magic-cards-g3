@@ -6,7 +6,7 @@ export class UpdateCardClient extends BaseApiClient {
   async execute(request: UpdateRequest, token: string): Promise<CardResponse> {
     return this.requestWithBody<CardResponse>(
       "PUT",
-      `http://localhost:3001/api/publications/${request.cardId}`,
+      `/cards/${request.cardId}`,
       "",
       request,
       token,

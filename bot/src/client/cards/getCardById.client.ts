@@ -5,7 +5,7 @@ export class GetByIdCardClient extends BaseApiClient {
   async execute(cardId: string, token: string): Promise<CardResponse> {
     return this.requestWithOutBody<CardResponse>(
       "GET",
-      `http://localhost:3001/api/cards/${cardId}`,
+      `/cards/${cardId}`,
       "Error fetching publication by ID.",
       token,
     );

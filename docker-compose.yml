@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ./backend  
+      dockerfile: Dockerfile
+    container_name: magic-cards-app
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - JWT_SECRET=your_jwt_secret_key
+      - JWT_EXPIRES_IN=1h
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - app-network
+
+  bot:
+    build:
+      context: ./bot  
+      dockerfile: Dockerfile
+    container_name: magic-cards-bot
+    restart: unless-stopped
+    env_file:
+      - /bot/.env
+    environment:
+      - RUNNING_IN_DOCKER=true
+    volumes:
+      - ./logs:/usr/src/app/logs
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
