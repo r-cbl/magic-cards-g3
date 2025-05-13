@@ -22,9 +22,43 @@ import { ArrowLeft, DollarSign, AlertCircle } from "lucide-react"
 import { CreateOfferDTO, OfferStatus } from "@/types/offer"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { fetchPublicationById } from "@/lib/publicationsSlice"
-import {createOffer} from "@/lib/offersSlice"
-import { fetchCards } from "@/lib/cardsSlice"
+import { createOffer } from "@/lib/offersSlice"
+import { fetchCards, fetchCardById } from "@/lib/cardsSlice"
 import _ from "lodash"
+
+interface CardDetailsProps {
+  cardId: string
+}
+
+function CardDetails({ cardId }: CardDetailsProps) {
+  const dispatch = useAppDispatch()
+  const { selectedCard: card, isLoading } = useAppSelector((state) => state.cards)
+
+  useEffect(() => {
+    dispatch(fetchCardById(cardId))
+  }, [dispatch, cardId])
+
+  if (isLoading) {
+    return <Badge variant="secondary" className="text-xs">Loading...</Badge>
+  }
+
+  if (!card) {
+    return <Badge variant="secondary" className="text-xs">Card not found</Badge>
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <img 
+        src={card.urlImage || "/placeholder.svg"} 
+        alt={card.cardBase?.Name || "Card"} 
+        className="w-8 h-8 object-cover rounded"
+      />
+      <Badge variant="secondary" className="text-xs">
+        {card.cardBase?.Name}
+      </Badge>
+    </div>
+  )
+}
 
 export default function PublicationDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -47,6 +81,12 @@ export default function PublicationDetailPage({ params }: { params: { id: string
     dispatch(fetchPublicationById(params.id))
     dispatch(fetchCards())
   }, [dispatch, params, router])
+
+  useEffect(() => {
+    if (currentUser && publication) {
+      setIsOwner(currentUser.id === publication.owner.ownerId)
+    }
+  }, [currentUser, publication])
 
   const handleCardExchangeToggle = (cardId: string) => {
     setSelectedCardExchanges((prev) => {
@@ -111,13 +151,14 @@ export default function PublicationDetailPage({ params }: { params: { id: string
       </Button>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="flex justify-center">
+        <div className="flex justify-center h-[450px]">
           <Card className="w-full max-w-[300px] overflow-hidden">
             <div className="aspect-[2/3] relative">
               <img
                 src={publication.card.urlImage || "/placeholder.svg"}
                 alt={publication.cardBase.Name}
                 className="object-cover w-full h-full"
+                style={{ aspectRatio: '2/3' }}
               />
               {publication.valueMoney > 0 && (
                 <div className="absolute top-2 right-2 bg-yellow-500 text-black px-2 py-1 rounded-md flex items-center text-sm font-medium">
@@ -183,36 +224,26 @@ export default function PublicationDetailPage({ params }: { params: { id: string
               <CardContent>
                 <div className="space-y-4">
                   { _.map(publication.offers, ((offer) => (
-                    <div key={offer.id} className="border rounded-md p-3">
+                    <div 
+                      key={offer.offerId} 
+                      className="border rounded-md p-3 hover:bg-accent cursor-pointer transition-colors"
+                      onClick={() => router.push(`/offers/${offer.offerId}`)}
+                    >
                       <div className="flex justify-between items-center mb-2">
-                        <Badge>{offer.status}</Badge>
+                        <Badge>{offer.statusOffer}</Badge>
                         {offer.moneyOffer && <span className="font-medium">${offer.moneyOffer}</span>}
                       </div>
                       { _.size(offer.cardExchangeIds) > 0 && (
                         <div>
                           <span className="text-sm text-muted-foreground">Cards offered:</span>
                           <div className="mt-1 flex flex-wrap gap-1">
-                            {_.map(offer.cardExchangeIds, (cardId) => {
-                              const cardBase = cardBases.cardBases.find((cb) => cb.id === cardId)
-                              return cardBase ? (
-                                <Badge key={cardId} variant="secondary" className="text-xs">
-                                  {cardBase.nameCard}
-                                </Badge>
-                              ) : null
-                            })}
+                            {_.map(offer.cardExchangeIds, (cardId) => (
+                              <CardDetails key={cardId} cardId={cardId} />
+                            ))}
                           </div>
                         </div>
                       )}
-                      {offer.status === "PENDING" && (
-                        <div className="flex gap-2 mt-3">
-                          <Button size="sm" variant="outline" className="flex-1">
-                            Accept
-                          </Button>
-                          <Button size="sm" variant="outline" className="flex-1">
-                            Reject
-                          </Button>
-                        </div>
-                      )}
+                      <p className="text-xs text-muted-foreground mt-2">Click to view offer details</p>
                     </div>
                   )))}
                 </div>
@@ -221,7 +252,7 @@ export default function PublicationDetailPage({ params }: { params: { id: string
           )}
 
           <div className="flex flex-wrap gap-3">
-            {!isOwner && currentUser && (
+            {!isOwner && currentUser && publication.status === "Open" && (
               <Dialog open={offerDialogOpen} onOpenChange={setOfferDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black">Make an Offer</Button>
@@ -289,15 +320,6 @@ export default function PublicationDetailPage({ params }: { params: { id: string
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-            )}
-            {isOwner && (
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => router.push(`/publications/edit/${publication.id}`)}
-              >
-                Edit Publication
-              </Button>
             )}
           </div>
         </div>

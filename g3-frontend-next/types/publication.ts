@@ -29,7 +29,12 @@ export interface PublicationResponseDTO {
     ownerId: string;
     ownerName: string;
   };
-  offers: OfferResponseDTO[];
+  offers: {
+    offerId: string;
+    moneyOffer: number;
+    statusOffer: string;
+    cardExchangeIds: string[];
+  }[];
   status:string;
   createdAt: Date;
 }

@@ -9,9 +9,43 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { fetchOffers} from "@/lib/offersSlice"
+import { fetchCardById } from "@/lib/cardsSlice"
 import { OfferStatus } from "@/types/offer"
 import { DollarSign, Clock, CheckCircle, XCircle } from "lucide-react"
 import _ from "lodash"
+import type { CardResponseDTO } from "@/types/card"
+
+interface CardDetailsProps {
+  cardId: string
+}
+
+function CardDetails({ cardId }: CardDetailsProps) {
+  const dispatch = useAppDispatch()
+  const { selectedCard: card, isLoading } = useAppSelector((state) => state.cards)
+
+  useEffect(() => {
+    dispatch(fetchCardById(cardId))
+  }, [dispatch, cardId])
+
+  if (isLoading) {
+    return <div className="text-xs">Loading card details...</div>
+  }
+
+  if (!card) {
+    return <div className="text-xs text-red-500">Card not found</div>
+  }
+
+  return (
+    <div className="flex items-center gap-2 mt-1">
+      <img 
+        src={card.urlImage || "/placeholder.svg"} 
+        alt={card.cardBase?.Name || "Card"} 
+        className="w-8 h-8 object-cover rounded"
+      />
+      <span className="text-xs">{card.cardBase?.Name}</span>
+    </div>
+  )
+}
 
 export default function MyOffersPage() {
   const router = useRouter()
@@ -189,7 +223,14 @@ export default function MyOffersPage() {
                             </div>
                           )}
                           {offer.cardExchangeIds && _.size(offer.cardExchangeIds) > 0 && (
-                            <p className="text-xs">Cards offered: {_.size(offer.cardExchangeIds)}</p>
+                            <div className="mt-2">
+                              <p className="text-xs mb-2">Cards offered:</p>
+                              <div className="space-y-1">
+                                {_.map(offer.cardExchangeIds, (cardId: string) => (
+                                  <CardDetails key={cardId} cardId={cardId} />
+                                ))}
+                              </div>
+                            </div>
                           )}
                         </div>
                       </CardContent>

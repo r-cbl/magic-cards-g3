@@ -118,7 +118,7 @@ export default function CardsPage() {
                 </CardHeader>
                 <CardContent className="p-4 pt-0 pb-2">
                   <p className="text-sm text-muted-foreground">{card.game.Name}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Owner: {card.owner.ownerId}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Owner: {card.owner.ownerName}</p>
                 </CardContent>
                 <CardFooter className="p-4 pt-2">
                   <Button
