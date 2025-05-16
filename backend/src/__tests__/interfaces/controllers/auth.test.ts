@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthController } from '../../../interfaces/controllers/AuthController';
 import { AuthService } from '../../../application/services/AuthService';
-import { InMemoryUserRepository } from '../../../infrastructure/repositories/InMemoryUserRepository';
+import { InMemoryUserRepository } from '../../../infrastructure/persistence/inMemory/InMemoryUserRepository';
 import { JwtService } from '../../../infrastructure/auth/jwt.service';
 import { CreateUserDTO } from '../../../application/dtos/UserDTO';
 import { UserService } from '../../../application/services/UserService';

@@ -5,7 +5,7 @@ import { User } from "../../domain/entities/User";
 import { CardBase } from "../../domain/entities/CardBase";
 import { Game } from "../../domain/entities/Game";
 import { Card } from "../../domain/entities/Card";
-import { cardBaseRepository, userRepository, statisticsRepository } from "../../infrastructure/repositories/Container";
+import { cardBaseRepository, userRepository, statisticsRepository } from "../../infrastructure/provider/Container";
 
 // Mock the repositories
 jest.mock("../../infrastructure/repositories/Container", () => ({

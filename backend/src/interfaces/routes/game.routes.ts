@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { GameController } from '../controllers/GameController';
 import { GameService } from '../../application/services/GameService';
-import { gameRepository } from '../../infrastructure/repositories/Container';
+import { gameRepository } from '../../infrastructure/provider/Container';
 
 // Create dependencies
 const gameService = new GameService(gameRepository);

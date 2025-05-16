@@ -1,10 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { UserController } from '../controllers/UserController';
 import { UserService } from '../../application/services/UserService';
-import { InMemoryUserRepository } from '../../infrastructure/repositories/InMemoryUserRepository';
 import { JwtService } from '../../infrastructure/auth/jwt.service';
 import { AuthMiddleware } from '../middleware/auth.middleware';
-import { userRepository } from '../../infrastructure/repositories/Container';
+import { userRepository } from '../../infrastructure/provider/Container';
 
 // Create dependencies
 const userService = new UserService(userRepository);

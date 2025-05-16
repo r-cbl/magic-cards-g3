@@ -1,7 +1,7 @@
 import { StatisticType, Statistic } from "../../domain/entities/Stadistics";
 import { StatisticsRepository } from "../../domain/repositories/StatisticsRepository";
 import { StatisticDTO, RangeStatisticDTO } from "../dtos/StatisticsDTO";
-import { userRepository } from "../../infrastructure/repositories/Container";
+import { userRepository } from "../../infrastructure/provider/Container";
 import { UserService } from "./UserService";
 import { UnauthorizedException } from "../../domain/entities/exceptions/exceptions";
 

@@ -3,7 +3,7 @@ import { PublicationController } from '../controllers/PublicationController';
 import { PublicationService } from '../../application/services/PublicationService';
 import { JwtService } from '../../infrastructure/auth/jwt.service';
 import { AuthMiddleware } from '../middleware/auth.middleware';
-import { publicationRepository } from '../../infrastructure/repositories/Container';
+import { publicationRepository } from '../../infrastructure/provider/Container';
 
 
 const publicationService = new PublicationService(publicationRepository);

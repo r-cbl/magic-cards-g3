@@ -1,6 +1,6 @@
 import { OfferFilterDTO } from "@/application/dtos/OfferDTO";
-import { Offer } from "../../domain/entities/Offer";
-import { OfferRepository } from "../../domain/repositories/OfferRepository";
+import { Offer } from "../../../domain/entities/Offer";
+import { OfferRepository } from "../../../domain/repositories/OfferRepository";
 import { PaginatedResponseDTO, PaginationDTO } from "@/application/dtos/PaginationDTO";
 
 

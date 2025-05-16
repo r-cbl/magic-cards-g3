@@ -3,7 +3,7 @@ import { PaginationDTO, PaginatedResponseDTO } from "@/application/dtos/Paginati
 import { CardBase } from "@/domain/entities/CardBase";
 import { Game } from "@/domain/entities/Game";
 import { CardBaseRepository } from "@/domain/repositories/CardBaseRepository";
-import logger from "../logging/logger";
+import logger from "../../logging/logger";
 
 export class InMemoryCardBaseRepository implements CardBaseRepository {
     private cards: CardBase[] = [];

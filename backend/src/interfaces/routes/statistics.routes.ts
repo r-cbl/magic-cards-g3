@@ -1,8 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { StatisticsController } from '../controllers/StatisticsController';
 import { StatisticsService } from '../../application/services/StatisticsService';
-import { StatisticsRepository } from '../../domain/repositories/StatisticsRepository';
-import { InMemoryStatisticsRepository } from '../../infrastructure/repositories/InMemoryStatisticsRepository';
+import { InMemoryStatisticsRepository } from '../../infrastructure/persistence/inMemory/InMemoryStatisticsRepository';
 
 
 const statisticsRepository = new InMemoryStatisticsRepository();

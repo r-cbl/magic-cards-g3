@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { CardController } from '../../../interfaces/controllers/CardController';
 import { CardService } from '../../../application/services/CardService';
 import { CreateCardDTO, CardUpdatedDTO, CardResponseDTO } from '../../../application/dtos/CardsDTO';
-import { cardRepository } from '../../../infrastructure/repositories/Container';
+import { cardRepository } from '../../../infrastructure/provider/Container';
 
 // Mock the repositories
 jest.mock('../../../infrastructure/repositories/Container', () => ({

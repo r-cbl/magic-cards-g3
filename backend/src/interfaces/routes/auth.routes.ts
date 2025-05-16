@@ -3,7 +3,7 @@ import { AuthController } from '../controllers/AuthController';
 import { AuthService } from '../../application/services/AuthService';
 import { JwtService } from '../../infrastructure/auth/jwt.service';
 import { AuthMiddleware } from '../middleware/auth.middleware';
-import { userRepository } from '../../infrastructure/repositories/Container';
+import { userRepository } from '../../infrastructure/provider/Container';
 import { UserService } from '../../application/services/UserService';
 
 // Create dependencies

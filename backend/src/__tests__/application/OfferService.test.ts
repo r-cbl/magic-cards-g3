@@ -1,7 +1,7 @@
 import { OfferService } from "../../application/services/OfferService";
 import { CreateOfferDTO, OfferUpdatedDTO } from "../../application/dtos/OfferDTO";
 import { OfferRepository } from "../../domain/repositories/OfferRepository";
-import { userRepository, publicationRepository, cardRepository, offerRepository, statisticsRepository } from "../../infrastructure/repositories/Container";
+import { userRepository, publicationRepository, cardRepository, offerRepository, statisticsRepository } from "../../infrastructure/provider/Container";
 import { User } from "../../domain/entities/User";  
 import { Publication } from "../../domain/entities/Publication";
 import { Card } from "../../domain/entities/Card";

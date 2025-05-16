@@ -1,6 +1,6 @@
-import { Card } from "../../domain/entities/Card";
-import { CardRepository } from "../../domain/repositories/CardRepository";
-import { CardFilterDTO } from "../../application/dtos/CardsDTO";
+import { Card } from "../../../domain/entities/Card";
+import { CardRepository } from "../../../domain/repositories/CardRepository";
+import { CardFilterDTO } from "../../../application/dtos/CardsDTO";
 import { PaginatedResponseDTO, PaginationDTO } from "@/application/dtos/PaginationDTO";
 
 export class InMemoryCardRepository implements CardRepository {

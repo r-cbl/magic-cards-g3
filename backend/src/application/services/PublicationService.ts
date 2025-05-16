@@ -1,12 +1,11 @@
 import { PublicationRepository } from "../../domain/repositories/PublicationRepository";
 import { CreatePublicationDTO, PublicationFilterDTO, PublicationResponseDTO, PublicationUpdatedDTO } from "../dtos/PublicationDTO";
 import { Publication } from "../../domain/entities/Publication";
-import { cardBaseRepository, cardRepository, gameRepository, userRepository, offerRepository, statisticsRepository } from "../../infrastructure/repositories/Container";
+import { cardBaseRepository, cardRepository, gameRepository, userRepository, offerRepository, statisticsRepository } from "../../infrastructure/provider/Container";
 import { CardService } from "./CardService";
 import { UserService } from "./UserService";
 import { CardBase } from "../../domain/entities/CardBase";
 import { CardBaseService } from "./CardBaseService";
-import { StatusPublication } from "../../domain/entities/StatusPublication";
 import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
 import { PaginatedResponseDTO, PaginationDTO } from "../dtos/PaginationDTO";
 

@@ -1,7 +1,7 @@
 import { PaginationDTO, PaginatedResponseDTO } from "@/application/dtos/PaginationDTO";
-import {GameFilterDTO} from "../../application/dtos/GameDTO";
-import { Game } from "../../domain/entities/Game";
-import { GameRepository } from "../../domain/repositories/GameRepository";
+import {GameFilterDTO} from "../../../application/dtos/GameDTO";
+import { Game } from "../../../domain/entities/Game";
+import { GameRepository } from "../../../domain/repositories/GameRepository";
 
 export class InMemoryGameRepository implements GameRepository {
     private games: Game[] = [];

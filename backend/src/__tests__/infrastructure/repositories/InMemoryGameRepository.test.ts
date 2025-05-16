@@ -1,5 +1,5 @@
 import { Game, GameProps } from '../../../domain/entities/Game';
-import { InMemoryGameRepository } from '../../../infrastructure/repositories/InMemoryGameRepository';
+import { InMemoryGameRepository } from '../../../infrastructure/persistence/inMemory/InMemoryGameRepository';
 
 describe('InMemoryGameRepository', () => {
   let repository: InMemoryGameRepository;

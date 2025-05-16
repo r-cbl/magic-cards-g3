@@ -1,4 +1,4 @@
-import { InMemoryPublicationRepository } from '../../../infrastructure/repositories/InMemoryPublicationRepository';
+import { InMemoryPublicationRepository } from '../../../infrastructure/persistence/inMemory/InMemoryPublicationRepository';
 import { Publication } from '../../../domain/entities/Publication';
 import { User } from '../../../domain/entities/User';
 import { Card } from '../../../domain/entities/Card';

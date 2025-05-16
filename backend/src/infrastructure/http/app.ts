@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import config from '../config/config';
 import logger from '../logging/logger';
 import apiRoutes from '../../interfaces/routes';
+import { connectToDatabase } from '../database/mongo.config';
 
 class App {
   public app: Application;
@@ -16,6 +17,7 @@ class App {
     this.setupMiddleware();
     this.setupRoutes();
     this.setupErrorHandling();
+    this.setupDatabase();
   }
 
   private setupMiddleware(): void {
@@ -70,6 +72,10 @@ class App {
         message: config.isDevelopment ? err.message : 'An unexpected error occurred',
       });
     });
+  }
+
+  private setupDatabase(): void {
+    connectToDatabase();
   }
 }
 

@@ -1,5 +1,5 @@
-import { StatisticsRepository } from "../../domain/repositories/StatisticsRepository";
-import { Statistic, StatisticType } from "../../domain/entities/Stadistics";
+import { StatisticsRepository } from "../../../domain/repositories/StatisticsRepository";
+import { Statistic, StatisticType } from "../../../domain/entities/Stadistics";
 type Key = string; // "offers_closed-2024-04-10"
 
 export class InMemoryStatisticsRepository implements StatisticsRepository {

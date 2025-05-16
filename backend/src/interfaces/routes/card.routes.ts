@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { CardController } from '../controllers/CardController';
 import { CardService } from '../../application/services/CardService';
-import { cardRepository } from '../../infrastructure/repositories/Container';
+import { cardRepository } from '../../infrastructure/provider/Container';
 import { JwtService } from '../../infrastructure/auth/jwt.service';
 import { AuthMiddleware } from '../middleware/auth.middleware';
 

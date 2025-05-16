@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { CardBaseController } from '../controllers/CardBaseController';
 import { CardBaseService } from '../../application/services/CardBaseService';
-import { cardBaseRepository, gameRepository } from '../../infrastructure/repositories/Container';
+import { cardBaseRepository, gameRepository } from '../../infrastructure/provider/Container';
 
 // Create dependencies
 const cardBaseService = new CardBaseService(cardBaseRepository, gameRepository);

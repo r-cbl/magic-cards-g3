@@ -1,6 +1,6 @@
 import { PublicationService } from '../../application/services/PublicationService';
 import { PublicationRepository } from '../../domain/repositories/PublicationRepository';
-import { userRepository, cardRepository, cardBaseRepository, offerRepository, statisticsRepository } from '../../infrastructure/repositories/Container';
+import { userRepository, cardRepository, cardBaseRepository, offerRepository, statisticsRepository } from '../../infrastructure/provider/Container';
 import { Card } from '../../domain/entities/Card';
 import { CardBase } from '../../domain/entities/CardBase';
 import { Game } from '../../domain/entities/Game';

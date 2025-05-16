@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { OfferService } from '../../application/services/OfferService';
 import { JwtService } from '../../infrastructure/auth/jwt.service';
 import { AuthMiddleware } from '../middleware/auth.middleware';
-import { offerRepository } from '../../infrastructure/repositories/Container';
+import { offerRepository } from '../../infrastructure/provider/Container';
 import { OfferController } from '../../interfaces/controllers/OfferController';
 
 const offerService = new OfferService(offerRepository);

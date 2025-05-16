@@ -1,6 +1,6 @@
 import { CardBase, CardBaseProps } from '../../../domain/entities/CardBase';
 import { Game } from '../../../domain/entities/Game';
-import { InMemoryCardBaseRepository } from '../../../infrastructure/repositories/InMemoryCardBaseRepository';
+import { InMemoryCardBaseRepository } from '../../../infrastructure/persistence/inMemory/InMemoryCardBaseRepository';
 
 describe('InMemoryCardBaseRepository', () => {
   let repository: InMemoryCardBaseRepository;

@@ -1,5 +1,5 @@
 import { Card } from "../../domain/entities/Card";
-import { cardBaseRepository, gameRepository, userRepository, statisticsRepository } from "../../infrastructure/repositories/Container";
+import { cardBaseRepository, gameRepository, userRepository, statisticsRepository } from "../../infrastructure/provider/Container";
 import { CardRepository } from "../../domain/repositories/CardRepository";
 import { CardFilterDTO, CardResponseDTO, CardUpdatedDTO, CreateCardDTO } from "../dtos/CardsDTO";
 import { UserService } from "./UserService";

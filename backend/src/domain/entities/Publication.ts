@@ -5,7 +5,6 @@ import { CardBase } from "./CardBase";
 import { Ownable } from "./Ownable";
 import { StatusPublication } from "./StatusPublication";
 import { StatusOffer } from "./StatusOffer";
-import { publicationRepository } from "../../infrastructure/repositories/Container";
 
 export interface PublicationProps {
     id?: string;

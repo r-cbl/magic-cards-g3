@@ -2,7 +2,7 @@ import { Statistic, StatisticType } from '../../domain/entities/Stadistics';
 import {  User } from '../../domain/entities/User';
 import { UserRepository } from '../../domain/repositories/UserRepository';
 import { CreateUserDTO, UpdateUserDTO, UserResponseDTO } from '../dtos/UserDTO';
-import { statisticsRepository } from '../../infrastructure/repositories/Container';
+import { statisticsRepository } from '../../infrastructure/provider/Container';
 import bcrypt from 'bcrypt';
 import { UserAlreadyExistsError, UnauthorizedException, UserNotFoundError } from '../../domain/entities/exceptions/exceptions';
 
