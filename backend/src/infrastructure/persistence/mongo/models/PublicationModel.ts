@@ -38,10 +38,7 @@ export class PublicationModel extends BaseModel<IPublication> {
   }): Promise<IPublication[]> {
     const query: any = {};
     
-    console.log("Filters on findWithFilters",filters);
     if (filters.status) {
-      console.log("Filters status",filters.status);
-      console.log("Query status",query.statusPublication);
       query.statusPublication = filters.status;
     }
     
