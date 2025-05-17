@@ -28,6 +28,10 @@ export default function MyPublicationsPage() {
   const [activeTab, setActiveTab] = useState("all")
 
   useEffect(() => {
+    if (!currentUser) {
+      router.push("/login")
+      return
+    }
 
     dispatch(fetchPublications())
   }, [dispatch, currentUser, router])
