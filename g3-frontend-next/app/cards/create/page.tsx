@@ -54,12 +54,7 @@ export default function CreateCardPage() {
       router.push("/login")
       return
     }
-    if (selectedGameId) {
-      setFilteredCardBases(_.filter(cardBases, (cb) => cb.game.id === selectedGameId))
-    } else {
-      setFilteredCardBases([])
-    }
-  }, [currentUser, cardBases])
+  }, [currentUser])
 
   // Handle creating a new game
   const handleCreateGame = async () => {
@@ -68,28 +63,29 @@ export default function CreateCardPage() {
       return
     }
   
-    // No hace falta llamar a createGameStart si el thunk ya lo despacha internamente
     try {
       const newGameData: CreateGameDTO = {
         name: newGameName,
       }
   
-      // Ejecutás el thunk y obtenés el juego recién creado
       const newGame = await dispatch(createGame(newGameData))
   
-      // Actualizás el estado local solo si lo necesitás para el comportamiento inmediato del form
       setSelectedGameId(newGame.id)
       setNewGameName("")
       setGameSelectionMode("existing")
       setFormErrors((prev) => ({ ...prev, game: undefined }))
+    
+      if (selectedGameId) {
+        setFilteredCardBases(_.filter(cardBases, (cb) => cb.game.id === selectedGameId))
+      } else {
+        setFilteredCardBases([])
+      }
     } catch (err) {
-      // Ya se despachó el createGameFailure en el thunk, pero esto es por si querés manejar algo visual localmente
       dispatch(createCardFailure("Failed to create game. Please try again."))
     }
   }
 
 
-  // Handle creating a new card base
   const handleCreateCardBase = async () => {
     if (!selectedGameId) {
       setFormErrors((prev) => ({ ...prev, cardBase: "Please select or create a game first" }))
@@ -164,27 +160,15 @@ export default function CreateCardPage() {
 
     dispatch(createCardStart())
 
-    try {
-      // If we're creating a new card base, do that first
-      let cardBaseId = selectedCardBaseId
-
-      if (cardBaseSelectionMode === "new") {
-        // Create the card base first
-        await handleCreateCardBase()
-        // Get the ID of the newly created card base
-        const newCardBase = cardBases.find((cb) => cb.nameCard === newCardBaseName && cb.game.id === selectedGameId)
-        if (newCardBase) {
-          cardBaseId = newCardBase.id
-        }
-      }
-
-      // Use the service to create the card
+    try {      // Use the service to create the card
       const cardData: CreateCardDTO = {
-        cardBaseId: cardBaseId!,
+        cardBaseId: selectedCardBaseId,
         statusCard,
         urlImage,
         ownerId: currentUser.id,
       }
+
+      console.log("cardData", cardData);
       dispatch(createCard(cardData))
       router.push("/cards")
     } catch (err) {
@@ -207,7 +191,6 @@ export default function CreateCardPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Game Selection Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Step 1: Select or Create a Game</h3>
 
@@ -257,7 +240,6 @@ export default function CreateCardPage() {
               </Tabs>
             </div>
 
-            {/* Card Base Selection Section - Only show if a game is selected */}
             {selectedGameId && (
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Step 2: Select or Create a Card</h3>
@@ -315,8 +297,7 @@ export default function CreateCardPage() {
               </div>
             )}
 
-            {/* Card Details Form - Only show if a game is selected */}
-            {selectedGameId && (
+            {selectedCardBaseId && (
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Step 3: Card Details</h3>
 
