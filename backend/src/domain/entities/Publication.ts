@@ -15,6 +15,7 @@ export interface PublicationProps {
     card: Card;
     createdAt?: Date;
     updatedAt?: Date;
+    statusPublication?: StatusPublication;
 }
 
 export class Publication extends Ownable {
@@ -30,12 +31,11 @@ export class Publication extends Ownable {
     constructor(props: PublicationProps) {
       super(props.owner);
       this.id = props.id || this.generateId();
-      this.statusPublication = StatusPublication.OPEN;
+      this.statusPublication = props.statusPublication || StatusPublication.OPEN;
       this.cardExchange = props.cardExchange;
       this.offersExisting = props.offersExisting || [];
       this.valueMoney = props.valueMoney;
       this.card = props.card;
-      this.validateOwnership(this.card.getOwner(),"card");
       this.createdAt = props.createdAt || new Date();
       this.updatedAt = props.updatedAt || new Date();
   }
@@ -72,16 +72,16 @@ export class Publication extends Ownable {
         return rejectedOffers;
     }
 
-    public acceptOffer(offer: Offer): [Offer, Card[]] {
+    public acceptOffer(offer: Offer): [Offer[], Card[]] {
       if (this.statusPublication === StatusPublication.CLOSED) {
         throw new Error("Publication already closed");
       }      
       this.updatedAt = new Date();
       const cards = offer.acceptOffer(this.getOwner());
-      this.closePublication();
+      const offerRejected = this.closePublication();
       this.card.setOwner(offer.getOfferOwner());
       cards.push(this.card);
-      return [offer, cards];
+      return [offerRejected, cards];
     }
 
     public rejectOffer(offer: Offer): Offer { 

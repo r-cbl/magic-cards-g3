@@ -21,6 +21,7 @@ export class PublicationService {
         const user = await this.userService.getSimpleUser(publicationData.ownerId);
         const cardExchangeIds = publicationData.cardExchangeIds ?? [];
       
+        myCard.validateOwnership(user, "card");
 
         if (publicationData.valueMoney == null && cardExchangeIds.length === 0) {
           throw new Error("Invalid publication: must include valueMoney or cardExchangeIds.");

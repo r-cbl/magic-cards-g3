@@ -9,7 +9,7 @@ export interface OfferResponseDTO {
   id: string
   publicationId: string
   userId: string
-  userName: string
+  ownerId: string
   cardExchangeIds: string[]
   moneyOffer?: number
   status: string

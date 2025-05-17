@@ -132,7 +132,7 @@ export default function MyOffersPage() {
                         </CardHeader>
                         <CardContent className="p-4 pt-0 pb-2">
                           <p className="text-sm mb-1">Publication ID: {offer.publicationId}</p>
-                          <p className="text-xs text-muted-foreground">Owner: {offer.userName}</p>
+                          <p className="text-xs text-muted-foreground">Owner: {offer.ownerId}</p>
                           <p className="text-xs text-muted-foreground">
                             Offered: {new Date(offer.createdAt).toISOString().slice(0, 10)}
                           </p>
@@ -212,7 +212,7 @@ export default function MyOffersPage() {
                         </CardHeader>
                         <CardContent className="p-4 pt-0 pb-2">
                           <p className="text-sm mb-1">Publication ID: {offer.publicationId}</p>
-                          <p className="text-xs text-muted-foreground">From: {offer.userName}</p>
+                          <p className="text-xs text-muted-foreground">From: {offer.ownerId}</p>
                           <p className="text-xs text-muted-foreground">
                             Offered: {new Date(offer.createdAt).toISOString().slice(0, 10)}
                           </p>

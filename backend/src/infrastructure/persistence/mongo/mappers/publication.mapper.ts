@@ -27,6 +27,7 @@ export const PublicationMapper = {
   ): Publication {
     return new Publication({
       id: doc._id,
+      statusPublication: doc.statusPublication,
       owner,
       card,
       cardExchange,

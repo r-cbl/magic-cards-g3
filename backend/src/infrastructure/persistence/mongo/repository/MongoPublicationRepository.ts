@@ -75,6 +75,7 @@ export class MongoPublicationRepository implements PublicationRepository {
 
   async find(filters: PublicationFilterDTO): Promise<Publication[]> {
     // Use Mongoose query instead of in-memory filtering
+    console.log("Filters on find",filters);
     const docs = await this.publicationModel.findWithFilters({
       status: filters.status,
       ownerId: filters.ownerId,
@@ -106,6 +107,8 @@ export class MongoPublicationRepository implements PublicationRepository {
   }
 
   async findPaginated(filters: PaginationDTO<PublicationFilterDTO>): Promise<PaginatedResponseDTO<Publication>> {
+    console.log("Filters on findPaginated",filters);
+    console.log("Filters on findPaginated data",filters.data.status);
     const all = await this.find(filters.data);
     const total = all.length;
     const offset = filters.offset || 0;

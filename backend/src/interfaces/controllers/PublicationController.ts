@@ -65,6 +65,7 @@ export class PublicationController {
                     minValue: req.query.minValue ? Number(req.query.minValue) : undefined,
                     maxValue: req.query.maxValue ? Number(req.query.maxValue) : undefined,
                     excludeId: req.query.excludeId ? (req.query.excludeId as string) : undefined,
+                    status: req.query.status ? (req.query.status as string) : undefined,
                 },
                 limit: req.query.limit ? Number(req.query.limit) : undefined,
                 offset: req.query.offset ? Number(req.query.offset) : undefined,
