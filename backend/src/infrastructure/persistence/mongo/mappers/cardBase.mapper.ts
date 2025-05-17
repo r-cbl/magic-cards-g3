@@ -1,18 +1,17 @@
 import { CardBase } from "../../../../domain/entities/CardBase";
 import { Game } from "../../../../domain/entities/Game";
+import { ICardBase } from "../models/CardBaseModel";
 
 export const CardBaseMapper = {
-  toDocument(card: CardBase) {
+  toDocument(card: CardBase): Partial<ICardBase> {
     return {
       _id: card.getId(),
       gameId: card.getGame().getId(),
-      nameCard: card.getName(),
-      createdAt: card.getCreatedAt(),
-      updatedAt: card.getUpdatedAt(),
+      nameCard: card.getName()
     };
   },
 
-  toEntity(doc: any, game: Game): CardBase {
+  toEntity(doc: ICardBase, game: Game): CardBase {
     return new CardBase({
       id: doc._id,
       game,

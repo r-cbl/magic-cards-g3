@@ -1,13 +1,24 @@
-import mongoose from "mongoose";
+import { SchemaFactory } from './SchemaFactory';
+import { BaseModel, IBaseDocument } from './BaseModel';
 
-const CardSchema = new mongoose.Schema({
-  _id: { type: String, required: true },
+export interface ICard extends IBaseDocument {
+  ownerId: string;
+  cardBaseId: string;
+  statusCard: number;
+  urlImage?: string;
+}
+
+const cardSchema = SchemaFactory.createBaseSchema({
   ownerId: { type: String, required: true },
   cardBaseId: { type: String, required: true },
   statusCard: { type: Number, required: true },
-  urlImage: { type: String },
-  createdAt: { type: Date, required: true },
-  updatedAt: { type: Date, required: true },
+  urlImage: { type: String }
 });
 
-export const CardModel = mongoose.model("Card", CardSchema);
+const CardModelClass = SchemaFactory.createModel<ICard>('Card', cardSchema);
+
+export class CardModel extends BaseModel<ICard> {
+  constructor() {
+    super(CardModelClass);
+  }
+}

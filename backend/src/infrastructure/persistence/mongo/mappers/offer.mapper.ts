@@ -2,9 +2,10 @@ import { Offer } from "../../../../domain/entities/Offer";
 import { User } from "../../../../domain/entities/User";
 import { Card } from "../../../../domain/entities/Card";
 import { Publication } from "../../../../domain/entities/Publication";
+import { IOffer } from "../models/OfferModel";
 
 export const OfferMapper = {
-  toDocument(offer: Offer) {
+  toDocument(offer: Offer): Partial<IOffer> {
     return {
       _id: offer.getId(),
       offerOwnerId: offer.getOfferOwner().getId(),
@@ -12,14 +13,12 @@ export const OfferMapper = {
       statusOffer: offer.getStatusOffer(),
       moneyOffer: offer.getMoneyOffer(),
       closedAt: offer.getClosedAt(),
-      createdAt: offer.getCreatedAt(),
-      updatedAt: offer.getUpdatedAt(),
-      publicationId: offer.getPublication().getId(),
+      publicationId: offer.getPublication().getId()
     };
   },
 
   toEntity(
-    doc: any,
+    doc: IOffer,
     owner: User,
     cards: Card[] | undefined,
     publication?: Publication
@@ -33,7 +32,7 @@ export const OfferMapper = {
       closedAt: doc.closedAt,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
-      publication: publication!,
+      publication: publication!
     });
   },
 };

@@ -1,21 +1,20 @@
 import { Card } from "../../../../domain/entities/Card";
 import { CardBase } from "../../../../domain/entities/CardBase";
 import { User } from "../../../../domain/entities/User";
+import { ICard } from "../models/CardModel";
 
 export const CardMapper = {
-  toDocument(card: Card) {
+  toDocument(card: Card): Partial<ICard> {
     return {
       _id: card.getId(),
       cardBaseId: card.getCardBase().getId(),
       ownerId: card.getOwner().getId(),
       statusCard: card.getStatusCard(),
-      urlImage: card.getUrlImage(),
-      createdAt: card.getCreatedAt(),
-      updatedAt: card.getUpdatedAt(),
+      urlImage: card.getUrlImage()
     };
   },
 
-  toEntity(doc: any, owner: User, cardBase: CardBase): Card {
+  toEntity(doc: ICard, owner: User, cardBase: CardBase): Card {
     return new Card({
       id: doc._id,
       owner,

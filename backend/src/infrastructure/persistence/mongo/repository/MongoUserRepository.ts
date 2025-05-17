@@ -4,33 +4,40 @@ import { UserModel } from "../models/UserModel";
 import { toUserEntity, toUserDocument } from "../mappers/user.mapper";
 
 export class MongoUserRepository implements UserRepository {
+  private userModel: UserModel;
+
+  constructor() {
+    this.userModel = new UserModel();
+  }
+
   async findById(id: string): Promise<User | null> {
-    const doc = await UserModel.findOne({ id });
+    const doc = await this.userModel.findById(id);
     return doc ? toUserEntity(doc) : null;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const doc = await UserModel.findOne({ email });
+    const docs = await this.userModel.findAll();
+    const doc = docs.find(d => d.email === email);
     return doc ? toUserEntity(doc) : null;
   }
 
   async findAll(): Promise<User[]> {
-    const docs = await UserModel.find();
+    const docs = await this.userModel.findAll();
     return docs.map(toUserEntity);
   }
 
   async save(user: User): Promise<User> {
-    await UserModel.create(toUserDocument(user));
+    await this.userModel.create(toUserDocument(user));
     return user;
   }
 
   async update(user: User): Promise<User> {
-    await UserModel.updateOne({ id: user.getId() }, toUserDocument(user));
+    await this.userModel.update(user.getId(), toUserDocument(user));
     return user;
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await UserModel.deleteOne({ id });
-    return result.deletedCount > 0;
+    const result = await this.userModel.delete(id);
+    return result !== null;
   }
 }

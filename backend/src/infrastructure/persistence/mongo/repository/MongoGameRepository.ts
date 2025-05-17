@@ -6,45 +6,54 @@ import { PaginationDTO, PaginatedResponseDTO } from "../../../../application/dto
 import { GameFilterDTO } from "../../../../application/dtos/GameDTO";
 
 export class MongoGameRepository implements GameRepository {
+  private gameModel: GameModel;
+
+  constructor() {
+    this.gameModel = new GameModel();
+  }
+
   async save(game: Game): Promise<Game> {
-    await GameModel.create(toGameDocument(game));
+    await this.gameModel.create(toGameDocument(game));
     return game;
   }
 
   async update(game: Game): Promise<Game> {
-    await GameModel.updateOne({ id: game.getId() }, toGameDocument(game));
+    await this.gameModel.update(game.getId(), toGameDocument(game));
     return game;
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await GameModel.deleteOne({ id });
-    return result.deletedCount > 0;
+    const result = await this.gameModel.delete(id);
+    return result !== null;
   }
 
   async findById(id: string): Promise<Game | undefined> {
-    const doc = await GameModel.findOne({ id });
+    const doc = await this.gameModel.findById(id);
     return doc ? toGameEntity(doc) : undefined;
   }
 
   async findAll(): Promise<Game[]> {
-    const docs = await GameModel.find();
+    const docs = await this.gameModel.findAll();
     return docs.map(toGameEntity);
   }
 
   async findPaginated(filters: PaginationDTO<GameFilterDTO>): Promise<PaginatedResponseDTO<Game>> {
     const { limit = 10, offset = 0, data } = filters;
-    const query: any = {};
-
+    const docs = await this.gameModel.findAll();
+    
+    // Apply name filter if provided
+    let filteredDocs = docs;
     if (data.name) {
-      query.name = { $regex: data.name, $options: "i" };
+      const regex = new RegExp(data.name, 'i');
+      filteredDocs = docs.filter(doc => regex.test(doc.name));
     }
 
-    const total = await GameModel.countDocuments(query);
-    const docs = await GameModel.find(query).skip(offset).limit(limit);
+    const total = filteredDocs.length;
+    const paginatedDocs = filteredDocs.slice(offset, offset + limit);
     const hasMore = offset + limit < total;
 
     return {
-      data: docs.map(toGameEntity),
+      data: paginatedDocs.map(toGameEntity),
       total,
       limit,
       offset,

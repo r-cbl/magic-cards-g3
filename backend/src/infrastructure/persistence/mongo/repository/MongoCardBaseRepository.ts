@@ -8,26 +8,31 @@ import { CardBaseMapper } from "../mappers/cardBase.mapper";
 import { gameRepository } from "../../../../infrastructure/provider/Container";
 
 export class MongoCardBaseRepository implements CardBaseRepository {
+  private cardBaseModel: CardBaseModel;
+
+  constructor() {
+    this.cardBaseModel = new CardBaseModel();
+  }
 
   async save(card: CardBase): Promise<CardBase> {
     const doc = CardBaseMapper.toDocument(card);
-    await CardBaseModel.create(doc);
+    await this.cardBaseModel.create(doc);
     return card;
   }
 
   async update(card: CardBase): Promise<CardBase> {
     const doc = CardBaseMapper.toDocument(card);
-    await CardBaseModel.findByIdAndUpdate(doc._id, doc);
+    await this.cardBaseModel.update(card.getId(), doc);
     return card;
   }
 
   async delete(id: string): Promise<boolean> {
-    const res = await CardBaseModel.deleteOne({ _id: id });
-    return res.deletedCount > 0;
+    const result = await this.cardBaseModel.delete(id);
+    return result !== null;
   }
 
   async findById(id: string): Promise<CardBase | undefined> {
-    const doc = await CardBaseModel.findById(id).lean();
+    const doc = await this.cardBaseModel.findById(id);
     if (!doc) return undefined;
     const game = await gameRepository.findById(doc.gameId);
     if (!game) return undefined;
@@ -35,11 +40,12 @@ export class MongoCardBaseRepository implements CardBaseRepository {
   }
 
   async findByCardsByIds(ids: string[]): Promise<CardBase[] | undefined> {
-    const docs = await CardBaseModel.find({ _id: { $in: ids } }).lean();
+    const docs = await this.cardBaseModel.findAll();
+    const filteredDocs = docs.filter(doc => ids.includes(doc._id));
     const gamesMap = new Map<string, Game>();
     const cards: CardBase[] = [];
 
-    for (const doc of docs) {
+    for (const doc of filteredDocs) {
       let game = gamesMap.get(doc.gameId);
       if (!game) {
         game = await gameRepository.findById(doc.gameId);
@@ -53,12 +59,13 @@ export class MongoCardBaseRepository implements CardBaseRepository {
   }
 
   async findByGame(game: Game): Promise<CardBase[]> {
-    const docs = await CardBaseModel.find({ gameId: game.getId() }).lean();
-    return docs.map(doc => CardBaseMapper.toEntity(doc, game));
+    const docs = await this.cardBaseModel.findAll();
+    const filteredDocs = docs.filter(doc => doc.gameId === game.getId());
+    return filteredDocs.map(doc => CardBaseMapper.toEntity(doc, game));
   }
 
   async findAll(): Promise<CardBase[]> {
-    const docs = await CardBaseModel.find().lean();
+    const docs = await this.cardBaseModel.findAll();
     const cards: CardBase[] = [];
     for (const doc of docs) {
       const game = await gameRepository.findById(doc.gameId);
@@ -68,18 +75,26 @@ export class MongoCardBaseRepository implements CardBaseRepository {
   }
 
   async findPaginated(filters: PaginationDTO<CardBaseFilterDTO>): Promise<PaginatedResponseDTO<CardBase>> {
-    const query: any = {};
-    if (filters.data?.gameId) query.gameId = filters.data.gameId;
-    if (filters.data?.nameCard) query.nameCard = { $regex: filters.data.nameCard, $options: "i" };
+    const docs = await this.cardBaseModel.findAll();
+    
+    // Apply filters
+    let filteredDocs = [...docs];
+    if (filters.data?.gameId) {
+      filteredDocs = filteredDocs.filter(doc => doc.gameId === filters.data.gameId);
+    }
+    if (filters.data?.nameCard) {
+      const regex = new RegExp(filters.data.nameCard, 'i');
+      filteredDocs = filteredDocs.filter(doc => regex.test(doc.nameCard));
+    }
 
-    const total = await CardBaseModel.countDocuments(query);
-    const docs = await CardBaseModel.find(query)
-      .skip(filters.offset || 0)
-      .limit(filters.limit || 10)
-      .lean();
+    const total = filteredDocs.length;
+    const paginatedDocs = filteredDocs.slice(
+      filters.offset || 0,
+      (filters.offset || 0) + (filters.limit || 10)
+    );
 
     const cards: CardBase[] = [];
-    for (const doc of docs) {
+    for (const doc of paginatedDocs) {
       const game = await gameRepository.findById(doc.gameId);
       if (game) cards.push(CardBaseMapper.toEntity(doc, game));
     }

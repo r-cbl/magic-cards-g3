@@ -1,18 +1,18 @@
 import { Game } from "../../../../domain/entities/Game";
-import { GameDocument } from "../models/GameModel";
+import { IGame } from "../models/GameModel";
 
-export function toGameEntity(doc: GameDocument): Game {
+export function toGameEntity(doc: IGame): Game {
   return new Game({
-    id: doc.id,
+    id: doc._id,
     name: doc.name,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   });
 }
 
-export function toGameDocument(game: Game): Partial<GameDocument> {
+export function toGameDocument(game: Game): Partial<IGame> {
   return {
-    id: game.getId(),
-    name: game.getName(),
+    _id: game.getId(),
+    name: game.getName()
   };
 }

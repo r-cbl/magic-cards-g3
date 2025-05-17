@@ -15,25 +15,31 @@ import {
 } from "../../../../infrastructure/provider/Container";
 
 export class MongoPublicationRepository implements PublicationRepository {
+  private publicationModel: PublicationModel;
+
+  constructor() {
+    this.publicationModel = new PublicationModel();
+  }
+
   async save(publication: Publication): Promise<Publication> {
     const doc = PublicationMapper.toDocument(publication);
-    await PublicationModel.create(doc);
+    await this.publicationModel.create(doc);
     return publication;
   }
 
   async update(publication: Publication): Promise<Publication> {
     const doc = PublicationMapper.toDocument(publication);
-    await PublicationModel.findByIdAndUpdate(publication.getId(), doc);
+    await this.publicationModel.update(publication.getId(), doc);
     return publication;
   }
 
   async delete(id: string): Promise<boolean> {
-    const res = await PublicationModel.deleteOne({ _id: id });
-    return res.deletedCount > 0;
+    const result = await this.publicationModel.delete(id);
+    return result !== null;
   }
 
   async findById(id: string): Promise<Publication | null> {
-    const doc = await PublicationModel.findById(id).lean();
+    const doc = await this.publicationModel.findById(id);
     if (!doc) return null;
   
     const owner = await userRepository.findById(doc.ownerId);
@@ -45,19 +51,18 @@ export class MongoPublicationRepository implements PublicationRepository {
     }
   
     const cardExchange = doc.cardExchangeIds?.length > 0
-      ? (await Promise.all(doc.cardExchangeIds.map(id => cardBaseRepository.findById(id)))).filter(cb => cb) as CardBase[]
+      ? (await Promise.all(doc.cardExchangeIds.map((id: string) => cardBaseRepository.findById(id)))).filter((cb: any) => cb) as CardBase[]
       : [];
   
-      const offers = doc.offerIds?.length > 0
-      ? (await Promise.all(doc.offerIds.map(id => offerRepository.findById(id, true)))).filter(o => o) as Offer[]
+    const offers = doc.offerIds?.length > 0
+      ? (await Promise.all(doc.offerIds.map((id: string) => offerRepository.findById(id, true)))).filter((o: any) => o) as Offer[]
       : [];
     
-  
     return PublicationMapper.toEntity(doc, owner, card, cardExchange, offers);
   }  
 
   async findAll(): Promise<Publication[]> {
-    const docs = await PublicationModel.find().lean();
+    const docs = await this.publicationModel.findAll();
     const publications: Publication[] = [];
 
     for (const doc of docs) {
@@ -69,50 +74,58 @@ export class MongoPublicationRepository implements PublicationRepository {
   }
 
   async find(filters: PublicationFilterDTO): Promise<Publication[]> {
-    const query: any = {};
-  
-    if (filters.status) query.statusPublication = filters.status;
-  
+    const docs = await this.publicationModel.findAll();
+    
+    // Apply filters to docs
+    let filteredDocs = [...docs];
+    
+    if (filters.status) {
+      filteredDocs = filteredDocs.filter(doc => doc.statusPublication === filters.status);
+    }
+    
     if (filters.ownerId) {
-      query.ownerId = filters.ownerId;
+      filteredDocs = filteredDocs.filter(doc => doc.ownerId === filters.ownerId);
     } else if (filters.excludeId) {
-      query.ownerId = { $ne: filters.excludeId };
+      filteredDocs = filteredDocs.filter(doc => doc.ownerId !== filters.excludeId);
     }
-  
+    
     if (filters.initialDate || filters.endDate) {
-      query.createdAt = {};
-      if (filters.initialDate) query.createdAt.$gte = filters.initialDate;
-      if (filters.endDate) query.createdAt.$lte = filters.endDate;
+      filteredDocs = filteredDocs.filter(doc => {
+        const createdAt = new Date(doc.createdAt);
+        if (filters.initialDate && createdAt < new Date(filters.initialDate)) return false;
+        if (filters.endDate && createdAt > new Date(filters.endDate)) return false;
+        return true;
+      });
     }
-  
+    
     if (filters.minValue || filters.maxValue) {
-      query.valueMoney = {};
-      if (filters.minValue) query.valueMoney.$gte = filters.minValue;
-      if (filters.maxValue) query.valueMoney.$lte = filters.maxValue;
+      filteredDocs = filteredDocs.filter(doc => {
+        if (!doc.valueMoney) return false;
+        if (filters.minValue && doc.valueMoney < filters.minValue) return false;
+        if (filters.maxValue && doc.valueMoney > filters.maxValue) return false;
+        return true;
+      });
     }
-  
-    const docs = await PublicationModel.find(query).lean();
 
     const results: Publication[] = [];
     
-    for (const doc of docs) {
-        const pub = await this.findById(doc._id);
-        if (!pub) continue;
-    
-        const cardBaseId = pub.getCard().getCardBase().getId();
-        const gameId = pub.getCard().getCardBase().getGame().getId();
-    
-        if (
-          (filters.cardBaseIds && !filters.cardBaseIds.includes(cardBaseId)) ||
-          (filters.gamesIds && !filters.gamesIds.includes(gameId))
-        ) continue;
-    
-        results.push(pub);
-      }
+    for (const doc of filteredDocs) {
+      const pub = await this.findById(doc._id);
+      if (!pub) continue;
+  
+      const cardBaseId = pub.getCard().getCardBase().getId();
+      const gameId = pub.getCard().getCardBase().getGame().getId();
+  
+      if (
+        (filters.cardBaseIds && !filters.cardBaseIds.includes(cardBaseId)) ||
+        (filters.gamesIds && !filters.gamesIds.includes(gameId))
+      ) continue;
+  
+      results.push(pub);
+    }
 
     return results;
   }
-  
 
   async findPaginated(filters: PaginationDTO<PublicationFilterDTO>): Promise<PaginatedResponseDTO<Publication>> {
     const all = await this.find(filters.data);

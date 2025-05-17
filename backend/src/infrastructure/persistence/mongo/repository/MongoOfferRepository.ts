@@ -12,25 +12,31 @@ import {
 } from "../../../../infrastructure/provider/Container";
 
 export class MongoOfferRepository implements OfferRepository {
+  private offerModel: OfferModel;
+
+  constructor() {
+    this.offerModel = new OfferModel();
+  }
+
   async save(offer: Offer): Promise<Offer> {
     const doc = OfferMapper.toDocument(offer);
-    await OfferModel.create(doc);
+    await this.offerModel.create(doc);
     return offer;
   }
 
   async update(offer: Offer): Promise<Offer> {
     const doc = OfferMapper.toDocument(offer);
-    await OfferModel.findByIdAndUpdate(offer.getId(), doc);
+    await this.offerModel.update(offer.getId(), doc);
     return offer;
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await OfferModel.deleteOne({ _id: id });
-    return result.deletedCount > 0;
+    const result = await this.offerModel.delete(id);
+    return result !== null;
   }
 
   async findById(id: string, skipPublication = false): Promise<Offer | null> {
-    const doc = await OfferModel.findById(id).lean();
+    const doc = await this.offerModel.findById(id);
     if (!doc) return null;
   
     const owner = await userRepository.findById(doc.offerOwnerId);
@@ -48,18 +54,25 @@ export class MongoOfferRepository implements OfferRepository {
   
     return OfferMapper.toEntity(doc, owner, cards || [], publication || undefined);
   }
-  
 
   async find(filters: OfferFilterDTO): Promise<Offer[]> {
-    const query: any = {};
-    if (filters.ownerId) query.offerOwnerId = filters.ownerId;
-    if (filters.status) query.statusOffer = filters.status;
-    if (filters.publicationId) query.publicationId = filters.publicationId;
+    const docs = await this.offerModel.findAll();
+    
+    // Apply filters
+    let filteredDocs = [...docs];
+    if (filters.ownerId) {
+      filteredDocs = filteredDocs.filter(doc => doc.offerOwnerId === filters.ownerId);
+    }
+    if (filters.status) {
+      filteredDocs = filteredDocs.filter(doc => doc.statusOffer === filters.status);
+    }
+    if (filters.publicationId) {
+      filteredDocs = filteredDocs.filter(doc => doc.publicationId === filters.publicationId);
+    }
 
-    const docs = await OfferModel.find(query).lean();
     const offers: Offer[] = [];
 
-    for (const doc of docs) {
+    for (const doc of filteredDocs) {
       const offer = await this.findById(doc._id);
       if (offer) {
         if (!filters.userId || offer.getPublication().getOwner().getId() === filters.userId) {
@@ -88,10 +101,11 @@ export class MongoOfferRepository implements OfferRepository {
   }
 
   async findByOffersByIds(ids: string[]): Promise<Offer[] | undefined> {
-    const docs = await OfferModel.find({ _id: { $in: ids } }).lean();
+    const docs = await this.offerModel.findAll();
+    const filteredDocs = docs.filter(doc => ids.includes(doc._id));
     const offers: Offer[] = [];
 
-    for (const doc of docs) {
+    for (const doc of filteredDocs) {
       const offer = await this.findById(doc._id);
       if (offer) offers.push(offer);
     }

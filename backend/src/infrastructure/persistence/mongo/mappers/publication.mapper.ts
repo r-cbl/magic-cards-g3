@@ -3,9 +3,10 @@ import { Card } from "../../../../domain/entities/Card";
 import { CardBase } from "../../../../domain/entities/CardBase";
 import { Offer } from "../../../../domain/entities/Offer";
 import { User } from "../../../../domain/entities/User";
+import { IPublication } from "../models/PublicationModel";
 
 export const PublicationMapper = {
-  toDocument(pub: Publication) {
+  toDocument(pub: Publication): Partial<IPublication> {
     return {
       _id: pub.getId(),
       ownerId: pub.getOwner().getId(),
@@ -13,14 +14,12 @@ export const PublicationMapper = {
       cardExchangeIds: pub.getCardExchange()?.map(cb => cb.getId()) || [],
       offerIds: pub.getOffersExisting()?.map(o => o.getId()) || [],
       valueMoney: pub.getValueMoney(),
-      statusPublication: pub.getStatusPublication(),
-      createdAt: pub.getCreatedAt(),
-      updatedAt: pub.getUpdatedAt()
+      statusPublication: pub.getStatusPublication()
     };
   },
 
   toEntity(
-    doc: any,
+    doc: IPublication,
     owner: User,
     card: Card,
     cardExchange: CardBase[],

@@ -1,10 +1,10 @@
 import { User } from "../../../../domain/entities/User";
-import { UserDocument } from "../models/UserModel";
+import { IUser } from "../models/UserModel";
 import { Role } from "../../../../domain/entities/Role";
 
-export function toUserEntity(doc: UserDocument): User {
+export function toUserEntity(doc: IUser): User {
   return new User({
-    id: doc.id,
+    id: doc._id,
     name: doc.name,
     email: doc.email,
     password: doc.password,
@@ -14,9 +14,9 @@ export function toUserEntity(doc: UserDocument): User {
   });
 }
 
-export function toUserDocument(user: User): Partial<UserDocument> {
+export function toUserDocument(user: User): Partial<IUser> {
   return {
-    id: user.getId(),
+    _id: user.getId(),
     name: user.getName(),
     email: user.getEmail(),
     password: user.getPassword(),

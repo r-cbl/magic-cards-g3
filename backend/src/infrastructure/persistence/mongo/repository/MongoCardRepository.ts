@@ -7,25 +7,31 @@ import { CardFilterDTO } from "../../../../application/dtos/CardsDTO";
 import { userRepository, cardBaseRepository } from "../../../../infrastructure/provider/Container";
 
 export class MongoCardRepository implements CardRepository {
+  private cardModel: CardModel;
+
+  constructor() {
+    this.cardModel = new CardModel();
+  }
+
   async save(card: Card): Promise<Card> {
     const doc = CardMapper.toDocument(card);
-    await CardModel.create(doc);
+    await this.cardModel.create(doc);
     return card;
   }
 
   async update(card: Card): Promise<Card> {
     const doc = CardMapper.toDocument(card);
-    await CardModel.findByIdAndUpdate(card.getId(), doc);
+    await this.cardModel.update(card.getId(), doc);
     return card;
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await CardModel.deleteOne({ _id: id });
-    return result.deletedCount > 0;
+    const result = await this.cardModel.delete(id);
+    return result !== null;
   }
 
   async findById(id: string): Promise<Card> {
-    const doc = await CardModel.findById(id).lean();
+    const doc = await this.cardModel.findById(id);
     if (!doc) throw new Error(`Card not found (id: ${id})`);
   
     const owner = await userRepository.findById(doc.ownerId);
@@ -36,15 +42,15 @@ export class MongoCardRepository implements CardRepository {
   
     return CardMapper.toEntity(doc, owner, cardBase);
   }
-  
 
   async find(filters: CardFilterDTO): Promise<Card[]> {
-    const query: any = {};
-    if (filters.ownerId) query.ownerId = filters.ownerId;
+    const docs = await this.cardModel.findAll();
+    const filteredDocs = filters.ownerId 
+      ? docs.filter(doc => doc.ownerId === filters.ownerId)
+      : docs;
 
-    const docs = await CardModel.find(query).lean();
     return Promise.all(
-      docs.map(async doc => {
+      filteredDocs.map(async doc => {
         const owner = await userRepository.findById(doc.ownerId);
         const cardBase = await cardBaseRepository.findById(doc.cardBaseId);
         if (!owner || !cardBase) throw new Error("Related entity not found");
@@ -54,17 +60,19 @@ export class MongoCardRepository implements CardRepository {
   }
 
   async findPaginated(filters: PaginationDTO<CardFilterDTO>): Promise<PaginatedResponseDTO<Card>> {
-    const query: any = {};
-    if (filters.data?.ownerId) query.ownerId = filters.data.ownerId;
+    const docs = await this.cardModel.findAll();
+    const filteredDocs = filters.data?.ownerId 
+      ? docs.filter(doc => doc.ownerId === filters.data.ownerId)
+      : docs;
 
-    const total = await CardModel.countDocuments(query);
-    const docs = await CardModel.find(query)
-      .skip(filters.offset || 0)
-      .limit(filters.limit || 10)
-      .lean();
+    const total = filteredDocs.length;
+    const paginatedDocs = filteredDocs.slice(
+      filters.offset || 0,
+      (filters.offset || 0) + (filters.limit || 10)
+    );
 
     const cards: Card[] = [];
-    for (const doc of docs) {
+    for (const doc of paginatedDocs) {
       const owner = await userRepository.findById(doc.ownerId);
       const cardBase = await cardBaseRepository.findById(doc.cardBaseId);
       if (owner && cardBase) {
@@ -82,10 +90,11 @@ export class MongoCardRepository implements CardRepository {
   }
 
   async findByCardsByIds(ids: string[]): Promise<Card[] | undefined> {
-    const docs = await CardModel.find({ _id: { $in: ids } }).lean();
+    const docs = await this.cardModel.findAll();
+    const filteredDocs = docs.filter(doc => ids.includes(doc._id));
 
     const cards: Card[] = [];
-    for (const doc of docs) {
+    for (const doc of filteredDocs) {
       const owner = await userRepository.findById(doc.ownerId);
       const cardBase = await cardBaseRepository.findById(doc.cardBaseId);
       if (owner && cardBase) {

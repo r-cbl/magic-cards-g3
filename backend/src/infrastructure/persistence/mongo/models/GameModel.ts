@@ -1,15 +1,18 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { SchemaFactory } from './SchemaFactory';
+import { BaseModel, IBaseDocument } from './BaseModel';
 
-export interface GameDocument extends Document {
-  id: string;
+export interface IGame extends IBaseDocument {
   name: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
-const GameSchema = new Schema<GameDocument>({
-  id: { type: String, required: true, unique: true },
-  name: { type: String, required: true },
-}, { timestamps: true });
+const gameSchema = SchemaFactory.createBaseSchema({
+  name: { type: String, required: true }
+});
 
-export const GameModel = mongoose.model<GameDocument>("Game", GameSchema);
+const GameModelClass = SchemaFactory.createModel<IGame>('Game', gameSchema);
+
+export class GameModel extends BaseModel<IGame> {
+  constructor() {
+    super(GameModelClass);
+  }
+}
