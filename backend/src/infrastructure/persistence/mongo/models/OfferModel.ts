@@ -26,4 +26,26 @@ export class OfferModel extends BaseModel<IOffer> {
   constructor() {
     super(OfferModelClass);
   }
+  
+  async findWithFilters(filters: {
+    ownerId?: string;
+    status?: string;
+    publicationId?: string;
+  }): Promise<IOffer[]> {
+    const query: any = {};
+    
+    if (filters.ownerId) {
+      query.offerOwnerId = filters.ownerId;
+    }
+    
+    if (filters.status) {
+      query.statusOffer = filters.status;
+    }
+    
+    if (filters.publicationId) {
+      query.publicationId = filters.publicationId;
+    }
+    
+    return this.model.find(query).exec();
+  }
 }

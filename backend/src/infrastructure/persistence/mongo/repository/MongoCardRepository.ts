@@ -44,13 +44,12 @@ export class MongoCardRepository implements CardRepository {
   }
 
   async find(filters: CardFilterDTO): Promise<Card[]> {
-    const docs = await this.cardModel.findAll();
-    const filteredDocs = filters.ownerId 
-      ? docs.filter(doc => doc.ownerId === filters.ownerId)
-      : docs;
+    const docs = filters.ownerId 
+      ? await this.cardModel.findByOwnerId(filters.ownerId)
+      : await this.cardModel.findAll();
 
     return Promise.all(
-      filteredDocs.map(async doc => {
+      docs.map(async doc => {
         const owner = await userRepository.findById(doc.ownerId);
         const cardBase = await cardBaseRepository.findById(doc.cardBaseId);
         if (!owner || !cardBase) throw new Error("Related entity not found");
@@ -60,19 +59,19 @@ export class MongoCardRepository implements CardRepository {
   }
 
   async findPaginated(filters: PaginationDTO<CardFilterDTO>): Promise<PaginatedResponseDTO<Card>> {
-    const docs = await this.cardModel.findAll();
-    const filteredDocs = filters.data?.ownerId 
-      ? docs.filter(doc => doc.ownerId === filters.data.ownerId)
-      : docs;
-
-    const total = filteredDocs.length;
-    const paginatedDocs = filteredDocs.slice(
+    const query: any = {};
+    if (filters.data?.ownerId) {
+      query.ownerId = filters.data.ownerId;
+    }
+    
+    const { docs, total } = await this.cardModel.findPaginatedWithFilters(
+      query,
       filters.offset || 0,
-      (filters.offset || 0) + (filters.limit || 10)
+      filters.limit || 10
     );
 
     const cards: Card[] = [];
-    for (const doc of paginatedDocs) {
+    for (const doc of docs) {
       const owner = await userRepository.findById(doc.ownerId);
       const cardBase = await cardBaseRepository.findById(doc.cardBaseId);
       if (owner && cardBase) {
@@ -90,11 +89,11 @@ export class MongoCardRepository implements CardRepository {
   }
 
   async findByCardsByIds(ids: string[]): Promise<Card[] | undefined> {
-    const docs = await this.cardModel.findAll();
-    const filteredDocs = docs.filter(doc => ids.includes(doc._id));
+    const docs = await this.cardModel.findByIds(ids);
+    if (!docs.length) return undefined;
 
     const cards: Card[] = [];
-    for (const doc of filteredDocs) {
+    for (const doc of docs) {
       const owner = await userRepository.findById(doc.ownerId);
       const cardBase = await cardBaseRepository.findById(doc.cardBaseId);
       if (owner && cardBase) {

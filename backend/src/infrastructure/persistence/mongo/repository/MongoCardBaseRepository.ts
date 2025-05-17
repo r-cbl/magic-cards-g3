@@ -40,12 +40,13 @@ export class MongoCardBaseRepository implements CardBaseRepository {
   }
 
   async findByCardsByIds(ids: string[]): Promise<CardBase[] | undefined> {
-    const docs = await this.cardBaseModel.findAll();
-    const filteredDocs = docs.filter(doc => ids.includes(doc._id));
+    const docs = await this.cardBaseModel.findByIds(ids);
+    if (!docs.length) return undefined;
+    
     const gamesMap = new Map<string, Game>();
     const cards: CardBase[] = [];
 
-    for (const doc of filteredDocs) {
+    for (const doc of docs) {
       let game = gamesMap.get(doc.gameId);
       if (!game) {
         game = await gameRepository.findById(doc.gameId);
@@ -59,9 +60,8 @@ export class MongoCardBaseRepository implements CardBaseRepository {
   }
 
   async findByGame(game: Game): Promise<CardBase[]> {
-    const docs = await this.cardBaseModel.findAll();
-    const filteredDocs = docs.filter(doc => doc.gameId === game.getId());
-    return filteredDocs.map(doc => CardBaseMapper.toEntity(doc, game));
+    const docs = await this.cardBaseModel.findByGameId(game.getId());
+    return docs.map(doc => CardBaseMapper.toEntity(doc, game));
   }
 
   async findAll(): Promise<CardBase[]> {
@@ -75,26 +75,17 @@ export class MongoCardBaseRepository implements CardBaseRepository {
   }
 
   async findPaginated(filters: PaginationDTO<CardBaseFilterDTO>): Promise<PaginatedResponseDTO<CardBase>> {
-    const docs = await this.cardBaseModel.findAll();
-    
-    // Apply filters
-    let filteredDocs = [...docs];
-    if (filters.data?.gameId) {
-      filteredDocs = filteredDocs.filter(doc => doc.gameId === filters.data.gameId);
-    }
-    if (filters.data?.nameCard) {
-      const regex = new RegExp(filters.data.nameCard, 'i');
-      filteredDocs = filteredDocs.filter(doc => regex.test(doc.nameCard));
-    }
-
-    const total = filteredDocs.length;
-    const paginatedDocs = filteredDocs.slice(
+    const { docs, total } = await this.cardBaseModel.findPaginatedWithFilters(
+      {
+        gameId: filters.data?.gameId,
+        nameCard: filters.data?.nameCard
+      },
       filters.offset || 0,
-      (filters.offset || 0) + (filters.limit || 10)
+      filters.limit || 10
     );
 
     const cards: CardBase[] = [];
-    for (const doc of paginatedDocs) {
+    for (const doc of docs) {
       const game = await gameRepository.findById(doc.gameId);
       if (game) cards.push(CardBaseMapper.toEntity(doc, game));
     }

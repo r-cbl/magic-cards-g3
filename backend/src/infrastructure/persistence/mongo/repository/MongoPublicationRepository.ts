@@ -74,42 +74,20 @@ export class MongoPublicationRepository implements PublicationRepository {
   }
 
   async find(filters: PublicationFilterDTO): Promise<Publication[]> {
-    const docs = await this.publicationModel.findAll();
+    // Use Mongoose query instead of in-memory filtering
+    const docs = await this.publicationModel.findWithFilters({
+      status: filters.status,
+      ownerId: filters.ownerId,
+      excludeId: filters.excludeId,
+      initialDate: filters.initialDate ? new Date(filters.initialDate) : undefined,
+      endDate: filters.endDate ? new Date(filters.endDate) : undefined,
+      minValue: filters.minValue,
+      maxValue: filters.maxValue
+    });
     
-    // Apply filters to docs
-    let filteredDocs = [...docs];
-    
-    if (filters.status) {
-      filteredDocs = filteredDocs.filter(doc => doc.statusPublication === filters.status);
-    }
-    
-    if (filters.ownerId) {
-      filteredDocs = filteredDocs.filter(doc => doc.ownerId === filters.ownerId);
-    } else if (filters.excludeId) {
-      filteredDocs = filteredDocs.filter(doc => doc.ownerId !== filters.excludeId);
-    }
-    
-    if (filters.initialDate || filters.endDate) {
-      filteredDocs = filteredDocs.filter(doc => {
-        const createdAt = new Date(doc.createdAt);
-        if (filters.initialDate && createdAt < new Date(filters.initialDate)) return false;
-        if (filters.endDate && createdAt > new Date(filters.endDate)) return false;
-        return true;
-      });
-    }
-    
-    if (filters.minValue || filters.maxValue) {
-      filteredDocs = filteredDocs.filter(doc => {
-        if (!doc.valueMoney) return false;
-        if (filters.minValue && doc.valueMoney < filters.minValue) return false;
-        if (filters.maxValue && doc.valueMoney > filters.maxValue) return false;
-        return true;
-      });
-    }
-
     const results: Publication[] = [];
     
-    for (const doc of filteredDocs) {
+    for (const doc of docs) {
       const pub = await this.findById(doc._id);
       if (!pub) continue;
   

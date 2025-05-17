@@ -22,4 +22,8 @@ export class UserModel extends BaseModel<IUser> {
   constructor() {
     super(UserModelClass);
   }
+   
+  async findByEmail(email: string): Promise<IUser | null> {
+    return this.model.findOne({ email }).exec();
+  }
 }

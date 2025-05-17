@@ -1,3 +1,5 @@
+import { StatusPublication } from "@/domain/entities/StatusPublication";
+
 export interface CreatePublicationDTO {
     cardId: string;
     ownerId: string;
@@ -38,7 +40,7 @@ export interface CreatePublicationDTO {
 
   export interface PublicationFilterDTO {
     initialDate?: Date;
-    status?:string;
+    status?: string;
     endDate?: Date;
     gamesIds?: string[];
     cardBaseIds?: string[];

@@ -1,3 +1,5 @@
+import { StatusOffer } from "@/domain/entities/StatusOffer";
+
 export interface CreateOfferDTO {
     publicationId: string;
     offerOwnerId: string;

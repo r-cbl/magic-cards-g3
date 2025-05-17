@@ -56,23 +56,16 @@ export class MongoOfferRepository implements OfferRepository {
   }
 
   async find(filters: OfferFilterDTO): Promise<Offer[]> {
-    const docs = await this.offerModel.findAll();
-    
-    // Apply filters
-    let filteredDocs = [...docs];
-    if (filters.ownerId) {
-      filteredDocs = filteredDocs.filter(doc => doc.offerOwnerId === filters.ownerId);
-    }
-    if (filters.status) {
-      filteredDocs = filteredDocs.filter(doc => doc.statusOffer === filters.status);
-    }
-    if (filters.publicationId) {
-      filteredDocs = filteredDocs.filter(doc => doc.publicationId === filters.publicationId);
-    }
+    // Use Mongoose query instead of in-memory filtering
+    const docs = await this.offerModel.findWithFilters({
+      ownerId: filters.ownerId,
+      status: filters.status,
+      publicationId: filters.publicationId
+    });
 
     const offers: Offer[] = [];
 
-    for (const doc of filteredDocs) {
+    for (const doc of docs) {
       const offer = await this.findById(doc._id);
       if (offer) {
         if (!filters.userId || offer.getPublication().getOwner().getId() === filters.userId) {
@@ -101,11 +94,12 @@ export class MongoOfferRepository implements OfferRepository {
   }
 
   async findByOffersByIds(ids: string[]): Promise<Offer[] | undefined> {
-    const docs = await this.offerModel.findAll();
-    const filteredDocs = docs.filter(doc => ids.includes(doc._id));
+    // Use Mongoose query instead of in-memory filtering
+    const docs = await this.offerModel.findByIds(ids);
+    if (!docs.length) return undefined;
+    
     const offers: Offer[] = [];
-
-    for (const doc of filteredDocs) {
+    for (const doc of docs) {
       const offer = await this.findById(doc._id);
       if (offer) offers.push(offer);
     }

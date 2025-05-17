@@ -21,4 +21,8 @@ export class CardModel extends BaseModel<ICard> {
   constructor() {
     super(CardModelClass);
   }
+  
+  async findByOwnerId(ownerId: string): Promise<ICard[]> {
+    return this.model.find({ ownerId }).exec();
+  }
 }

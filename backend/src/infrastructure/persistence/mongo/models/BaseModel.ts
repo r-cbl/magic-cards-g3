@@ -1,4 +1,4 @@
-import mongoose, { Document, Model } from 'mongoose';
+import mongoose, { Document, Model, FilterQuery } from 'mongoose';
 
 export interface IBaseDocument extends Document {
   _id: string;
@@ -32,5 +32,23 @@ export class BaseModel<T extends IBaseDocument> {
 
   async delete(id: string): Promise<T | null> {
     return this.model.findByIdAndDelete(id).exec();
+  }
+  
+  async findByIds(ids: string[]): Promise<T[]> {
+    return this.model.find({ _id: { $in: ids } } as FilterQuery<T>).exec();
+  }
+  
+  async findByFilter(filter: FilterQuery<T>): Promise<T[]> {
+    return this.model.find(filter).exec();
+  }
+  
+  async findPaginatedWithFilters(
+    filter: FilterQuery<T>,
+    offset: number = 0,
+    limit: number = 10
+  ): Promise<{ docs: T[]; total: number }> {
+    const total = await this.model.countDocuments(filter);
+    const docs = await this.model.find(filter).skip(offset).limit(limit).exec();
+    return { docs, total };
   }
 } 

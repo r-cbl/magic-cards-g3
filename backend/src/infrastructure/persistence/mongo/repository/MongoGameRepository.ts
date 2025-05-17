@@ -39,25 +39,20 @@ export class MongoGameRepository implements GameRepository {
 
   async findPaginated(filters: PaginationDTO<GameFilterDTO>): Promise<PaginatedResponseDTO<Game>> {
     const { limit = 10, offset = 0, data } = filters;
-    const docs = await this.gameModel.findAll();
     
-    // Apply name filter if provided
-    let filteredDocs = docs;
-    if (data.name) {
-      const regex = new RegExp(data.name, 'i');
-      filteredDocs = docs.filter(doc => regex.test(doc.name));
-    }
-
-    const total = filteredDocs.length;
-    const paginatedDocs = filteredDocs.slice(offset, offset + limit);
-    const hasMore = offset + limit < total;
+    // Use Mongoose query instead of in-memory filtering
+    const { docs, total } = await this.gameModel.findPaginatedByName(
+      data.name,
+      offset,
+      limit
+    );
 
     return {
-      data: paginatedDocs.map(toGameEntity),
+      data: docs.map(toGameEntity),
       total,
       limit,
       offset,
-      hasMore,
+      hasMore: offset + limit < total,
     };
   }
 }
