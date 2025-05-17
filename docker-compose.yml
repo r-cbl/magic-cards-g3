@@ -34,43 +34,41 @@ services:
     networks:
       - app-network
 
-networks:
-  app-network:
-    driver: bridge
+  web:
+    build:
+      context: ./g3-frontend-next
+      dockerfile: Dockerfile
+    container_name: magic-cards-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001/api}
+    restart: unless-stopped
+    networks:
+      - app-network
+
+# opcional, puedes reactivar el servicio 'bot' si lo necesitas
+#  bot:
+#    build:
+#      context: ./bot
+#      dockerfile: Dockerfile
+#    container_name: magic-cards-bot
+#    environment:
+#      RUNNING_IN_DOCKER: true
+#    env_file:
+#      - ./bot/.env
+#    volumes:
+#      - ./logs:/usr/src/app/logs
+#    restart: unless-stopped
+#    depends_on:
+#      - app
+#    networks:
+#      - app-network
 
 volumes:
   mongo_data:
-  # bot:
-  #   build:
-  #     context: ./bot
-  #     dockerfile: Dockerfile
-  #   container_name: magic-cards-bot
-  #   environment:
-  #     RUNNING_IN_DOCKER: true
-  #   env_file:
-  #     - ./bot/.env
-  #   volumes:
-  #     - ./logs:/usr/src/app/logs
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - app
-  #   networks:
-  #     - app-network
 
-  # web:
-  #   build:
-  #     context: ./g3-frontend-next
-  #     dockerfile: Dockerfile
-  #   container_name: magic-cards-frontend
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     NODE_ENV: production
-  #     NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001/api}
-  #   restart: unless-stopped
-  #   networks:
-  #     - app-network
-
-# networks:
-#   app-network:
-#     driver: bridge
+networks:
+  app-network:
+    driver: bridge
