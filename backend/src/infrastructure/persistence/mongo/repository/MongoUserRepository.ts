@@ -16,7 +16,6 @@ export class MongoUserRepository implements UserRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    // Use Mongoose query instead of in-memory filtering
     const doc = await this.userModel.findByEmail(email);
     return doc ? toUserEntity(doc) : null;
   }

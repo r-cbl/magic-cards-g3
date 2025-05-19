@@ -54,11 +54,11 @@ export class Publication extends Ownable {
         return this.id;
       }
 
-    public closePublication(): Offer[] {
-        this.statusPublication = StatusPublication.CLOSED;
-        this.updatedAt = new Date();
+    public closePublication(acceptedOffer?: Offer): Offer[] {
+      this.statusPublication = StatusPublication.CLOSED;
+      this.updatedAt = new Date();
+      if(!acceptedOffer){
         const rejectedOffers: Offer[] = [];
-
         this.offersExisting
             .filter(offer => offer.getStatusOffer() === StatusOffer.PENDING)
             .forEach(offer => {
@@ -67,6 +67,16 @@ export class Publication extends Ownable {
             });
 
         return rejectedOffers;
+      }
+      const rejectedOffers: Offer[] = [];
+      this.offersExisting
+            .filter(offer => offer.getId() !== acceptedOffer.getId())
+            .forEach(offer => {
+                offer.rejectOffer();
+                rejectedOffers.push(offer);
+            });
+
+      return rejectedOffers;
     }
 
     public acceptOffer(offer: Offer): [Offer[], Card[]] {
@@ -75,10 +85,11 @@ export class Publication extends Ownable {
       }      
       this.updatedAt = new Date();
       const cards = offer.acceptOffer(this.getOwner());
-      const offerRejected = this.closePublication();
+      const offers = this.closePublication(offer);
+      offers.push(offer);
       this.card.setOwner(offer.getOfferOwner());
       cards.push(this.card);
-      return [offerRejected, cards];
+      return [offers, cards];
     }
 
     public rejectOffer(offer: Offer): Offer { 

@@ -111,7 +111,7 @@ export class MongoPublicationRepository implements PublicationRepository {
 
   async findPaginated(filters: PaginationDTO<PublicationFilterDTO>): Promise<PaginatedResponseDTO<Publication>> {
     const query: any = {};
-    if (filters.data?.status) query.status = filters.data.status;
+    if (filters.data?.status) query.statusPublication = filters.data.status;
     if (filters.data?.ownerId) query.ownerId = filters.data.ownerId;
     if (filters.data?.excludeId) query._id = { $ne: filters.data.excludeId };
     if (filters.data?.initialDate || filters.data?.endDate) {
@@ -124,27 +124,32 @@ export class MongoPublicationRepository implements PublicationRepository {
       if (filters.data?.minValue) query.value.$gte = filters.data.minValue;
       if (filters.data?.maxValue) query.value.$lte = filters.data.maxValue;
     }
-
+    console.log('query', query);
     const { docs, total } = await this.publicationModel.findPaginatedWithFilters(
       query,
       filters.offset || 0,
       filters.limit || 10
     );
 
+    console.log('docs', docs);
     const publications: Publication[] = [];
     for (const doc of docs) {
-      const pub = await this.findById(doc._id.toString());
-      if (!pub) continue;
-
-      const cardBaseId = pub.getCard().getCardBase().getId();
-      const gameId = pub.getCard().getCardBase().getGame().getId();
-
-      if (
-        (filters.data?.cardBaseIds && !filters.data.cardBaseIds.includes(cardBaseId)) ||
-        (filters.data?.gamesIds && !filters.data.gamesIds.includes(gameId))
-      ) continue;
-
-      publications.push(pub);
+      const card = await cardRepository.findById(doc.cardId.toString());
+      const owner = await userRepository.findById(doc.ownerId.toString());
+      if (!owner) continue;
+      const cardExchange = doc.cardExchangeIds?.length > 0
+      ? (await Promise.all(
+        doc.cardExchangeIds.map(
+          (id) => cardBaseRepository.findById(id.toString())))).filter((cb: any) => cb) as CardBase[]
+      : [];
+      const offers = doc.offerIds?.length > 0
+      ? (await Promise.all(
+        doc.offerIds.map(
+          (id) => offerRepository.findById(id.toString(), true)))).filter((o: any) => o) as Offer[]
+      : [];
+      if (card && cardExchange && offers) {
+        publications.push(PublicationMapper.toEntity(doc, owner, card, cardExchange, offers));
+      }
     }
 
     return {

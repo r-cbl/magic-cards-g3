@@ -10,6 +10,9 @@ import {
   cardRepository,
   publicationRepository
 } from "../../../../infrastructure/provider/Container";
+import { Types } from "mongoose";
+import { CardBaseMapper } from "../mappers/cardBase.mapper";
+import { CardBase } from "@/domain/entities/CardBase";
 
 export class MongoOfferRepository implements OfferRepository {
   private offerModel: OfferModel;
@@ -39,16 +42,16 @@ export class MongoOfferRepository implements OfferRepository {
     const doc = await this.offerModel.findById(id);
     if (!doc) return null;
   
-    const owner = await userRepository.findById(doc.offerOwnerId);
+    const owner = await userRepository.findById(doc.offerOwnerId.toString());
     if (!owner) return null;
   
     const cards = doc.cardIds?.length
-      ? await cardRepository.findByCardsByIds(doc.cardIds)
+      ? await cardRepository.findByCardsByIds(doc.cardIds.map(id => id.toString()))
       : [];
   
     const publication = skipPublication
       ? undefined
-      : await publicationRepository.findById(doc.publicationId);
+      : await publicationRepository.findById(doc.publicationId.toString());
   
     if (!skipPublication && !publication) return null;
   
@@ -78,24 +81,47 @@ export class MongoOfferRepository implements OfferRepository {
   }
 
   async findPaginated(filters: PaginationDTO<OfferFilterDTO>): Promise<PaginatedResponseDTO<Offer>> {
-    const query: any = {};
-    if (filters.data?.ownerId) query.offerOwnerId = filters.data.ownerId;
-    if (filters.data?.status) query.status = filters.data.status;
-    if (filters.data?.publicationId) query.publicationId = filters.data.publicationId;
+    const matchConditions: any = {};
+    
+    if (filters.data?.userId) {
+      matchConditions["publication.ownerId"] = new Types.ObjectId(filters.data.userId);
+    }
+    if (filters.data?.ownerId) {
+      matchConditions.offerOwnerId = new Types.ObjectId(filters.data.ownerId);
+    }
+    if (filters.data?.status) {
+      matchConditions.statusOffer = filters.data.status;
+    }
+    if (filters.data?.publicationId) {
+      matchConditions.publicationId = new Types.ObjectId(filters.data.publicationId);
+    }
 
-    const { docs, total } = await this.offerModel.findPaginatedWithFilters(
-      query,
-      filters.offset || 0,
-      filters.limit || 10
-    );
 
+    const { docs, total } = await this.offerModel.aggregatePaginated({
+      lookups: [
+        {
+          from: "publications",
+          localField: "publicationId",
+          foreignField: "_id",
+          as: "publication",
+          unwind: true,
+          preserveNullAndEmptyArrays: true
+        }
+      ],
+      match: matchConditions,
+      sort: { createdAt: -1 },
+      offset: filters.offset || 0,
+      limit: filters.limit || 10
+    });
+
+    console.log('docs', docs);
     const offers: Offer[] = [];
     for (const doc of docs) {
-      const offer = await this.findById(doc._id.toString());
-      if (offer) {
-        if (!filters.data?.userId || offer.getPublication().getOwner().getId() === filters.data.userId) {
-          offers.push(offer);
-        }
+      const publication = await publicationRepository.findById(doc.publicationId.toString());
+      const owner = await userRepository.findById(doc.offerOwnerId.toString());
+      const cards = await cardRepository.findByCardsByIds(doc.cardIds.map(id => id.toString()));
+      if (publication && owner && cards) {
+        offers.push(OfferMapper.toEntity(doc, owner, cards, publication));
       }
     }
 
