@@ -1,5 +1,6 @@
 import { SchemaFactory } from './SchemaFactory';
 import { BaseModel, IBaseDocument } from './BaseModel';
+import { Types } from 'mongoose';
 
 export interface IGame extends IBaseDocument {
   name: string;

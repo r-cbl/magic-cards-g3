@@ -34,7 +34,7 @@ export class MongoCardBaseRepository implements CardBaseRepository {
   async findById(id: string): Promise<CardBase | undefined> {
     const doc = await this.cardBaseModel.findById(id);
     if (!doc) return undefined;
-    const game = await gameRepository.findById(doc.gameId);
+    const game = await gameRepository.findById(doc.gameId.toString());
     if (!game) return undefined;
     return CardBaseMapper.toEntity(doc, game);
   }
@@ -43,19 +43,17 @@ export class MongoCardBaseRepository implements CardBaseRepository {
     const docs = await this.cardBaseModel.findByIds(ids);
     if (!docs.length) return undefined;
     
-    const gamesMap = new Map<string, Game>();
-    const cards: CardBase[] = [];
-
-    for (const doc of docs) {
-      let game = gamesMap.get(doc.gameId);
-      if (!game) {
-        game = await gameRepository.findById(doc.gameId);
-        if (game) gamesMap.set(doc.gameId, game);
-      }
-      if (game) {
-        cards.push(CardBaseMapper.toEntity(doc, game));
-      }
-    }
+    const gameIds = [...new Set(docs.map(doc => doc.gameId.toString()))];
+    const games = await gameRepository.findByIds(gameIds);
+    const gameMap = new Map(games.map(game => [game.getId(), game]));
+    
+    const cards = docs
+      .map(doc => {
+        const game = gameMap.get(doc.gameId.toString());
+        return game ? CardBaseMapper.toEntity(doc, game) : null;
+      })
+      .filter((card): card is CardBase => card !== null);
+    
     return cards.length ? cards : undefined;
   }
 
@@ -66,12 +64,16 @@ export class MongoCardBaseRepository implements CardBaseRepository {
 
   async findAll(): Promise<CardBase[]> {
     const docs = await this.cardBaseModel.findAll();
-    const cards: CardBase[] = [];
-    for (const doc of docs) {
-      const game = await gameRepository.findById(doc.gameId);
-      if (game) cards.push(CardBaseMapper.toEntity(doc, game));
-    }
-    return cards;
+    const gameIds = [...new Set(docs.map(doc => doc.gameId.toString()))];
+    const games = await gameRepository.findByIds(gameIds);
+    const gameMap = new Map(games.map(game => [game.getId(), game]));
+    
+    return docs
+      .map(doc => {
+        const game = gameMap.get(doc.gameId.toString());
+        return game ? CardBaseMapper.toEntity(doc, game) : null;
+      })
+      .filter((card): card is CardBase => card !== null);
   }
 
   async findPaginated(filters: PaginationDTO<CardBaseFilterDTO>): Promise<PaginatedResponseDTO<CardBase>> {
@@ -83,12 +85,17 @@ export class MongoCardBaseRepository implements CardBaseRepository {
       filters.offset || 0,
       filters.limit || 10
     );
-
-    const cards: CardBase[] = [];
-    for (const doc of docs) {
-      const game = await gameRepository.findById(doc.gameId);
-      if (game) cards.push(CardBaseMapper.toEntity(doc, game));
-    }
+    
+    const gameIds = [...new Set(docs.map(doc => doc.gameId.toString()))];
+    const games = await gameRepository.findByIds(gameIds);
+    const gameMap = new Map(games.map(game => [game.getId(), game]));
+    
+    const cards = docs
+      .map(doc => {
+        const game = gameMap.get(doc.gameId.toString());
+        return game ? CardBaseMapper.toEntity(doc, game) : null;
+      })
+      .filter((card): card is CardBase => card !== null);
 
     return {
       data: cards,

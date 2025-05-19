@@ -1,5 +1,6 @@
 import { Publication } from "./Publication";
 import { Role } from "./Role";
+import { generateUUID } from "./utils";
 
 export interface UserProps {
   id?: string;
@@ -22,7 +23,7 @@ export class User {
   private role: Role;
 
   constructor(props: UserProps) {
-    this.id = props.id || this.generateId();
+    this.id = props.id || generateUUID();
     this.name = props.name;
     this.email = props.email;
     this.password = props.password;
@@ -38,10 +39,6 @@ export class User {
 
   public changeToUser(){
     this.role = Role.USER
-  }
-
-  private generateId(): string {
-    return Math.random().toString(36).substring(2, 9);
   }
 
   // Getters

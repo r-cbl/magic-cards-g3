@@ -1,6 +1,7 @@
 import { SchemaFactory } from './SchemaFactory';
 import { BaseModel, IBaseDocument } from './BaseModel';
 import { StatusOffer } from '@/domain/entities/StatusOffer';
+import { Types } from 'mongoose';
 
 export interface IOffer extends IBaseDocument {
   offerOwnerId: string;
@@ -13,11 +14,11 @@ export interface IOffer extends IBaseDocument {
 
 const offerSchema = SchemaFactory.createBaseSchema({
   offerOwnerId: { type: String, required: true },
-  cardIds: [{ type: String }],
+  cardIds: [{ type: Types.ObjectId, ref: 'Card' }],
   statusOffer: { type: String, enum: ['draft', 'pending', 'accepted', 'rejected'], required: true },
   moneyOffer: { type: Number },
   closedAt: { type: Date },
-  publicationId: { type: String, required: true }
+  publicationId: { type: Types.ObjectId, required: true, ref: 'Publication' }
 });
 
 const OfferModelClass = SchemaFactory.createModel<IOffer>('Offer', offerSchema);

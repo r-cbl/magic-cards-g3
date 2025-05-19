@@ -66,7 +66,7 @@ export class MongoOfferRepository implements OfferRepository {
     const offers: Offer[] = [];
 
     for (const doc of docs) {
-      const offer = await this.findById(doc._id);
+      const offer = await this.findById(doc._id.toString());
       if (offer) {
         if (!filters.userId || offer.getPublication().getOwner().getId() === filters.userId) {
           offers.push(offer);
@@ -78,18 +78,33 @@ export class MongoOfferRepository implements OfferRepository {
   }
 
   async findPaginated(filters: PaginationDTO<OfferFilterDTO>): Promise<PaginatedResponseDTO<Offer>> {
-    const filteredOffers = await this.find(filters.data);
-    const total = filteredOffers.length;
-    const offset = filters.offset || 0;
-    const limit = filters.limit || 10;
-    const data = filteredOffers.slice(offset, offset + limit);
+    const query: any = {};
+    if (filters.data?.ownerId) query.offerOwnerId = filters.data.ownerId;
+    if (filters.data?.status) query.status = filters.data.status;
+    if (filters.data?.publicationId) query.publicationId = filters.data.publicationId;
+
+    const { docs, total } = await this.offerModel.findPaginatedWithFilters(
+      query,
+      filters.offset || 0,
+      filters.limit || 10
+    );
+
+    const offers: Offer[] = [];
+    for (const doc of docs) {
+      const offer = await this.findById(doc._id.toString());
+      if (offer) {
+        if (!filters.data?.userId || offer.getPublication().getOwner().getId() === filters.data.userId) {
+          offers.push(offer);
+        }
+      }
+    }
 
     return {
-      data,
+      data: offers,
       total,
-      limit,
-      offset,
-      hasMore: offset + limit < total,
+      limit: filters.limit || 10,
+      offset: filters.offset || 0,
+      hasMore: (filters.offset || 0) + (filters.limit || 10) < total,
     };
   }
 
@@ -100,7 +115,7 @@ export class MongoOfferRepository implements OfferRepository {
     
     const offers: Offer[] = [];
     for (const doc of docs) {
-      const offer = await this.findById(doc._id);
+      const offer = await this.findById(doc._id.toString());
       if (offer) offers.push(offer);
     }
 

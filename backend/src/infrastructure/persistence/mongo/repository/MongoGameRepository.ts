@@ -32,6 +32,11 @@ export class MongoGameRepository implements GameRepository {
     return doc ? toGameEntity(doc) : undefined;
   }
 
+  async findByIds(ids: string[]): Promise<Game[]> {
+    const docs = await this.gameModel.findByIds(ids);
+    return docs.map(toGameEntity);
+  }
+
   async findAll(): Promise<Game[]> {
     const docs = await this.gameModel.findAll();
     return docs.map(toGameEntity);
@@ -40,7 +45,6 @@ export class MongoGameRepository implements GameRepository {
   async findPaginated(filters: PaginationDTO<GameFilterDTO>): Promise<PaginatedResponseDTO<Game>> {
     const { limit = 10, offset = 0, data } = filters;
     
-    // Use Mongoose query instead of in-memory filtering
     const { docs, total } = await this.gameModel.findPaginatedByName(
       data.name,
       offset,

@@ -1,22 +1,23 @@
 import { SchemaFactory } from './SchemaFactory';
 import { BaseModel, IBaseDocument } from './BaseModel';
 import { StatusPublication } from '@/domain/entities/StatusPublication';
+import { Types } from 'mongoose';
 
 export interface IPublication extends IBaseDocument {
-  ownerId: string;
-  cardId: string;
+  ownerId: Types.ObjectId;
+  cardId: Types.ObjectId;
   valueMoney?: number;
-  cardExchangeIds: string[];
-  offerIds: string[];
+  cardExchangeIds: Types.ObjectId[];
+  offerIds: Types.ObjectId[];
   statusPublication: StatusPublication;
 }
 
 const publicationSchema = SchemaFactory.createBaseSchema({
-  ownerId: { type: String, required: true },
-  cardId: { type: String, required: true },
+  ownerId: { type: Types.ObjectId, ref: 'User', required: true },
+  cardId: { type: Types.ObjectId, ref: 'Card', required: true },
   valueMoney: { type: Number },
-  cardExchangeIds: [{ type: String }],
-  offerIds: [{ type: String }],
+  cardExchangeIds: [{ type: Types.ObjectId, ref: 'CardBase' }],
+  offerIds: [{ type: Types.ObjectId, ref: 'Offer' }],
   statusPublication: { type: String, enum: ['Open', 'Closed'], required: true }
 });
 

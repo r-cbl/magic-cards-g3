@@ -7,6 +7,7 @@ import { PublicationFilterDTO } from "../../../../application/dtos/PublicationDT
 import { PaginatedResponseDTO, PaginationDTO } from "../../../../application/dtos/PaginationDTO";
 import { CardBase } from "../../../../domain/entities/CardBase";
 import { Offer } from "../../../../domain/entities/Offer";
+import { Types } from 'mongoose';
 import {
   userRepository,
   cardRepository,
@@ -42,8 +43,8 @@ export class MongoPublicationRepository implements PublicationRepository {
     const doc = await this.publicationModel.findById(id);
     if (!doc) return null;
   
-    const owner = await userRepository.findById(doc.ownerId);
-    const card = await cardRepository.findById(doc.cardId);
+    const owner = await userRepository.findById(doc.ownerId.toString());
+    const card = await cardRepository.findById(doc.cardId.toString());
 
     if (!owner || !card) {
       console.warn(`[MongoPublicationRepository] Missing owner or card for publication ${id}`);
@@ -51,11 +52,15 @@ export class MongoPublicationRepository implements PublicationRepository {
     }
   
     const cardExchange = doc.cardExchangeIds?.length > 0
-      ? (await Promise.all(doc.cardExchangeIds.map((id: string) => cardBaseRepository.findById(id)))).filter((cb: any) => cb) as CardBase[]
+      ? (await Promise.all(
+        doc.cardExchangeIds.map(
+          (id) => cardBaseRepository.findById(id.toString())))).filter((cb: any) => cb) as CardBase[]
       : [];
   
     const offers = doc.offerIds?.length > 0
-      ? (await Promise.all(doc.offerIds.map((id: string) => offerRepository.findById(id, true)))).filter((o: any) => o) as Offer[]
+      ? (await Promise.all(
+        doc.offerIds.map(
+          (id) => offerRepository.findById(id.toString(), true)))).filter((o: any) => o) as Offer[]
       : [];
     
     return PublicationMapper.toEntity(doc, owner, card, cardExchange, offers);
@@ -66,7 +71,7 @@ export class MongoPublicationRepository implements PublicationRepository {
     const publications: Publication[] = [];
 
     for (const doc of docs) {
-      const pub = await this.findById(doc._id);
+      const pub = await this.findById(doc._id.toString());
       if (pub) publications.push(pub);
     }
 
@@ -87,7 +92,7 @@ export class MongoPublicationRepository implements PublicationRepository {
     const results: Publication[] = [];
     
     for (const doc of docs) {
-      const pub = await this.findById(doc._id);
+      const pub = await this.findById(doc._id.toString());
       if (!pub) continue;
   
       const cardBaseId = pub.getCard().getCardBase().getId();
@@ -105,18 +110,49 @@ export class MongoPublicationRepository implements PublicationRepository {
   }
 
   async findPaginated(filters: PaginationDTO<PublicationFilterDTO>): Promise<PaginatedResponseDTO<Publication>> {
-    const all = await this.find(filters.data);
-    const total = all.length;
-    const offset = filters.offset || 0;
-    const limit = filters.limit || 10;
-    const data = all.slice(offset, offset + limit);
+    const query: any = {};
+    if (filters.data?.status) query.status = filters.data.status;
+    if (filters.data?.ownerId) query.ownerId = filters.data.ownerId;
+    if (filters.data?.excludeId) query._id = { $ne: filters.data.excludeId };
+    if (filters.data?.initialDate || filters.data?.endDate) {
+      query.createdAt = {};
+      if (filters.data?.initialDate) query.createdAt.$gte = new Date(filters.data.initialDate);
+      if (filters.data?.endDate) query.createdAt.$lte = new Date(filters.data.endDate);
+    }
+    if (filters.data?.minValue || filters.data?.maxValue) {
+      query.value = {};
+      if (filters.data?.minValue) query.value.$gte = filters.data.minValue;
+      if (filters.data?.maxValue) query.value.$lte = filters.data.maxValue;
+    }
+
+    const { docs, total } = await this.publicationModel.findPaginatedWithFilters(
+      query,
+      filters.offset || 0,
+      filters.limit || 10
+    );
+
+    const publications: Publication[] = [];
+    for (const doc of docs) {
+      const pub = await this.findById(doc._id.toString());
+      if (!pub) continue;
+
+      const cardBaseId = pub.getCard().getCardBase().getId();
+      const gameId = pub.getCard().getCardBase().getGame().getId();
+
+      if (
+        (filters.data?.cardBaseIds && !filters.data.cardBaseIds.includes(cardBaseId)) ||
+        (filters.data?.gamesIds && !filters.data.gamesIds.includes(gameId))
+      ) continue;
+
+      publications.push(pub);
+    }
 
     return {
-      data,
+      data: publications,
       total,
-      limit,
-      offset,
-      hasMore: offset + limit < total,
+      limit: filters.limit || 10,
+      offset: filters.offset || 0,
+      hasMore: (filters.offset || 0) + (filters.limit || 10) < total,
     };
   }
 }

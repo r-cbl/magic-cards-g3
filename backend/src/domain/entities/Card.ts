@@ -1,6 +1,7 @@
 import { CardBase } from "./CardBase";
 import { Ownable } from "./Ownable";
 import { User } from "./User";
+import { generateUUID } from "./utils";
 
 
 
@@ -24,7 +25,7 @@ export class Card extends Ownable {
 
     constructor(props: CardProps) { 
         super(props.owner);
-        this.id = props.id || this.generateId();
+        this.id = props.id || generateUUID();
         this.cardBase = props.cardBase;
         this.statusCard = props.statusCard;
         this.urlImage = props.urlImage;
@@ -32,9 +33,6 @@ export class Card extends Ownable {
         this.updatedAt = props.updatedAt || new Date();
     }
 
-    private generateId(): string {
-        return Math.random().toString(36).substring(2, 9);
-    }
       
     public getCardBase(): CardBase {
       return this.cardBase;

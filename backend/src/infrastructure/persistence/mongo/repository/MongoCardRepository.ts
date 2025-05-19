@@ -34,10 +34,10 @@ export class MongoCardRepository implements CardRepository {
     const doc = await this.cardModel.findById(id);
     if (!doc) throw new Error(`Card not found (id: ${id})`);
   
-    const owner = await userRepository.findById(doc.ownerId);
+    const owner = await userRepository.findById(doc.ownerId.toString());
     if (!owner) throw new Error(`User not found (id: ${doc.ownerId})`);
   
-    const cardBase = await cardBaseRepository.findById(doc.cardBaseId);
+    const cardBase = await cardBaseRepository.findById(doc.cardBaseId.toString());
     if (!cardBase) throw new Error(`CardBase not found (id: ${doc.cardBaseId})`);
   
     return CardMapper.toEntity(doc, owner, cardBase);
@@ -50,8 +50,8 @@ export class MongoCardRepository implements CardRepository {
 
     return Promise.all(
       docs.map(async doc => {
-        const owner = await userRepository.findById(doc.ownerId);
-        const cardBase = await cardBaseRepository.findById(doc.cardBaseId);
+        const owner = await userRepository.findById(doc.ownerId.toString());
+        const cardBase = await cardBaseRepository.findById(doc.cardBaseId.toString());
         if (!owner || !cardBase) throw new Error("Related entity not found");
         return CardMapper.toEntity(doc, owner, cardBase);
       })
@@ -72,8 +72,8 @@ export class MongoCardRepository implements CardRepository {
 
     const cards: Card[] = [];
     for (const doc of docs) {
-      const owner = await userRepository.findById(doc.ownerId);
-      const cardBase = await cardBaseRepository.findById(doc.cardBaseId);
+      const owner = await userRepository.findById(doc.ownerId.toString());
+      const cardBase = await cardBaseRepository.findById(doc.cardBaseId.toString());
       if (owner && cardBase) {
         cards.push(CardMapper.toEntity(doc, owner, cardBase));
       }
@@ -94,8 +94,8 @@ export class MongoCardRepository implements CardRepository {
 
     const cards: Card[] = [];
     for (const doc of docs) {
-      const owner = await userRepository.findById(doc.ownerId);
-      const cardBase = await cardBaseRepository.findById(doc.cardBaseId);
+      const owner = await userRepository.findById(doc.ownerId.toString());
+      const cardBase = await cardBaseRepository.findById(doc.cardBaseId.toString());
       if (owner && cardBase) {
         cards.push(CardMapper.toEntity(doc, owner, cardBase));
       }

@@ -1,4 +1,5 @@
 import { Game } from "./Game";
+import { generateUUID } from "./utils";
 
 export interface CardBaseProps {
     id?: string;
@@ -16,15 +17,11 @@ export class CardBase {
     private updatedAt: Date;
 
     constructor(props: CardBaseProps) {
-        this.id = props.id || this.generateId();
+        this.id = props.id || generateUUID();
         this.game = props.game;
         this.nameCard = props.nameCard;
         this.createdAt = props.createdAt || new Date();
         this.updatedAt = props.updatedAt || new Date();
-    }
-
-    private generateId(): string {
-        return Math.random().toString(36).substring(2, 9);
     }
 
     public getId(): string {

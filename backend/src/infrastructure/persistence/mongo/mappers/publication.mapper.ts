@@ -4,15 +4,16 @@ import { CardBase } from "../../../../domain/entities/CardBase";
 import { Offer } from "../../../../domain/entities/Offer";
 import { User } from "../../../../domain/entities/User";
 import { IPublication } from "../models/PublicationModel";
+import { Types } from 'mongoose';
 
 export const PublicationMapper = {
   toDocument(pub: Publication): Partial<IPublication> {
     return {
-      _id: pub.getId(),
-      ownerId: pub.getOwner().getId(),
-      cardId: pub.getCard().getId(),
-      cardExchangeIds: pub.getCardExchange()?.map(cb => cb.getId()) || [],
-      offerIds: pub.getOffersExisting()?.map(o => o.getId()) || [],
+      _id: new Types.ObjectId(pub.getId()),
+      ownerId: new Types.ObjectId(pub.getOwner().getId()),
+      cardId: new Types.ObjectId(pub.getCard().getId()),
+      cardExchangeIds: pub.getCardExchange()?.map(cb => new Types.ObjectId(cb.getId())) || [],
+      offerIds: pub.getOffersExisting()?.map(o => new Types.ObjectId(o.getId())) || [],
       valueMoney: pub.getValueMoney(),
       statusPublication: pub.getStatusPublication()
     };
@@ -26,7 +27,7 @@ export const PublicationMapper = {
     offers: Offer[]
   ): Publication {
     return new Publication({
-      id: doc._id,
+      id: doc._id.toString(),
       statusPublication: doc.statusPublication,
       owner,
       card,

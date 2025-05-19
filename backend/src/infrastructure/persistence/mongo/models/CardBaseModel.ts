@@ -1,13 +1,14 @@
 import { SchemaFactory } from './SchemaFactory';
 import { BaseModel, IBaseDocument } from './BaseModel';
+import { Types } from 'mongoose';
 
 export interface ICardBase extends IBaseDocument {
-  gameId: string;
+  gameId: Types.ObjectId;
   nameCard: string;
 }
 
 const cardBaseSchema = SchemaFactory.createBaseSchema({
-  gameId: { type: String, required: true },
+  gameId: { type: Types.ObjectId, ref: 'Game', required: true },
   nameCard: { type: String, required: true }
 });
 

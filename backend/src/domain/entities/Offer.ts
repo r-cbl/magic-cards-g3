@@ -3,6 +3,7 @@ import { StatusOffer } from "./StatusOffer";
 import { User } from "./User";
 import { Ownable } from "./Ownable";
 import { Publication } from "./Publication";
+import { generateUUID } from "./utils";
 
 export interface OfferProps {
     id?: string;
@@ -41,7 +42,7 @@ export class Offer extends Ownable {
             this.areMyCards(props.cardOffers, props.offerOwner);
         }
 
-        this.id = props.id || this.generateId();
+        this.id = props.id || generateUUID();
         this.offerOwner = props.offerOwner;
         this.cardOffers = props.cardOffers;
         this.statusOffer = props.statusOffer || StatusOffer.PENDING;
@@ -50,10 +51,6 @@ export class Offer extends Ownable {
         this.createdAt = props.createdAt || new Date();
         this.updatedAt = props.updatedAt || new Date();
         this.publication = props.publication!;
-    }
-
-    private generateId(): string {
-        return Math.random().toString(36).substring(2, 9);
     }
 
     public acceptOffer(publicationOwner: User): Card[] {

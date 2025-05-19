@@ -1,6 +1,7 @@
 import { SchemaFactory } from './SchemaFactory';
 import { BaseModel, IBaseDocument } from './BaseModel';
 import { Role } from "../../../../domain/entities/Role";
+import { Types } from 'mongoose';
 
 export interface IUser extends IBaseDocument {
   name: string;

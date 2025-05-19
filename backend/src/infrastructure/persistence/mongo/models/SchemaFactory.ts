@@ -1,9 +1,9 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, SchemaTypes } from 'mongoose';
 
 export class SchemaFactory {
   static createBaseSchema(additionalFields: Record<string, any> = {}): Schema {
     const baseFields = {
-      _id: { type: String, required: true },
+      _id: { type: SchemaTypes.ObjectId, required: true },
       createdAt: { type: Date, required: true, default: Date.now },
       updatedAt: { type: Date, required: true, default: Date.now }
     };

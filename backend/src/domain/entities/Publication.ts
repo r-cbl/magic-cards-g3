@@ -5,6 +5,7 @@ import { CardBase } from "./CardBase";
 import { Ownable } from "./Ownable";
 import { StatusPublication } from "./StatusPublication";
 import { StatusOffer } from "./StatusOffer";
+import { generateUUID } from "./utils";
 
 export interface PublicationProps {
     id?: string;
@@ -30,7 +31,7 @@ export class Publication extends Ownable {
 
     constructor(props: PublicationProps) {
       super(props.owner);
-      this.id = props.id || this.generateId();
+      this.id = props.id || generateUUID();
       this.statusPublication = props.statusPublication || StatusPublication.OPEN;
       this.cardExchange = props.cardExchange;
       this.offersExisting = props.offersExisting || [];
@@ -39,10 +40,6 @@ export class Publication extends Ownable {
       this.createdAt = props.createdAt || new Date();
       this.updatedAt = props.updatedAt || new Date();
   }
-    
-    private generateId(): string {
-        return Math.random().toString(36).substring(2, 9);
-    }
 
     public addOffer(offer: Offer):  Offer {
       if (this.statusPublication === StatusPublication.CLOSED) {
