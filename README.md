@@ -1,22 +1,30 @@
+# 🎯 Entrega 2
 
-# 📦 Entrega 1
+Repositorio correspondiente a la **Entrega 2** del trabajo práctico. En esta entrega se amplía el trabajo anterior incorporando:
 
-Repositorio correspondiente a la **Entrega 1** del trabajo práctico. El objetivo principal es presentar una arquitectura limpia en una aplicación Express utilizando TypeScript.
+- 🧱 Backend con **arquitectura limpia** (Express + TypeScript).  
+- 🌐 Frontend web con **React**, **Next.js** y **Redux**.  
+- 🤖 Bot de **Telegram** conectado al backend.  
+- 🐳 Contenedorización con Docker y orquestación con Docker Compose.
 
 ---
 
-## 📋 Prerrequisitos
+## 📦 Entrega 1 - Backend
+
+El objetivo principal fue presentar una arquitectura limpia en una aplicación Express utilizando TypeScript.
+
+### 📋 Prerrequisitos
 
 Antes de comenzar, asegurate de tener instalado lo siguiente:
 
-- [Node.js](https://nodejs.org/) (v14 o superior)
-- [npm](https://www.npmjs.com/) (viene incluido con Node.js)
-- [Docker](https://www.docker.com/get-started) (opcional, para correr en contenedores)
+- [Node.js](https://nodejs.org/) (v14 o superior)  
+- [npm](https://www.npmjs.com/) (viene incluido con Node.js)  
+- [Docker](https://www.docker.com/get-started)  
 - [Git](https://git-scm.com/) (control de versiones)
 
 ---
 
-## 🚀 Comenzando
+## 🚀 Comenzando - Backend
 
 ### Instalación de dependencias
 
@@ -29,35 +37,27 @@ npm install
 Crear un archivo `.env` en la raíz del proyecto basado en `.env.example`:
 
 ```bash
-# Configuración general
 NODE_ENV=development
 PORT=3001
 API_PREFIX=/api
 
-# Autenticación JWT
 JWT_SECRET=your_development_secret_key_change_in_production
 JWT_EXPIRES_IN=1h
 JWT_REFRESH_EXPIRES_IN=7d
 
-# Logging
 LOG_LEVEL=debug
 ```
 
-### Compilar el proyecto
+### Compilar y ejecutar
 
 ```bash
 npm run build
-```
-
-### Ejecutar la aplicación
-
-```bash
 npm start
 ```
 
 La API estará disponible en: [http://localhost:3001/api](http://localhost:3001/api)
 
-### Ejecutar en modo desarrollo (con hot reload)
+### Modo desarrollo (hot reload)
 
 ```bash
 npm run dev
@@ -65,7 +65,7 @@ npm run dev
 
 ---
 
-## 🧪 Correr tests
+## 🧪 Tests
 
 ```bash
 npm test
@@ -73,101 +73,152 @@ npm test
 
 ---
 
-## 🐳 Uso con Docker
+## 📁 Estructura del backend
 
-### Construir y levantar con Docker Compose
+```
+src/
+├── application/
+│   ├── dtos/
+│   ├── services/
+│   └── interfaces/
+├── domain/
+│   ├── entities/
+│   ├── repositories/
+│   └── value-objects/
+├── infrastructure/
+│   ├── config/
+│   ├── http/
+│   ├── logging/
+│   └── repositories/
+└── interfaces/
+    ├── controllers/
+    ├── middleware/
+    └── routes/
+```
+
+### Capas
+
+- **Domain Layer**: Entidades y lógica de negocio independientes del resto.  
+- **Application Layer**: Casos de uso de negocio.  
+- **Infrastructure Layer**: Frameworks, BD, etc.  
+- **Interface Layer**: Rutas, controladores, middleware.
+
+---
+
+## 🌐 Frontend Web
+
+Se incorporó una interfaz web que permite a los usuarios interactuar con la plataforma de manera visual e intuitiva.
+
+### Tecnologías y decisiones de diseño
+
+- **React**: Client-Side Rendering (CSR) para interactividad dinámica.  
+- **Redux**:  
+  - Estado global predecible y centralizado.  
+  - Facilidad de debugging y testing (time-travel, middleware).  
+  - Compartición sencilla de datos (usuario, ofertas, publicaciones).  
+- **Next.js**:  
+  - Renderizado híbrido (SSR + CSR).  
+  - SSR para componentes estáticos (botones, formularios).  
+  - CSR para pantallas de alta interactividad.
+
+### 📁 Estructura del frontend
+
+```
+frontend/
+├── app/            # Páginas manejadas por Next.js
+├── components/     # Componentes reutilizables
+├── services/       # Consumo de APIs del backend
+├── types/          # Tipos de datos de respuestas del backend
+└── lib/            # Redux slices y unificación de llamadas a APIs
+```
+
+- **Slices de Redux**: Cada slice (e.g., `publicacionesSlice`, `usuarioSlice`) agrupa estado y reducers.  
+- **Lib de APIs**: Centraliza `axios` y lógica de llamadas, desacoplando vistas de servicios.
+
+### 🔧 Mejoras implementadas
+
+- Conexión completa entre frontend y backend.  
+- Vistas para:
+  - Mis ofertas en el front.  
+- Sistema de roles (Usuario y Admin) solo en el back.  
+- Paginación en listados masivos.  
+
+
+### ⚠️ Pendientes
+
+- Visualización de estadísticas para el rol Admin (lógica y rutas listas; falta UI).
+- Integración con la API de Magic The Gathering.
+---
+
+## 🤖 Bot de Telegram
+
+Se agregó un canal alternativo de interacción mediante un bot de Telegram.
+
+### Tecnologías utilizadas
+
+- [grammY](https://grammy.dev/): Framework para bots de Telegram.
+- TypeScript + Node.js
+
+### 📁 Estructura del bot
+
+```
+bot/
+├── application/
+│   ├── Conversations/   # Manejo de flujos de conversación
+│   └── Menus/           # Definición de menús y botones inline
+├── bot/                 # Sesión, almacenamiento de contexto y repositorio de usuarios
+├── client/              # Cliente HTTP para llamadas al backend
+└── types/               # Definición de errores y tipos compartidos
+```
+
+### Funcionalidades actuales
+
+- Login con token y persistencia de sesión.  
+- Listado de publicaciones activas.  
+- Listado y aceptación de ofertas.  
+- Navegación mediante botones inline.
+
+### 🔧 Pendientes
+
+- Flujo de creación de publicaciones directamente en Telegram.  
+- Paginación en listados (inline pagination).  
+- Mejor manejo de errores y validaciones.
+
+---
+
+## 🐳 Docker
+
+Cada servicio (backend, frontend y bot) incluye su propio `Dockerfile`. Además, en la raíz del repositorio se encuentra un archivo `docker-compose.yml` que permite ejecutar todos los servicios conjuntamente desde la carpeta raíz:
 
 ```bash
 docker-compose build
 docker-compose up
 ```
 
-La API estará disponible en: [http://localhost:3001/api](http://localhost:3001/api)
+Esto levantará:
+- Servicio de la API (Express + TypeScript)  
+- Servicio del frontend (Next.js)  
+- Servicio del bot de Telegram
 
 ---
 
-## 📁 Estructura del proyecto
+## 🔧 Mejoras planeadas para la fase 2
 
-Se sigue una arquitectura limpia (Clean Architecture):
+1. Integración de la API de **Magic The Gathering** para enriquecer datos.
+2. Existe un bug con el bot de Telegram que hace que se loguee constantemente al back.
+3. Agregar pantallas para Admin de visualización de estadísticas de la plataforma.
+4. Agregar test de funcionalidad del backend (estamos en alrededor de 50%, queremos llevarlo a 80%).
 
-```
-src/
-├── application/         # Reglas de negocio de la aplicación
-│   ├── dtos/            
-│   ├── services/        
-│   └── interfaces/      
-├── domain/              # Reglas de negocio de dominio
-│   ├── entities/        
-│   ├── repositories/    
-│   └── value-objects/   
-├── infrastructure/      # Frameworks, controladores y herramientas externas
-│   ├── config/          
-│   ├── http/            
-│   ├── logging/         
-│   └── repositories/    
-└── interfaces/          # Adaptadores de interfaz
-    ├── controllers/     
-    ├── middleware/      
-    └── routes/          
-```
+### Acceso al bot de Telegram:
 
-### Explicación de las capas:
-
-- **Domain Layer**: Entidades y lógica de negocio independientes del resto de la app.
-- **Application Layer**: Casos de uso y lógica de aplicación.
-- **Infrastructure Layer**: Implementaciones técnicas, frameworks y servicios externos.
-- **Interface Layer**: Controladores HTTP, middleware y rutas.
-
----
-## 📚 Documentación de la API
-
-Todos los endpoints están documentados en Swagger. Podés acceder a la documentación interactiva en:
-
-[http://localhost:3001/api/docs](http://localhost:3001/api/docs)
-
----
-
-## ❓ Preguntas para consultar con el ayudante
-
-- ¿Qué patrón es óptimo para guardar entidades relacionadas desde los servicios de otras entidades?  
-  _(Ej: desde el service de ofertas guardar cartas y publicaciones)_  
-  → Creemos que usar servicios en vez de acceder directo a los repositorios permite un mejor desacople y facilita la futura división en microservicios. Que opinas al respecto?
-
-- ¿Conviene refactorizar `update` en métodos separados?  
-  _(Ej: `/offer/{id}/accept`)_
-
-- ¿Conviene refactorizar Publicaciones para evitar que tenga una lista de ofertas, y que cada oferta referencie a su publicación?
-
----
-
-## 🔧 Mejoras planeadas
-
-- Agregar roles (Usuario y Admin): el Admin podrá ver estadísticas de la plataforma.  
-  → Sabemos cómo implementarlo, sería agregar un `enum` y permisos en middleware.
-
-
-
-- Integración de la API de **Magic The Gathering** para enriquecer datos.
-
-- Nuevas rutas:
-  - `/me/publications`: Ver publicaciones históricas del usuario.
-  - `/me/offers`: Ver ofertas históricas del usuario.
-
-- Agregar paginación a endpoints que devuelven muchos datos.
+[Acceder al bot](https://t.me/magic_cards_g3_bot)
 
 ---
 
 ## 🧠 Decisiones de diseño
 
-- **TypeScript**: Elegido por experiencia previa y facilidad de integración con Docker.
-- **Clean Architecture**: Adoptada para facilitar mantenibilidad, escalabilidad y testeo.
+- **TypeScript**: Robustez, autocompletado y mantenimiento.  
+- **Clean Architecture**: Modularidad y testabilidad.  
+- **Redux + Next.js**: Escalabilidad y performance híbrida SSR/CSR.
 
-### Ventajas:
-
-- 🔁 **Modularidad**: Separación clara de responsabilidades.
-- 🔧 **Desacoplamiento**: Cambios internos sin afectar capas externas.
-- 🎛️ **Flexibilidad**: Se puede modificar la infraestructura sin tocar la lógica de negocio.
-- 🔌 **Independencia tecnológica**: No atada a frameworks ni BD específicos.
-- 🧪 **Testabilidad**: Fácil de testear la lógica de negocio sin depender del servidor ni base de datos.
-
-> Esta estructura es clave si en el futuro queremos escalar hacia microservicios.
+> Esta estructura es clave para escalar hacia microservicios o nuevos canales de comunicación.

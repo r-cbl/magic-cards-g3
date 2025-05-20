@@ -1,0 +1,20 @@
+import { InMemoryPublicationRepository } from "../persistence/inMemory/InMemoryPublicationRepository";
+import { InMemoryOfferRepository } from "../persistence/inMemory/InMemoryOfferRepository";
+import { InMemoryCardRepository } from "../persistence/inMemory/InMemoryCardRepository";
+import { InMemoryGameRepository } from "../persistence/inMemory/InMemoryGameRepository";
+import { InMemoryCardBaseRepository } from "../persistence/inMemory/InMemoryCardBaseRepository";
+import { InMemoryStatisticsRepository } from "../persistence/inMemory/InMemoryStatisticsRepository";
+import { MongoUserRepository } from "../persistence/mongo/repository/MongoUserRepository";
+import { MongoGameRepository } from "../persistence/mongo/repository/MongoGameRepository";
+import { MongoCardBaseRepository } from "../persistence/mongo/repository/MongoCardBaseRepository";
+import { MongoCardRepository } from "../persistence/mongo/repository/MongoCardRepository";
+import { MongoPublicationRepository } from "../persistence/mongo/repository/MongoPublicationRepository";
+import { MongoOfferRepository } from "../persistence/mongo/repository/MongoOfferRepository";
+
+export const userRepository = new MongoUserRepository();
+export const publicationRepository = new MongoPublicationRepository();
+export const offerRepository = new MongoOfferRepository();
+export const cardRepository = new MongoCardRepository();
+export const gameRepository = new MongoGameRepository();
+export const cardBaseRepository = new MongoCardBaseRepository();
+export const statisticsRepository = new InMemoryStatisticsRepository();
