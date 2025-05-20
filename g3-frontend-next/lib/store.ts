@@ -6,6 +6,7 @@ import cardBaseReducer from "./cardBaseSlice"
 import gameReducer from "./gameSlice"
 import offersReducer from "./offersSlice"
 import uiReducer from "./uiSlice"
+import statisticsReducer from "./statisticSlice"
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     publications: publicationsReducer,
     offers: offersReducer,
     ui: uiReducer,
+    statistics: statisticsReducer,
   },
 })
 

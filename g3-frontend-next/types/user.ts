@@ -17,6 +17,7 @@ export interface UserResponseDTO {
   name: string
   lastName?: string
   email: string
+  role: 'user' | 'admin'
   createdAt: Date
   updatedAt: Date
 }

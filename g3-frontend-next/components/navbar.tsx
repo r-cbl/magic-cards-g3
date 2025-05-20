@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Menu, User, LogIn, WalletCardsIcon as Cards, BookOpen, PlusCircle } from "lucide-react"
+import { Menu, User, LogIn, WalletCardsIcon as Cards, BookOpen, PlusCircle, BarChart } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
@@ -21,6 +21,7 @@ export default function Navbar() {
   const dispatch = useAppDispatch()
   const { currentUser } = useAppSelector((state) => state.user)
   const isLoggedIn = !!currentUser
+  const isAdmin = currentUser?.role === 'admin'
 
   const handleLogout = () => {
     dispatch(logout())
@@ -43,17 +44,17 @@ export default function Navbar() {
             <span className="text-xl font-bold">DeckTrade</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 ml-6">
-          {isLoggedIn && (
-            <Link
-              href="/cards"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                pathname === "/cards" ? "text-primary" : "text-muted-foreground",
-              )}
-            >
-              Cards
-            </Link>
-          )}
+            {isLoggedIn && (
+              <Link
+                href="/cards"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  pathname === "/cards" ? "text-primary" : "text-muted-foreground",
+                )}
+              >
+                Cards
+              </Link>
+            )}
             <Link
               href="/publications"
               className={cn(
@@ -72,6 +73,17 @@ export default function Navbar() {
                 )}
               >
                 My Offers
+              </Link>
+            )}
+            {isAdmin && (
+              <Link
+                href="/statistics"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  pathname === "/statistics" ? "text-primary" : "text-muted-foreground",
+                )}
+              >
+                Statistics
               </Link>
             )}
           </nav>
@@ -97,6 +109,14 @@ export default function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link href="/profile">Profile</Link>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/statistics">
+                        <BarChart className="mr-2 h-4 w-4" />
+                        Statistics
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
                 </DropdownMenuContent>
@@ -137,6 +157,14 @@ export default function Navbar() {
                   Publications
                 </Link>
               </DropdownMenuItem>
+              {isAdmin && (
+                <DropdownMenuItem asChild>
+                  <Link href="/statistics">
+                    <BarChart className="mr-2 h-4 w-4" />
+                    Statistics
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               {isLoggedIn ? (
                 <>

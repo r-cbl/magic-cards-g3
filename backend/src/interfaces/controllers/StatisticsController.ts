@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { StatisticsService } from '../../application/services/StatisticsService';
-import { Statistic } from '../../domain/entities/Stadistics';
+import { Statistic, StatisticType } from '../../domain/entities/Stadistics';
+import { RangeStatisticDTO } from '@/application/dtos/StatisticsDTO';
 
 export class StatisticsController {
     constructor(private readonly statisticsService: StatisticsService) {}
@@ -12,7 +13,14 @@ export class StatisticsController {
     }
 
     public async getRangeStatistics(req: Request, res: Response): Promise<void> {
-        const rangeStatistics = await this.statisticsService.getRangeStatistics(req.body.types);
+        const statisticsDTO: RangeStatisticDTO = {
+            userId: req.user?.userId || "",
+            type: req.query.type ? req.query.type as StatisticType : StatisticType.USERS_REGISTERED,
+            from: req.query.from ? new Date(req.query.from as string) : new Date(),
+            to: req.query.to ? new Date(req.query.to as string) : new Date()
+        }
+        
+        const rangeStatistics = await this.statisticsService.getRangeStatistics(statisticsDTO);
         res.status(200).json(rangeStatistics);
     }
     

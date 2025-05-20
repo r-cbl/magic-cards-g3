@@ -15,6 +15,7 @@ interface AuthResponseDTO {
     id: string;
     name: string;
     email: string;
+    role: string;
   };
   tokens: TokenResponse;
 }
@@ -39,6 +40,7 @@ export class AuthService {
         id: savedUser.getId(),
         name: savedUser.getName(),
         email: savedUser.getEmail(),
+        role: savedUser.getRole(),
       },
       tokens,
     };
@@ -67,6 +69,7 @@ export class AuthService {
         id: user.getId(),
         name: user.getName(),
         email: user.getEmail(),
+        role: user.getRole(),
       },
       tokens,
     };

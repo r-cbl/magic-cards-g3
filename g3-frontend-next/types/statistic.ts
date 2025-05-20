@@ -1,14 +1,10 @@
 export enum StatisticType {
-  CARDS_CREATED = "CARDS_CREATED",
-  PUBLICATIONS_CREATED = "PUBLICATIONS_CREATED",
-  OFFERS_CREATED = "OFFERS_CREATED",
-  TRADES_COMPLETED = "TRADES_COMPLETED",
-}
-
-export interface StatisticDTO {
-  type: StatisticType
-  date: Date
-  amount: number
+  USERS_REGISTERED = 'users_registered',
+  CARDS_TOTAL = 'cards_total',
+  OFFERS_TOTAL = 'offers_total',
+  PUBLICATIONS_TOTAL = 'publications_total',
+  OFFERS_ACCEPTED = 'offers_accepted',
+  OFFERS_REJECTED = 'offers_rejected',
 }
 
 export interface RangeStatisticDTO {

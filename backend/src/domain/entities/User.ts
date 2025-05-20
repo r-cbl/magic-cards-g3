@@ -41,6 +41,10 @@ export class User {
     this.role = Role.USER
   }
 
+  public getRole(): string {
+    return this.role;
+  }
+
   // Getters
   public getId(): string {
     return this.id;
